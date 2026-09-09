@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=600&size=26&duration=3200&pause=900&color=6C8EBF&center=true&vCenter=true&width=760&lines=Hi%2C+I'm+Hammad+Ahmad;AI+%2F+Machine+Learning+Engineer;LLMs+%C2%B7+RAG+%C2%B7+Knowledge+Graphs;I+build+retrieval+systems+that+cite+their+sources" alt="AI / Machine Learning Engineer: LLMs, RAG, Knowledge Graphs" />
+<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=600&size=26&duration=3200&pause=900&color=6C8EBF&center=true&vCenter=true&width=760&lines=Hi%2C+I'm+Hammad+Ahmad;AI+%2F+Machine+Learning+Engineer;Semantic+Search+%C2%B7+LLMs+%C2%B7+RAG;I+build+retrieval+systems+that+cite+their+sources" alt="AI / Machine Learning Engineer: Semantic Search, LLMs, RAG" />
 
 **MSc Applied Artificial Intelligence & Data Analytics (Merit)** · University of Bradford<br>
 Bradford, UK · open to relocation
@@ -9,6 +9,7 @@ Bradford, UK · open to relocation
 
 <a href="https://hammadahmad.co.uk"><img src="https://img.shields.io/badge/Portfolio-hammadahmad.co.uk-1a1a1a?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Portfolio" /></a>
 <a href="https://hammadahmad.co.uk/projects"><img src="https://img.shields.io/badge/Case%20studies-Read-6C8EBF?style=for-the-badge" alt="Case studies" /></a>
+<a href="https://hammadahmad.co.uk/cv/Hammad_Ahmad_CV_AI_ML_Engineer.pdf"><img src="https://img.shields.io/badge/CV-Download-4C566A?style=for-the-badge" alt="CV" /></a>
 <a href="https://jobzyl.com"><img src="https://img.shields.io/badge/Jobzyl-Live-3FCF8E?style=for-the-badge" alt="Jobzyl, live" /></a>
 <a href="https://www.linkedin.com/in/hammadahmad123"><img src="https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" /></a>
 <a href="mailto:hammadahmad.ml@gmail.com"><img src="https://img.shields.io/badge/Email-Say%20hello-EA4335?style=for-the-badge&logo=gmail&logoColor=white" alt="Email" /></a>
@@ -21,8 +22,9 @@ Bradford, UK · open to relocation
 
 ## About
 
-I build **retrieval systems that pair vector embeddings with knowledge graphs**, benchmark predictive models on large real-world datasets, and take both to production: retrieval design, backend APIs, deployment.
+I build **semantic search and retrieval systems that stay honest about what they know**, benchmark predictive models on large real-world datasets, and take both to production: retrieval design, backend APIs, deployment.
 
+- 🔎 Currently: founder and sole engineer of **[Jobzyl](https://jobzyl.com)**, a live job search aggregator over **29 integrated sources** and a **3.4M row** Postgres index across 26 countries, with semantic CV-to-posting matching in pgvector. Gated so a posting naming no recognised skill reports as too thin to score rather than as a confident 0%.
 - 🔬 Most recent research: **FinLaw-UK**, a graph-augmented RAG system over UK financial regulation where every citation is resolved against a Neo4j knowledge graph before it reaches the user, and the system refuses rather than answering when retrieval is weak.
 - 🧾 Re-measured my own evaluation pipeline post-submission, found two reported metrics were regex shape-checks rather than correctness measures, and **published the correction** alongside the true graph-verified rate. The [measurement-integrity section](https://github.com/1oNN/finlaw-uk#measurement-integrity) is above the fold in the repo, not in an appendix.
 - ⚙️ Shipped an AI voice-agent platform that handled **2,100+ outbound calls** and cut mean call latency **54%** (2.4s → 1.1s).
@@ -40,7 +42,7 @@ I build **retrieval systems that pair vector embeddings with knowledge graphs**,
 
 ### 🔎 Jobzyl · [jobzyl.com](https://jobzyl.com)
 
-**Live job-search aggregator serving a 2M+ posting index.** Queries 20+ boards (Indeed, Adzuna, Reed) with parallel fan-out on miss, per-source timeout isolation, and Server-Sent Events (SSE) streaming for sub-1.5s search results. Features an advanced ATS-style CV matcher and semantic vector ranking engine to score role-fit. Enforces zero-trust privacy via in-browser parsing (Fernet encrypted), alongside server-side deduplication, Kanban-style application tracking, and automated email digest alerts.
+**Live job-search aggregator over a 3.4M row index spanning 26 countries.** 29 integrated sources: 23 job boards (Indeed, Adzuna, Reed) plus 6 ATS platforms read directly, so a company's own careers board is a source rather than an aggregator's copy of it. Parallel fan-out with per-source timeout isolation, streamed back over SSE. Semantic CV-to-posting matching on 384-dimension multilingual embeddings in pgvector, keyword ATS scoring that parses the CV in the browser and uploads nothing, and a Claude layer for scoring, cover letters and interview prep behind prompt-injection defences and per-user quotas. Ranking is a weighted Postgres full-text function, rebuilt after measuring that 27.4% of results carried none of the query terms in the title. 1,950 tests, 11 CI build gates, RLS on all 23 tables.
 
 ![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![Next.js](https://img.shields.io/badge/-Next.js-000000?style=flat-square&logo=nextdotjs&logoColor=white)
@@ -72,7 +74,7 @@ Hybrid BM25 + BGE-small retrieval with reciprocal rank fusion, 2-hop Neo4j trave
 ![Flask](https://img.shields.io/badge/-Flask-000000?style=flat-square&logo=flask&logoColor=white)
 ![Docker](https://img.shields.io/badge/-Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
 
-`0.76` RAGAS faithfulness, `0.74` answer relevance, and `0.68` legal completeness — the figures stable across both evaluation tracks and both scoring implementations.<br>
+`0.76` RAGAS faithfulness, `0.74` answer relevance, and `0.68` legal completeness: the figures stable across both evaluation tracks and both scoring implementations.<br>
 *110-item harness, 10 curated items · MSc dissertation*
 
 </td>
@@ -169,10 +171,8 @@ Random Forest `R² 0.8569` (MSE 0.0027)<br>
 [![ML stack](https://skillicons.dev/icons?i=pytorch,sklearn,py&perline=6)](https://skillicons.dev)
 
 ![XGBoost](https://img.shields.io/badge/XGBoost-1B7A3D?style=flat-square)
-![LightGBM](https://img.shields.io/badge/LightGBM-2C6E49?style=flat-square)
 ![pandas](https://img.shields.io/badge/pandas-150458?style=flat-square&logo=pandas&logoColor=white)
 ![NumPy](https://img.shields.io/badge/NumPy-013243?style=flat-square&logo=numpy&logoColor=white)
-![MLflow](https://img.shields.io/badge/MLflow-0194E2?style=flat-square&logo=mlflow&logoColor=white)
 ![Hugging Face](https://img.shields.io/badge/Sentence%20Transformers-FFD21E?style=flat-square&logo=huggingface&logoColor=black)
 
 <br>
@@ -180,24 +180,35 @@ Random Forest `R² 0.8569` (MSE 0.0027)<br>
 **Retrieval & knowledge**
 
 ![RAG](https://img.shields.io/badge/RAG-6C8EBF?style=flat-square)
+![Semantic search](https://img.shields.io/badge/Semantic%20search-6C8EBF?style=flat-square)
+![pgvector](https://img.shields.io/badge/pgvector-6C8EBF?style=flat-square)
+![fastembed](https://img.shields.io/badge/fastembed%20%28ONNX%29-6C8EBF?style=flat-square)
 ![Hybrid retrieval](https://img.shields.io/badge/BM25%20%2B%20Dense-6C8EBF?style=flat-square)
 ![Cross-encoder](https://img.shields.io/badge/Cross--encoder%20re--ranking-6C8EBF?style=flat-square)
 ![RAGAS](https://img.shields.io/badge/RAGAS-6C8EBF?style=flat-square)
-![FAISS](https://img.shields.io/badge/FAISS-6C8EBF?style=flat-square)
 ![Neo4j](https://img.shields.io/badge/Neo4j-4581C3?style=flat-square&logo=neo4j&logoColor=white)
+![Claude API](https://img.shields.io/badge/Anthropic%20Claude%20API-D97757?style=flat-square&logo=anthropic&logoColor=white)
 ![Ollama](https://img.shields.io/badge/Ollama-000000?style=flat-square&logo=ollama&logoColor=white)
 
 <br>
 
 **Engineering**
 
-[![Engineering stack](https://skillicons.dev/icons?i=py,ts,js,fastapi,flask,react,nextjs,nodejs&perline=8)](https://skillicons.dev)
+[![Engineering stack](https://skillicons.dev/icons?i=py,ts,fastapi,flask,react,nextjs&perline=8)](https://skillicons.dev)
+
+![PL/pgSQL](https://img.shields.io/badge/PL%2FpgSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white)
+![asyncio](https://img.shields.io/badge/asyncio-3776AB?style=flat-square&logo=python&logoColor=white)
 
 <br>
 
-**Data & infrastructure**
+**Infrastructure & quality**
 
-[![Infra stack](https://skillicons.dev/icons?i=postgres,supabase,docker,githubactions,aws,linux,git&perline=8)](https://skillicons.dev)
+[![Infra stack](https://skillicons.dev/icons?i=postgres,supabase,docker,aws,linux,git&perline=8)](https://skillicons.dev)
+
+![Oracle Cloud](https://img.shields.io/badge/Oracle%20Cloud-C74634?style=flat-square&logo=oracle&logoColor=white)
+![pytest](https://img.shields.io/badge/pytest-0A9EDC?style=flat-square&logo=pytest&logoColor=white)
+![Playwright](https://img.shields.io/badge/Playwright-2EAD33?style=flat-square&logo=playwright&logoColor=white)
+![Sentry](https://img.shields.io/badge/Sentry-362D59?style=flat-square&logo=sentry&logoColor=white)
 
 </div>
 
@@ -232,16 +243,17 @@ Random Forest `R² 0.8569` (MSE 0.0027)<br>
 ## Experience
 
 <details open>
-<summary><b>Founder & Sole Engineer</b> · Jobzyl (self-employed) · Jun 2026 - Present · Remote</summary>
+<summary><b>Founder & Sole Engineer</b> · Jobzyl · Apr 2026 - Present · Bradford, UK</summary>
 
 <br>
 
-Engineered and operate [jobzyl.com](https://jobzyl.com), a live job-aggregation platform serving a **2M+ posting index** across 20+ boards.
+Build and operate [jobzyl.com](https://jobzyl.com) end to end: **29 provider integrations** and **6 applicant tracking systems**, a **3.4M row** Postgres index across 26 countries, FastAPI backend, Next.js frontend and AWS deploy pipeline.
 
-- Cache-first reads with live parallel fan-out on miss, per-source timeout isolation, and SSE streaming for sub-1.5s retrieval
-- Built an advanced ATS-style CV matcher and semantic vector ranking engine to score role-fit
-- Enforced zero-trust privacy via in-browser parsing (Fernet encrypted), alongside server-side deduplication and Kanban tracking
-- Next.js, TypeScript, React, Python, FastAPI, PostgreSQL, Supabase, AWS
+- Shipped semantic CV-to-posting matching in production: 384-dimension multilingual sentence embeddings over pgvector against the full corpus, gated so a posting naming no recognised skill reports as too thin to score rather than a confident 0%
+- Built the LLM layer on Anthropic Claude (CV scoring, cover letter, interview prep), with prompt-injection defences on every call, per-user quotas and documented fail-open behaviour
+- Trained a pay regression model against the shipped salary benchmark as baseline, split by employer group to prevent leakage: MAE 27,420 to 24,001, MdAPE 18.9% to 16.4%. Reported per country and seniority, and held back from deployment
+- Rebuilt search ranking as a weighted Postgres full-text function with a title-relevance layer, after measuring that 27.4% of returned results had none of the user's query terms in the job title
+- Hardened the platform: Fernet field encryption of CV text, row-level security across 23 tables, GDPR export and deletion, behind **1,950 automated tests** and 11 CI build gates
 
 </details>
 
@@ -255,6 +267,7 @@ Engineered and operate [jobzyl.com](https://jobzyl.com), a live job-aggregation 
 - Handled **2,100+ calls** and cut manual calling workload by roughly **50%**
 - Profiled async I/O and connection pooling to reduce mean call latency **54%** (2.4s → 1.1s)
 - Built an internal micro-CRM for lead tracking, removing external CRM licensing costs
+- Built [VoiceFlow](https://github.com/1oNN/VoiceFlow), a FastAPI service running Whisper large-v3 in-process over the 2,100+ call recordings, threading each export to keep blocking downloads and torch inference off the asyncio event loop
 
 </details>
 
@@ -312,7 +325,7 @@ Modules included Artificial Intelligence and Data Science (79), Business Data An
 ---
 
 **Research interests**<br>
-`graph-augmented retrieval` · `LLM faithfulness evaluation` · `evaluation methodology for RAG` · `interpretable clinical modelling`
+`semantic search at scale` · `graph-augmented retrieval` · `LLM faithfulness evaluation` · `evaluation methodology for RAG` · `interpretable clinical modelling`
 
 **Languages**<br>
 English (IELTS 7.0, CEFR C1) · Urdu (native) · German (A1.2)
