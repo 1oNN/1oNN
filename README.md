@@ -9,7 +9,7 @@ Bradford, UK · open to relocation
 
 <a href="https://hammadahmad.co.uk"><img src="https://img.shields.io/badge/Portfolio-hammadahmad.co.uk-1a1a1a?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Portfolio" /></a>
 <a href="https://hammadahmad.co.uk/projects"><img src="https://img.shields.io/badge/Case%20studies-Read-6C8EBF?style=for-the-badge" alt="Case studies" /></a>
-<a href="https://hammadahmad.co.uk/cv/Hammad_Ahmad_CV_AI_ML_Engineer.pdf"><img src="https://img.shields.io/badge/CV-Download-4C566A?style=for-the-badge" alt="CV" /></a>
+<a href="https://hammadahmad.co.uk/cv/Hammad_Ahmad_CV.pdf"><img src="https://img.shields.io/badge/CV-Download-4C566A?style=for-the-badge" alt="CV" /></a>
 <a href="https://jobzyl.com"><img src="https://img.shields.io/badge/Jobzyl-Live-3FCF8E?style=for-the-badge" alt="Jobzyl, live" /></a>
 <a href="https://www.linkedin.com/in/hammadahmad123"><img src="https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" /></a>
 <a href="mailto:hammadahmad.ml@gmail.com"><img src="https://img.shields.io/badge/Email-Say%20hello-EA4335?style=for-the-badge&logo=gmail&logoColor=white" alt="Email" /></a>
@@ -325,7 +325,7 @@ Benchmarked **11 classifiers** for diabetes risk on 253,680 CDC BRFSS records, c
 `semantic search at scale` · `graph-augmented retrieval` · `LLM faithfulness evaluation` · `evaluation methodology for RAG` · `interpretable clinical modelling`
 
 **Languages**<br>
-English (IELTS 7.0, CEFR C1) · Urdu (native) · German (A1.2)
+English (IELTS 7.0, CEFR C1) · German (A1.2)
 
 **Right to work**<br>
 UK Graduate visa to December 2027. Eligible to work now, no sponsorship required.
