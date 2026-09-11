@@ -243,7 +243,7 @@ Random Forest `R² 0.8569` (MSE 0.0027)<br>
 ## Experience
 
 <details open>
-<summary><b>Founder & Sole Engineer</b> · Jobzyl · Apr 2026 - Present · Bradford, UK</summary>
+<summary><b>Founder & Sole Engineer</b> · Jobzyl · May 2026 - Present · Bradford, UK</summary>
 
 <br>
 
