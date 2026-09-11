@@ -272,29 +272,14 @@ Build and operate [jobzyl.com](https://jobzyl.com) end to end: **29 provider int
 </details>
 
 <details>
-<summary><b>Research Assistant | Graph-Augmented LLM Engineering</b> · University of Bradford · Jan 2025 - Sep 2025</summary>
+<summary><b>Data Science Intern</b> · COMSATS University Islamabad · Jul 2023 - Sep 2023 · Islamabad, Pakistan</summary>
 
 <br>
 
-Designed and evaluated **FinLaw-UK**: Mistral 7B served locally via Ollama, paired with a Neo4j knowledge graph, over the FCA Handbook, PRA Rulebook, FRC standards and statutory sources.
+Implemented and compared machine learning models for **sleep-efficiency prediction** in Python (scikit-learn, pandas, NumPy): four models over 452 study records, Random Forest strongest at R² 0.8569.
 
-- Engineered the retrieval pipeline: clause-level segmentation, Sentence Transformer embeddings, BM25 + dense fusion by reciprocal rank fusion, cross-encoder re-ranking, and graph-grounded citation verification
-- Built the evaluation harness, extending RAGAS with a custom legal-completeness metric that reproduces at 0.68 across both evaluation tracks
-- Re-measured the submitted evaluation post-hoc, established that two reported metrics were format checks rather than correctness measures, and published the correction with the code
-- Supervised by Dr Tillal Eldabi and Dr Irfan Mehmood
-
-</details>
-
-<details>
-<summary><b>Research Intern, Data Science</b> · COMSATS University Islamabad · Jul 2023 - Jul 2024</summary>
-
-<br>
-
-Benchmarked **11 classifiers** for diabetes risk on 253,680 CDC BRFSS records, comparing random over-sampling against SMOTE and ADASYN for the 86/14 class imbalance, with resampling confined to the training folds.
-
-- Analysed 20+ demographic, lifestyle and clinical indicators: age, general health, BMI, blood pressure and income emerged as the strongest correlates
-- Deployed the winning model behind a REST API with SHAP-based interpretability
-- Led the first-author comparative study of sleep-efficiency prediction published at ICSMAI 2024
+- Quantified the lifestyle drivers by correlation: deep sleep (+0.787) and light sleep (-0.819) dominate, with awakenings, alcohol and smoking behind them
+- Led the work to a first-author comparative study published at ICSMAI 2024 (Springer)
 
 </details>
 
@@ -309,6 +294,13 @@ Benchmarked **11 classifiers** for diabetes risk on 253,680 CDC BRFSS records, c
 
 **Dissertation:** *FinLaw-UK: A Graph-Augmented Retrieval Chatbot for Reliable and Transparent UK Financial Regulation*
 
+Mistral 7B served locally via Ollama, paired with a Neo4j knowledge graph, over the FCA Handbook, PRA Rulebook, FRC standards and statutory sources.
+
+- Engineered the retrieval pipeline: clause-level segmentation, Sentence Transformer embeddings, BM25 + dense fusion by reciprocal rank fusion, cross-encoder re-ranking, and graph-grounded citation verification
+- Built the evaluation harness, extending RAGAS with a custom legal-completeness metric that reproduces at 0.68 across both evaluation tracks
+- Re-measured the submitted evaluation post-hoc, established that two reported metrics were format checks rather than correctness measures, and published the correction with the code
+- Supervised by Dr Tillal Eldabi and Dr Irfan Mehmood
+
 Modules included Artificial Intelligence and Data Science (79), Business Data Analytics (79), and Responsible AI: Ethics, Law and Governance (75).
 
 </details>
@@ -318,7 +310,12 @@ Modules included Artificial Intelligence and Data Science (79), Business Data An
 
 <br>
 
-**Thesis:** *AI-Assisted Analysis and Prediction of At-Risk Diabetic Individuals*, graded A.
+**Thesis:** *AI-Assisted Analysis and Prediction of At-Risk Diabetic Individuals*, graded A. Final-year project, Jan 2024 - Jun 2024.
+
+Benchmarked **11 classifiers** for diabetes risk on 253,680 CDC BRFSS records, comparing random over-sampling against SMOTE and ADASYN for the 86/14 class imbalance, with resampling confined to the training folds.
+
+- Analysed 20+ demographic, lifestyle and clinical indicators: age, general health, BMI, blood pressure and income emerged as the strongest correlates
+- Deployed the winning model behind a REST API with SHAP-based interpretability
 
 </details>
 
