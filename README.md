@@ -1,6 +1,8 @@
 <div align="center">
 
-<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=600&size=26&duration=3200&pause=900&color=6C8EBF&center=true&vCenter=true&width=760&lines=Hi%2C+I'm+Hammad+Ahmad;AI+%2F+Machine+Learning+Engineer;Semantic+Search+%C2%B7+LLMs+%C2%B7+RAG;I+build+retrieval+systems+that+cite+their+sources" alt="AI / Machine Learning Engineer: Semantic Search, LLMs, RAG" />
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0F2027,50:203A43,100:2C5364&height=180&section=header&text=Hammad%20Ahmad&fontSize=52&fontColor=ffffff&fontAlignY=32&desc=Semantic%20Search%20%C2%B7%20LLMs%20%C2%B7%20RAG&descAlignY=54&descSize=18&animation=fadeIn" width="100%" alt="Hammad Ahmad" />
+
+<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=600&size=24&duration=3200&pause=900&color=6C8EBF&center=true&vCenter=true&width=780&lines=AI+%2F+Machine+Learning+Engineer;Semantic+search+at+production+scale;Retrieval+systems+that+cite+their+sources;I+publish+the+correction%2C+not+the+flattering+number" alt="AI / Machine Learning Engineer: Semantic Search, LLMs, RAG" />
 
 **MSc Applied Artificial Intelligence & Data Analytics (Merit)** · University of Bradford<br>
 Bradford, UK · open to relocation
@@ -11,10 +13,21 @@ Bradford, UK · open to relocation
 <a href="https://hammadahmad.co.uk/projects"><img src="https://img.shields.io/badge/Case%20studies-Read-6C8EBF?style=for-the-badge" alt="Case studies" /></a>
 <a href="https://hammadahmad.co.uk/cv/Hammad_Ahmad_CV.pdf"><img src="https://img.shields.io/badge/CV-Download-4C566A?style=for-the-badge" alt="CV" /></a>
 <a href="https://jobzyl.com"><img src="https://img.shields.io/badge/Jobzyl-Live-3FCF8E?style=for-the-badge" alt="Jobzyl, live" /></a>
+<br>
 <a href="https://www.linkedin.com/in/hammadahmad123"><img src="https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" /></a>
 <a href="mailto:hammadahmad.ml@gmail.com"><img src="https://img.shields.io/badge/Email-Say%20hello-EA4335?style=for-the-badge&logo=gmail&logoColor=white" alt="Email" /></a>
 <a href="https://orcid.org/0009-0000-7873-4977"><img src="https://img.shields.io/badge/ORCID-0009--0000--7873--4977-A6CE39?style=for-the-badge&logo=orcid&logoColor=white" alt="ORCID" /></a>
 <a href="https://doi.org/10.1007/978-3-031-66854-8_1"><img src="https://img.shields.io/badge/Publication-Springer-0B7285?style=for-the-badge&logo=springer&logoColor=white" alt="Springer publication" /></a>
+
+<br><br>
+
+<!-- Snapshot strip -->
+<img src="https://img.shields.io/badge/Index-4.2M%20rows-6C8EBF?style=flat-square&labelColor=1a1a1a" alt="4.2M rows" />
+<img src="https://img.shields.io/badge/Sources-29%20integrated-6C8EBF?style=flat-square&labelColor=1a1a1a" alt="29 sources" />
+<img src="https://img.shields.io/badge/Countries-26-6C8EBF?style=flat-square&labelColor=1a1a1a" alt="26 countries" />
+<img src="https://img.shields.io/badge/Tests-1%2C950-6C8EBF?style=flat-square&labelColor=1a1a1a" alt="1,950 tests" />
+<img src="https://img.shields.io/badge/Latency%20cut-54%25-6C8EBF?style=flat-square&labelColor=1a1a1a" alt="54% latency cut" />
+<img src="https://img.shields.io/badge/Springer-ICSMAI%202024-6C8EBF?style=flat-square&labelColor=1a1a1a" alt="Springer 2024" />
 
 </div>
 
@@ -24,7 +37,7 @@ Bradford, UK · open to relocation
 
 I build **semantic search and retrieval systems that stay honest about what they know**, benchmark predictive models on large real-world datasets, and take both to production: retrieval design, backend APIs, deployment.
 
-- 🔎 Currently: founder and sole engineer of **[Jobzyl](https://jobzyl.com)**, a live job search aggregator over **29 integrated sources** and a **3.4M row** Postgres index across 26 countries, with semantic CV-to-posting matching in pgvector. Gated so a posting naming no recognised skill reports as too thin to score rather than as a confident 0%.
+- 🔎 Currently: founder and sole engineer of **[Jobzyl](https://jobzyl.com)**, a live job search aggregator over **29 integrated sources** and a **4.2M row** Postgres index across 26 countries, with semantic CV-to-posting matching in pgvector. Gated so a posting naming no recognised skill reports as too thin to score rather than as a confident 0%.
 - 🔬 Most recent research: **FinLaw-UK**, a graph-augmented RAG system over UK financial regulation where every citation is resolved against a Neo4j knowledge graph before it reaches the user, and the system refuses rather than answering when retrieval is weak.
 - 🧾 Re-measured my own evaluation pipeline post-submission, found two reported metrics were regex shape-checks rather than correctness measures, and **published the correction** alongside the true graph-verified rate. The [measurement-integrity section](https://github.com/1oNN/finlaw-uk#measurement-integrity) is above the fold in the repo, not in an appendix.
 - ⚙️ Shipped an AI voice-agent platform that handled **2,100+ outbound calls** and cut mean call latency **54%** (2.4s → 1.1s).
@@ -36,13 +49,25 @@ I build **semantic search and retrieval systems that stay honest about what they
 
 ## Featured work
 
-<table>
-<tr>
-<td colspan="2" valign="top">
+<div align="center">
 
 ### 🔎 Jobzyl · [jobzyl.com](https://jobzyl.com)
 
-**Live job-search aggregator over a 3.4M row index spanning 26 countries.** 29 integrated sources: 23 job boards (Indeed, Adzuna, Reed) plus 6 ATS platforms read directly, so a company's own careers board is a source rather than an aggregator's copy of it. Parallel fan-out with per-source timeout isolation, streamed back over SSE. Semantic CV-to-posting matching on 384-dimension multilingual embeddings in pgvector, keyword ATS scoring that parses the CV in the browser and uploads nothing, and a Claude layer for scoring, cover letters and interview prep behind prompt-injection defences and per-user quotas. Ranking is a weighted Postgres full-text function, rebuilt after measuring that 27.4% of results carried none of the query terms in the title. 1,950 tests, 11 CI build gates, RLS on all 23 tables.
+<!--
+  DROP THE DEMO HERE.
+  Record a 10-15s screen capture of a live search (type query -> streamed results -> CV match),
+  export as GIF at ~1000px wide, commit to this repo as assets/jobzyl-demo.gif,
+  then uncomment the line below. This is the single highest-value addition to this page.
+-->
+<!-- <img src="assets/jobzyl-demo.gif" width="90%" alt="Jobzyl live search demo" /> -->
+
+<a href="https://jobzyl.com"><img src="https://img.shields.io/badge/▶%20Try%20a%20live%20search-jobzyl.com-3FCF8E?style=for-the-badge" alt="Try Jobzyl" /></a>
+
+</div>
+
+**Live job-search aggregator over a 4.2M row index spanning 26 countries.** 29 integrated sources: 23 job boards (Indeed, Adzuna, Reed) plus 6 ATS platforms read directly, so a company's own careers board is a source rather than an aggregator's copy of it. Parallel fan-out with per-source timeout isolation, streamed back over SSE. Semantic CV-to-posting matching on 384-dimension multilingual embeddings in pgvector, keyword ATS scoring that parses the CV in the browser and uploads nothing, and a Claude layer for scoring, cover letters and interview prep behind prompt-injection defences and per-user quotas. Ranking is a weighted Postgres full-text function, rebuilt after measuring that 27.4% of results carried none of the query terms in the title. 1,950 tests, 11 CI build gates, RLS on all 23 tables.
+
+<div align="center">
 
 ![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![Next.js](https://img.shields.io/badge/-Next.js-000000?style=flat-square&logo=nextdotjs&logoColor=white)
@@ -53,8 +78,11 @@ I build **semantic search and retrieval systems that stay honest about what they
 ![Supabase](https://img.shields.io/badge/-Supabase-3FCF8E?style=flat-square&logo=supabase&logoColor=white)
 ![AWS](https://img.shields.io/badge/-AWS-232F3E?style=flat-square&logo=amazonwebservices&logoColor=white)
 
-</td>
-</tr>
+</div>
+
+<br>
+
+<table>
 <tr>
 <td width="50%" valign="top">
 
@@ -149,6 +177,19 @@ Random Forest `R² 0.8569` (MSE 0.0027)<br>
 
 ---
 
+## Writing
+
+Notes from the systems above, written while it was still fresh: evaluation methodology, latency profiling, and the decisions that did not survive contact with real data.
+
+| | |
+|---|---|
+| 📉 **[30 of 500: the guard that reads a starved run as a healthy one](https://hammadahmad.co.uk/writing)** | ATS discovery probed 500 company names and decided 30. The yield guard scored that band at 20% and let it continue, because it was dividing by the wrong number. |
+| 🌊 **[250 open streams: one hardcoded `http2=True` and nine hours of failed reads](https://hammadahmad.co.uk/writing)** | Production reported `db_ok: false` for nine hours while the database was entirely healthy. The uptime check failed ten times in a row and was right every time. |
+| 🧠 **[The corpus outgrew the box: 16 GB of jobs against 12 GB of RAM](https://hammadahmad.co.uk/writing)** | Search stopped returning results and nothing had been deployed. The index had grown past what the machine could hold, and an 8-second statement timeout turned that into an empty page. |
+| 💷 **[49 of 50 salaries were not salaries](https://hammadahmad.co.uk/writing)** | Fetching a million job listings is an afternoon. Deciding what you are willing to say about them is the whole engineering problem. |
+
+---
+
 ## Publication
 
 > **Ahmad, H.** *(first & corresponding author)*, Khan, M.U., Azam, M. (2024).<br>
@@ -230,6 +271,11 @@ Random Forest `R² 0.8569` (MSE 0.0027)<br>
 
 <br><br>
 
+<!-- Activity graph -->
+<img src="https://github-readme-activity-graph.vercel.app/graph?username=1oNN&bg_color=0d1117&color=6C8EBF&line=3FCF8E&point=ffffff&area=true&hide_border=true&custom_title=Commit%20activity" width="100%" alt="Commit activity" />
+
+<br><br>
+
 <!-- GitHub Contribution Snake -->
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/1oNN/1oNN/output/github-snake-dark.svg" />
@@ -243,11 +289,11 @@ Random Forest `R² 0.8569` (MSE 0.0027)<br>
 ## Experience
 
 <details open>
-<summary><b>Founder & Sole Engineer</b> · Jobzyl · May 2026 - Present · Bradford, UK</summary>
+<summary><b>AI / Machine Learning Engineer</b> · Jobzyl (self-employed) · May 2026 - Present · Bradford, UK</summary>
 
 <br>
 
-Build and operate [jobzyl.com](https://jobzyl.com) end to end: **29 provider integrations** and **6 applicant tracking systems**, a **3.4M row** Postgres index across 26 countries, FastAPI backend, Next.js frontend and AWS deploy pipeline.
+Build and operate [jobzyl.com](https://jobzyl.com) end to end: **29 integrated sources** (23 job boards plus 6 ATS platforms read directly), a **4.2M row** Postgres index across 26 countries, FastAPI backend, Next.js frontend and AWS deploy pipeline.
 
 - Shipped semantic CV-to-posting matching in production: 384-dimension multilingual sentence embeddings over pgvector against the full corpus, gated so a posting naming no recognised skill reports as too thin to score rather than a confident 0%
 - Built the LLM layer on Anthropic Claude (CV scoring, cover letter, interview prep), with prompt-injection defences on every call, per-user quotas and documented fail-open behaviour
@@ -327,9 +373,6 @@ Benchmarked **11 classifiers** for diabetes risk on 253,680 CDC BRFSS records, c
 **Languages**<br>
 English (IELTS 7.0, CEFR C1) · German (A1.2)
 
-**Right to work**<br>
-UK Graduate visa to December 2027. Eligible to work now, no sponsorship required.
-
 ---
 
 <div align="center">
@@ -345,5 +388,7 @@ If you're working on retrieval, evaluation, or anything where a model needs to s
 <br><br>
 
 <img src="https://komarev.com/ghpvc/?username=1oNN&style=flat-square&color=6C8EBF&label=Profile+views" alt="Profile views" />
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:2C5364,50:203A43,100:0F2027&height=120&section=footer" width="100%" alt="" />
 
 </div>
