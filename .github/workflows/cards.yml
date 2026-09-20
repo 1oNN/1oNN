@@ -47,10 +47,16 @@ jobs:
       # would be pushing a ref that does not contain it and the push would be
       # rejected. Replaces the github-readme-activity-graph embed, whose Vercel
       # deployment now answers 402 DEPLOYMENT_DISABLED.
+      #
+      # NOT secrets.METRICS_TOKEN: that one is a fine-grained PAT, and
+      # lowlighter/metrics refuses those outright because GitHub does not accept
+      # them for GraphQL. Swapping it back needs a CLASSIC token or this step
+      # dies in setup. The automatic GITHUB_TOKEN reads the same public
+      # contribution calendar, which is all the isocalendar plugin asks for.
       - name: Generate isometric commit calendar
         uses: lowlighter/metrics@latest
         with:
-          token: ${{ secrets.METRICS_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           committer_token: ${{ secrets.GITHUB_TOKEN }}
           committer_message: "chore: refresh profile cards [skip ci]"
           filename: metrics.isocalendar.svg
