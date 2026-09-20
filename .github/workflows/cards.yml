@@ -1,8 +1,9 @@
 # Save this at: .github/workflows/cards.yml  (in the 1oNN/1oNN repo)
 #
-# Regenerates the six profile card SVGs and commits them into this repo.
-# NO personal access token required, it uses the automatic GITHUB_TOKEN that
-# GitHub injects into every workflow run. Nothing to create, nothing to paste.
+# Regenerates the profile card SVGs and commits them into this repo.
+# scripts/make_cards.py needs no personal access token, it uses the automatic
+# GITHUB_TOKEN that GitHub injects into every workflow run. The isocalendar step
+# at the bottom is the one exception and reads the METRICS_TOKEN secret.
 
 name: Profile cards
 
@@ -41,3 +42,19 @@ jobs:
             git commit -m "chore: refresh profile cards [skip ci]"
             git push
           fi
+
+      # Last on purpose: this one commits through the API, so the step above
+      # would be pushing a ref that does not contain it and the push would be
+      # rejected. Replaces the github-readme-activity-graph embed, whose Vercel
+      # deployment now answers 402 DEPLOYMENT_DISABLED.
+      - name: Generate isometric commit calendar
+        uses: lowlighter/metrics@latest
+        with:
+          token: ${{ secrets.METRICS_TOKEN }}
+          committer_token: ${{ secrets.GITHUB_TOKEN }}
+          committer_message: "chore: refresh profile cards [skip ci]"
+          filename: metrics.isocalendar.svg
+          base: ""
+          plugin_isocalendar: yes
+          plugin_isocalendar_duration: full-year
+          config_timezone: Europe/London
