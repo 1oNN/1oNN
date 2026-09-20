@@ -65,7 +65,7 @@ I build **semantic search and retrieval systems that stay honest about what they
 
 </div>
 
-**Live job-search aggregator over a 4.2M row index spanning 26 countries.** 29 integrated sources: 23 job boards (Indeed, Adzuna, Reed) plus 6 ATS platforms read directly, so a company's own careers board is a source rather than an aggregator's copy of it. Parallel fan-out with per-source timeout isolation, streamed back over SSE. Semantic CV-to-posting matching on 384-dimension multilingual embeddings in pgvector, keyword ATS scoring that parses the CV in the browser and uploads nothing, and a Claude layer for scoring, cover letters and interview prep behind prompt-injection defences and per-user quotas. Ranking is a weighted Postgres full-text function, rebuilt after measuring that 27.4% of results carried none of the query terms in the title. 1,950 tests, 11 CI build gates, RLS on all 23 tables.
+**Live job-search aggregator over a 4.2M+ row index spanning 26 countries.** 29 integrated sources: 23 job boards (Indeed, Adzuna, Reed) plus 6 ATS platforms read directly, so a company's own careers board is a source rather than an aggregator's copy of it. Parallel fan-out with per-source timeout isolation, streamed back over SSE. Semantic CV-to-posting matching on 384-dimension multilingual embeddings in pgvector, keyword ATS scoring that parses the CV in the browser and uploads nothing, and a Claude layer for scoring, cover letters and interview prep behind prompt-injection defences and per-user quotas. Ranking is a weighted Postgres full-text function, rebuilt after measuring that 27.4% of results carried none of the query terms in the title. 1,950 tests, 11 CI build gates, RLS on all 23 tables.
 
 <div align="center">
 
