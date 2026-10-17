@@ -1,0 +1,13 @@
+{
+  "name": "crochet-game",
+  "version": "0.1.0",
+  "description": "Prototype of a browser crochet game: follow the pattern, hold your tension, frog your mistakes.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test 'test/*.test.mjs'",
+    "smoke": "node scripts/smoke.mjs",
+    "start": "python3 -m http.server 8000"
+  },
+  "license": "MIT"
+}

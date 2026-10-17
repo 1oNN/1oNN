@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hooked: a crochet game</title>
+  <meta name="description" content="Prototype of a crochet game: follow the pattern, hold your tension, frog your mistakes." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23e58aa8'/%3E%3Cpath d='M12 8v12a4 4 0 0 0 8 0' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <main id="app">
+    <!-- Title / project picker -->
+    <section id="title" class="screen">
+      <header class="hero">
+        <h1>Hooked</h1>
+        <p class="tagline">A little crochet game. Follow the pattern, keep your tension, frog your mistakes.</p>
+      </header>
+      <div id="cards" class="cards"></div>
+      <section class="howto">
+        <h2>How to play</h2>
+        <ol>
+          <li><strong>Make the stitch the pattern asks for.</strong> Press and hold its key: <kbd>C</kbd> chain, <kbd>S</kbd> single, <kbd>H</kbd> half double, <kbd>D</kbd> double, <kbd>B</kbd> bobble.</li>
+          <li><strong>Release in the green</strong> to pull the loop through at a neat tension. Too quick is loose, too long is tight. Loose stitches waste yarn.</li>
+          <li><strong>Turn</strong> at the end of each row with <kbd>T</kbd>, and <strong>change yarn</strong> with <kbd>1</kbd>, <kbd>2</kbd> when the pattern says.</li>
+          <li><strong>Frog</strong> a wrong or wonky stitch with <kbd>F</kbd> to rip it back out and try again.</li>
+        </ol>
+      </section>
+      <footer class="foot"><button id="mute" class="link">Sound: on (M)</button></footer>
+    </section>
+
+    <!-- Play screen -->
+    <section id="play" class="screen play" hidden>
+      <div class="work">
+        <div class="work-head">
+          <h2 id="project-name">Project</h2>
+          <button id="btn-quit" class="link">Back to projects (Esc)</button>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="fabric" width="400" height="300" tabindex="0" aria-label="Your crochet work"></canvas>
+          <div id="toast" class="toast" aria-live="polite"></div>
+        </div>
+        <div class="meter-block">
+          <div class="meter-head"><span>Tension</span><span id="tension-label">hold a stitch key</span></div>
+          <div class="meter tension" aria-hidden="true">
+            <div id="zone-ok" class="zone ok"></div>
+            <div id="zone-neat" class="zone neat"></div>
+            <div id="tension-fill" class="fill"></div>
+          </div>
+          <div class="meter-head"><span>Yarn</span><span id="yarn-label">100% left</span></div>
+          <div class="meter yarn" aria-hidden="true"><div id="yarn-fill" class="fill"></div></div>
+        </div>
+        <div id="buttons" class="buttons"></div>
+        <div class="buttons actions">
+          <button id="btn-turn" class="stitch-btn action"><span class="abbr">turn</span><span class="name">end of row</span><kbd>T</kbd></button>
+          <button id="btn-frog" class="stitch-btn action"><span class="abbr">frog</span><span class="name">rip back</span><kbd>F</kbd></button>
+          <div id="yarn-buttons" class="yarn-buttons"></div>
+        </div>
+      </div>
+
+      <aside class="panel">
+        <div id="next" class="next">Next</div>
+        <p id="hint" class="hint"></p>
+        <div id="chips" class="chips"></div>
+        <h3>Pattern</h3>
+        <ol id="rows" class="rows"></ol>
+        <dl class="stats">
+          <dt>Time</dt><dd id="stat-time">0:00</dd>
+          <dt>Neat</dt><dd id="stat-neat">100%</dd>
+          <dt>Mistakes</dt><dd id="stat-mistakes">0</dd>
+        </dl>
+      </aside>
+    </section>
+
+    <!-- Completion overlay -->
+    <section id="done" class="overlay" hidden>
+      <div class="dialog">
+        <h2 id="done-title">Finished!</h2>
+        <div id="done-body"></div>
+        <div class="dialog-actions">
+          <button id="btn-again" class="primary">Make it again</button>
+          <button id="btn-menu">Choose a project</button>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
