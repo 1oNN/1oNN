@@ -1,0 +1,1116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hooked Design Board</title>
+<meta name="description" content="The visual direction for Hooked, a crochet game: concept, palette and contrast, type, the stitch glyphs drawn by the game's own renderer, every UI state, the 3D view and what changed since v0.1.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23e2869f'/%3E%3C/svg%3E">
+<script>
+  // Theme before first paint: the board's own choice, else the system's. (Separate key from the game's.)
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem('hooked.board.theme'); } catch (e) { /* storage blocked */ }
+    if (t !== 'light' && t !== 'dark') t = (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', t);
+  })();
+</script>
+<!-- docs/design-tokens.css, inlined verbatim (the board parses this block for its swatches, contrast and glyph palettes) -->
+<style id="tokens">
+/* Hooked design tokens. Light = the daytime craft table; dark = the same table under a lamp.
+   Copy these blocks verbatim into css/style.css. The canvas and the 3D view read them with getComputedStyle.
+   Contrast (WCAG 2.x): ink on bg 7.60 light / 11.07 dark; muted on surface 6.49 / 6.19, on surface-2 5.70 / 6.79,
+   on surface-3 5.16 / 5.36. --muted is never placed on the wood in light (3.47); use --table-ink there (5.30 / 8.35). */
+
+:root {
+  color-scheme: light;
+
+  /* table (wood) */
+  --bg: #d4b188;
+  --bg-2: #bf9666;
+  --bg-3: #e3c9a4;
+
+  /* paper and linen */
+  --surface: #fbf6ec;
+  --surface-2: #f1e7d4;
+  --surface-3: #e9dcc5;
+  --surface-next: #f7e3bb;
+
+  /* ink */
+  --ink: #2f2318;
+  --table-ink: #4f3a2a;
+  --muted: #6b5543;
+  --line: #d6c3a6;
+
+  /* accent and status */
+  --accent: #9a4a2b;
+  --accent-2: #a8743a;
+  --neat: #4d7536;
+  --ok: #8f6a10;
+  --bad: #b23a30;
+
+  /* yarn (graphic objects only, never text) */
+  --yarn-rose: #e2869f;
+  --yarn-teal: #3b9e98;
+  --yarn-mustard: #dcae36;
+  --yarn-lavender: #9c86d2;
+
+  /* beech hook, light -> shadow */
+  --hook-1: #ecd3a4;
+  --hook-2: #c69c63;
+  --hook-3: #86603a;
+
+  /* effects */
+  --shadow-ink: 60, 35, 15;
+  --dim: rgba(47, 35, 24, .5);
+  --halo: 0%;
+  --halo-canvas: 0;
+  --noise-strength: .5;
+  --linen-strength: .045;
+  --radius: 10px;
+  --paper-shadow: 0 1px 0 rgba(255, 255, 255, .65) inset, 0 1px 2px rgba(60, 35, 15, .18), 0 12px 28px -12px rgba(60, 35, 15, .45);
+
+  /* type */
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Charter, "Bitstream Charter", Georgia, Caladea, "DejaVu Serif", serif;
+  --font-body: system-ui, -apple-system, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", "Liberation Mono", monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #3b2a1e;
+    --bg-2: #2a1d14;
+    --bg-3: #4c392a;
+    --surface: #302822;
+    --surface-2: #28211b;
+    --surface-3: #3b322a;
+    --surface-next: #4a3a24;
+    --ink: #f1e6d3;
+    --table-ink: #d9c8ae;
+    --muted: #b9a78f;
+    --line: #4f4236;
+    --accent: #e0a070;
+    --accent-2: #c08b58;
+    --neat: #8cc278;
+    --ok: #e2b84f;
+    --bad: #e46f60;
+    --yarn-rose: #ee9db5;
+    --yarn-teal: #55c0b8;
+    --yarn-mustard: #eac35a;
+    --yarn-lavender: #b6a3ea;
+    --hook-1: #e2c69a;
+    --hook-2: #b6895a;
+    --hook-3: #6e4c2c;
+    --shadow-ink: 0, 0, 0;
+    --dim: rgba(0, 0, 0, .55);
+    --halo: 35%;
+    --halo-canvas: .3;
+    --noise-strength: .35;
+    --linen-strength: .07;
+    --paper-shadow: 0 1px 0 rgba(255, 255, 255, .06) inset, 0 1px 2px rgba(0, 0, 0, .4), 0 12px 28px -12px rgba(0, 0, 0, .7);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #3b2a1e;
+  --bg-2: #2a1d14;
+  --bg-3: #4c392a;
+  --surface: #302822;
+  --surface-2: #28211b;
+  --surface-3: #3b322a;
+  --surface-next: #4a3a24;
+  --ink: #f1e6d3;
+  --table-ink: #d9c8ae;
+  --muted: #b9a78f;
+  --line: #4f4236;
+  --accent: #e0a070;
+  --accent-2: #c08b58;
+  --neat: #8cc278;
+  --ok: #e2b84f;
+  --bad: #e46f60;
+  --yarn-rose: #ee9db5;
+  --yarn-teal: #55c0b8;
+  --yarn-mustard: #eac35a;
+  --yarn-lavender: #b6a3ea;
+  --hook-1: #e2c69a;
+  --hook-2: #b6895a;
+  --hook-3: #6e4c2c;
+  --shadow-ink: 0, 0, 0;
+  --dim: rgba(0, 0, 0, .55);
+  --halo: 35%;
+  --halo-canvas: .3;
+  --noise-strength: .35;
+  --linen-strength: .07;
+  --paper-shadow: 0 1px 0 rgba(255, 255, 255, .06) inset, 0 1px 2px rgba(0, 0, 0, .4), 0 12px 28px -12px rgba(0, 0, 0, .7);
+}
+</style>
+<style>
+/* ---------------------------------------------------------------- board helpers (not tokens) */
+:root { --lamp: linear-gradient(transparent, transparent); --gut: 32px; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --lamp: radial-gradient(900px 620px at 24% 0%, rgba(255, 214, 150, .18), transparent 70%); }
+}
+:root[data-theme="dark"] { --lamp: radial-gradient(900px 620px at 24% 0%, rgba(255, 214, 150, .18), transparent 70%); }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font: 400 16px/1.5 var(--font-body);
+  color: var(--ink);
+  background-color: var(--bg);
+  background-image:
+    var(--lamp),
+    radial-gradient(900px 520px at 16% -6%, rgba(255, 244, 222, .5), transparent 62%),
+    repeating-linear-gradient(0.6deg, rgba(90, 55, 25, .10) 0 1px, transparent 1px 7px, rgba(90, 55, 25, .05) 7px 9px, transparent 9px 19px, rgba(120, 80, 40, .08) 19px 20px, transparent 20px 33px),
+    linear-gradient(180deg, var(--bg-3), var(--bg) 760px);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  opacity: var(--noise-strength); mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.16 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.board { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; padding: 30px 16px 40px; }
+h1, h2, h3, h4 { margin: 0; font-family: var(--font-display); font-weight: 700; letter-spacing: -.012em; line-height: 1.15; }
+p { margin: 0; }
+a { color: inherit; text-decoration-color: var(--accent); text-underline-offset: 3px; text-decoration-thickness: 1.5px; }
+code, .mono { font-family: var(--font-mono); font-size: .86em; }
+kbd {
+  font: 600 11px/1 var(--font-mono); background: var(--surface); color: var(--muted);
+  border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; padding: 3px 5px 2px; white-space: nowrap; vertical-align: 1px;
+}
+.eyebrow { font: 700 11px/1.2 var(--font-body); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.muted { color: var(--muted); }
+
+/* paper */
+.paper, .pill, .sheet, .toggle {
+  background-color: var(--surface);
+  background-image:
+    repeating-linear-gradient(0deg, rgba(90, 60, 30, var(--linen-strength)) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(90, 60, 30, var(--linen-strength)) 0 1px, transparent 1px 3px);
+}
+.sheet { position: relative; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--paper-shadow); padding: 30px var(--gut) 34px; margin: 0 0 34px; }
+.tape {
+  position: absolute; top: -11px; width: 96px; height: 24px; transform: rotate(-2deg); opacity: .9;
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, .35) 0 4px, transparent 4px 8px), color-mix(in srgb, var(--yarn-mustard) 55%, transparent);
+  box-shadow: 0 1px 2px rgba(var(--shadow-ink), .25);
+}
+
+/* ---------------------------------------------------------------- header (on the wood) */
+.masthead { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px 26px; align-items: center; margin: 4px 0 22px; }
+.masthead .mark { width: 112px; height: 112px; filter: drop-shadow(0 8px 10px rgba(var(--shadow-ink), .35)); }
+.masthead .eyebrow { color: var(--table-ink); }
+.masthead h1 { font-size: clamp(52px, 8vw, 80px); line-height: 1; position: relative; display: inline-block; margin: 6px 0 4px; }
+.masthead h1 .ul { position: absolute; left: -1%; width: 102%; bottom: -9px; height: 12px; overflow: visible; }
+.masthead .sub { font: 400 21px/1.35 var(--font-display); color: var(--table-ink); margin-top: 14px; }
+.masthead .sub em { color: var(--ink); }
+.masthead .meta { font-size: 13px; color: var(--table-ink); margin-top: 6px; }
+.toggle { display: inline-flex; padding: 3px; gap: 2px; border: 1px solid var(--line); border-radius: 999px; box-shadow: var(--paper-shadow); align-self: start; margin-top: 8px; }
+.toggle button {
+  font: 700 13px/1 var(--font-body); color: var(--muted); background: none; border: 0; border-radius: 999px;
+  min-height: 36px; padding: 0 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+}
+.toggle button[aria-pressed="true"] { color: var(--ink); box-shadow: 0 0 0 2px var(--ink) inset; }
+.toggle button:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-2); }
+.toggle svg { width: 15px; height: 15px; }
+nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 30px; }
+.pill {
+  display: inline-flex; align-items: center; gap: 7px; min-height: 36px; padding: 0 14px; border-radius: 999px;
+  border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(var(--shadow-ink), .18); font-size: 14px; text-decoration: none; color: var(--ink);
+}
+.pill b { font: 700 11px/1 var(--font-mono); color: var(--accent); }
+.pill:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-2); }
+
+/* ---------------------------------------------------------------- section heads */
+.sec-head { margin: 0 0 22px; max-width: 760px; }
+.sec-head .num { font: 700 12px/1 var(--font-mono); color: var(--accent); letter-spacing: .14em; }
+.sec-head h2 { font-size: 32px; margin: 8px 0 8px; }
+.sec-head p { color: var(--muted); }
+.sub-head { display: flex; align-items: baseline; justify-content: space-between; gap: 4px 14px; flex-wrap: wrap; margin: 30px 0 12px; padding-top: 18px; border-top: 1px dashed var(--line); }
+.sub-head h3 { font-size: 21px; }
+.sub-head p { color: var(--muted); font-size: 14px; }
+
+/* ---------------------------------------------------------------- 01 concept */
+.concept { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr); gap: 34px; align-items: start; }
+.concept .lead { font: 400 19px/1.6 var(--font-display); color: var(--ink); }
+.concept .lead::first-letter { font-size: 3.1em; float: left; line-height: .9; margin: 6px 8px 0 0; color: var(--accent); font-weight: 700; }
+.principles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 22px; margin: 24px 0 0; padding: 0; list-style: none; }
+.principles li { border-top: 1px solid var(--line); padding-top: 10px; font-size: 14px; color: var(--muted); }
+.principles b { display: block; font: 700 16px/1.3 var(--font-display); color: var(--ink); margin-bottom: 3px; }
+.hero-shot { margin: 0; }
+.hero-shot img { width: 100%; height: auto; display: block; border-radius: 8px; border: 1px solid var(--line); box-shadow: 0 10px 24px -12px rgba(var(--shadow-ink), .55); transform: rotate(.6deg); }
+.hero-shot figcaption { font-size: 13px; color: var(--muted); margin-top: 12px; }
+.scores { width: 100%; border-collapse: collapse; margin-top: 22px; font-size: 14px; }
+.scores caption { text-align: left; margin-bottom: 6px; }
+.scores th, .scores td { padding: 7px 8px; border-bottom: 1px solid var(--line); text-align: right; font-variant-numeric: tabular-nums; }
+.scores th:first-child, .scores td:first-child { text-align: left; }
+.scores thead th { font: 700 11px/1.2 var(--font-body); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.scores tbody td:first-child { font-family: var(--font-mono); font-size: 13px; }
+.scores tr.win td { font-weight: 700; color: var(--ink); background: color-mix(in srgb, var(--ok) 16%, transparent); }
+.scores tr.win td:first-child::after { content: "chosen"; margin-left: 8px; font: 700 10px/1 var(--font-body); letter-spacing: .1em; text-transform: uppercase; color: var(--surface); background: var(--accent); border-radius: 4px; padding: 2px 5px 2px; vertical-align: 1px; }
+.scores td.total { font-family: var(--font-display); font-size: 16px; }
+.grafts { margin-top: 12px; font-size: 13px; color: var(--muted); }
+
+/* ---------------------------------------------------------------- 02 palette */
+.pgroup { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 14px 22px; padding: 16px 0; border-top: 1px solid var(--line); }
+.pgroup:first-of-type { border-top: 0; padding-top: 0; }
+.pgroup h3 { font-size: 18px; }
+.pgroup > div > p { font-size: 13px; color: var(--muted); margin-top: 4px; }
+.swatches { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
+.sw { min-width: 0; }
+.sw .chip { height: 74px; border-radius: 8px; display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; box-shadow: 0 0 0 1px rgba(var(--shadow-ink), .18), 0 2px 6px -2px rgba(var(--shadow-ink), .35); }
+.sw .chip span { display: flex; flex-direction: column; justify-content: flex-end; padding: 6px 7px; font: 600 11px/1.25 var(--font-mono); }
+.sw .chip span i { font: 700 9px/1 var(--font-body); letter-spacing: .14em; text-transform: uppercase; font-style: normal; opacity: .8; margin-bottom: 3px; }
+.sw code { display: block; margin-top: 8px; font-size: 12px; font-weight: 600; color: var(--ink); }
+.sw .role { font-size: 12.5px; line-height: 1.35; color: var(--muted); margin-top: 2px; }
+
+.ctable { margin-top: 8px; font-size: 14px; }
+.crow { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr) 64px; gap: 6px 14px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.crow.head { font: 700 11px/1.2 var(--font-body); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding-top: 0; }
+.crow .pair { font: 600 12px/1.35 var(--font-mono); color: var(--ink); }
+.crow .pair span { color: var(--muted); font-weight: 400; }
+.crow .pair code { font-size: inherit; white-space: nowrap; }
+.crow .use { color: var(--muted); font-size: 13px; line-height: 1.35; }
+.cell { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.sample { flex: none; width: 46px; height: 32px; border-radius: 6px; display: grid; place-items: center; font: 700 17px/1 var(--font-display); box-shadow: 0 0 0 1px rgba(var(--shadow-ink), .16); }
+.sample.ring i { width: 26px; height: 18px; border-radius: 4px; display: block; }
+.sample.bar i { width: 30px; height: 6px; border-radius: 3px; display: block; }
+.ratio { font: 700 15px/1 var(--font-display); font-variant-numeric: tabular-nums; min-width: 42px; }
+.badge { font: 700 10px/1 var(--font-body); letter-spacing: .08em; text-transform: uppercase; border-radius: 4px; padding: 4px 5px 3px; white-space: nowrap; }
+.badge.pass { color: var(--surface); background: var(--neat); }
+.badge.fail { color: var(--surface); background: var(--bad); }
+.badge.na { color: var(--muted); box-shadow: 0 0 0 1px var(--line) inset; }
+.crow .need { font: 600 12px/1 var(--font-mono); color: var(--muted); text-align: right; }
+.cnote { font-size: 13px; color: var(--muted); margin-top: 12px; max-width: 80ch; }
+
+/* ---------------------------------------------------------------- 03 type */
+.stacks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+.stack { border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px 12px; background: color-mix(in srgb, var(--surface-2) 70%, transparent); }
+.stack .big { font-size: 40px; line-height: 1.05; margin: 6px 0 8px; color: var(--ink); }
+.stack .fam { font: 400 11.5px/1.45 var(--font-mono); color: var(--muted); overflow-wrap: anywhere; }
+.stack .res { font-size: 13px; color: var(--ink); margin-top: 8px; border-top: 1px dashed var(--line); padding-top: 7px; }
+.stack .res b { font-weight: 700; }
+.spec { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 6px 26px; align-items: baseline; padding: 14px 0; border-top: 1px solid var(--line); }
+.spec .what b { display: block; font: 700 13px/1.3 var(--font-body); color: var(--ink); }
+.spec .what span { display: block; font: 400 11.5px/1.45 var(--font-mono); color: var(--muted); margin-top: 3px; }
+.spec .eg { min-width: 0; overflow-wrap: anywhere; }
+.t-title { font: 700 76px/1 var(--font-display); letter-spacing: -.012em; position: relative; display: inline-block; }
+.t-title .ul { position: absolute; left: -2%; width: 104%; bottom: -8px; height: 12px; overflow: visible; }
+.t-screen { font: 700 26px/1.2 var(--font-display); }
+.t-screen i { font-size: .7em; font-weight: 400; color: var(--table-ink); }
+.t-card { font: 700 22px/1.2 var(--font-display); }
+.t-next { font: 700 18px/1.3 var(--font-display); color: var(--accent); }
+.t-next.bad { color: var(--bad); }
+.t-abbr { font: 700 22px/1 var(--font-display); }
+.t-row { font: 400 15px/1.35 var(--font-display); }
+.t-row b { color: var(--accent); margin-right: 6px; }
+.t-row s { color: var(--muted); }
+.t-stat { font: 700 24px/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.t-stat span + span { margin-left: 26px; }
+.t-body { font: 400 16px/1.5 var(--font-body); max-width: 62ch; }
+.t-hint { font: 400 14px/1.45 var(--font-body); color: var(--muted); margin-top: 4px; }
+.t-chip { display: inline-flex; align-items: center; gap: 5px; font: 700 12px/1 var(--font-mono); color: var(--surface); background: var(--neat); border-radius: 6px; padding: 6px 8px; margin-right: 6px; }
+.t-chip svg { width: 13px; height: 13px; }
+.t-read { font: 600 12px/1 var(--font-mono); color: var(--ink); margin-left: 6px; }
+.t-read em { font-style: normal; color: var(--neat); }
+.t-ticks { font: 600 11px/1 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; display: flex; justify-content: space-between; max-width: 360px; color: var(--ink); }
+.t-corner { font: 600 11px/1 var(--font-mono); color: var(--ink); opacity: .7; }
+
+/* ---------------------------------------------------------------- 04 glyphs */
+.gpanels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.gpanel {
+  position: relative; border-radius: var(--radius); padding: 16px 16px 12px; color: var(--ink);
+  background-color: var(--surface-2);
+  background-image:
+    repeating-linear-gradient(0deg, rgba(90, 60, 30, .06) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(90, 60, 30, .06) 0 1px, transparent 1px 3px);
+  border: 1px solid var(--line); box-shadow: var(--paper-shadow);
+}
+.gpanel::after { content: ""; position: absolute; inset: 7px; border: 1px dashed color-mix(in srgb, var(--muted) 45%, transparent); border-radius: 6px; pointer-events: none; }
+.gp-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin: 2px 4px 8px; }
+.gp-head .eyebrow { color: var(--ink); }
+.gp-head .mono { font: 600 11px/1 var(--font-mono); color: var(--ink); opacity: .7; }
+.gsheet { display: grid; grid-template-columns: 58px repeat(5, minmax(0, 1fr)); align-items: center; }
+.gsheet .ch { text-align: center; padding-bottom: 4px; color: var(--muted); display: grid; justify-items: center; gap: 2px; }
+.gsheet .ch b { font: 700 18px/1 var(--font-display); color: var(--ink); }
+.gsheet .ch small { font-size: 11px; line-height: 1.1; }
+.gsheet .ch svg { width: 20px; height: 20px; }
+.gsheet .rl { font: 600 11px/1 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink); }
+.gsheet canvas { display: block; width: 100%; height: auto; aspect-ratio: 50 / 58; }
+.gfail { padding: 22px; color: var(--bad); font-size: 14px; }
+.glegend { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 22px; margin: 20px 0 0; padding: 0; list-style: none; font-size: 13.5px; color: var(--muted); }
+.glegend li { border-top: 1px solid var(--line); padding-top: 9px; }
+.glegend b { display: block; color: var(--ink); font: 700 15px/1.3 var(--font-display); margin-bottom: 2px; }
+.gnote { font-size: 13px; color: var(--muted); margin-top: 14px; }
+
+/* ---------------------------------------------------------------- galleries */
+.row { display: flex; gap: 18px; align-items: flex-start; margin: 0 0 22px; }
+.row:last-child { margin-bottom: 0; }
+.shot { flex: var(--ar) 1 0; min-width: 0; margin: 0; }
+.shot a { display: block; border-radius: 8px; }
+.shot a:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-2); }
+.shot img { display: block; width: 100%; height: auto; aspect-ratio: var(--ar); object-fit: cover; border-radius: 8px; background: var(--surface-3); box-shadow: 0 0 0 1px rgba(var(--shadow-ink), .16), 0 10px 22px -14px rgba(var(--shadow-ink), .6); }
+.shot figcaption { font-size: 13.5px; line-height: 1.45; color: var(--muted); margin-top: 10px; }
+.shot figcaption b { color: var(--ink); font-weight: 700; }
+.shot figcaption code { font-size: 11px; color: var(--muted); opacity: .9; white-space: nowrap; }
+.stack2 a + a { margin-top: 10px; }
+.phones { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 22px 16px; align-items: start; }
+.phones .shot img { border-radius: 14px; }
+.phones .wide { grid-column: span 3; }
+.tagline { display: inline-block; font: 700 10px/1 var(--font-body); letter-spacing: .12em; text-transform: uppercase; border-radius: 4px; padding: 3px 5px 2px; margin-right: 6px; vertical-align: 1px; }
+.tagline.day { background: #f1e7d4; color: #2f2318; box-shadow: 0 0 0 1px #d6c3a6 inset; }
+.tagline.lamp { background: #3b2a1e; color: #f1e6d3; }
+.callout { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 22px; margin: 0 0 24px; padding: 0; list-style: none; font-size: 14px; color: var(--muted); }
+.callout li { border-top: 1px solid var(--line); padding-top: 9px; }
+.callout b { display: block; color: var(--ink); font: 700 15px/1.3 var(--font-display); margin-bottom: 2px; }
+
+/* ---------------------------------------------------------------- 07 changes */
+.tagline.old { background: #fffaf3; color: #3b3029; box-shadow: 0 0 0 1px #c9657f inset; }
+.tagline.new { background: var(--accent); color: var(--surface); }
+.versus img { box-shadow: 0 0 0 1px rgba(var(--shadow-ink), .16), 0 10px 22px -14px rgba(var(--shadow-ink), .6); }
+.changes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 40px; margin-top: 8px; }
+.changes h3 { font-size: 18px; margin: 18px 0 6px; }
+.changes ul { margin: 0; padding: 0; list-style: none; }
+.changes li { position: relative; padding: 8px 0 8px 22px; border-top: 1px solid var(--line); font-size: 14.5px; line-height: 1.5; }
+.changes li::before { content: ""; position: absolute; left: 2px; top: 15px; width: 10px; height: 6px; border-radius: 50%; border: 2px solid var(--accent); }
+.changes .was { color: var(--muted); }
+.changes .was::after { content: " \2192  "; color: var(--accent); font-weight: 700; }
+
+/* ---------------------------------------------------------------- 08 questions */
+.qs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; counter-reset: q; margin: 0; padding: 0; list-style: none; }
+.qs li { counter-increment: q; position: relative; border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px 14px 58px; background: color-mix(in srgb, var(--surface-2) 60%, transparent); }
+.qs li::before { content: counter(q); position: absolute; left: 16px; top: 14px; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font: 700 15px/1 var(--font-display); color: var(--accent); box-shadow: 0 0 0 2px var(--accent) inset; }
+.qs h3 { font-size: 17px; line-height: 1.3; margin-bottom: 6px; }
+.qs p { font-size: 13.5px; color: var(--muted); margin-top: 6px; }
+.qs p b { color: var(--ink); }
+.qs .who { display: inline-block; margin-top: 10px; font: 700 10px/1 var(--font-body); letter-spacing: .1em; text-transform: uppercase; color: var(--ink); border-radius: 4px; padding: 4px 6px 3px; box-shadow: 0 0 0 1px var(--line) inset; background: var(--surface); }
+
+footer.colophon { color: var(--table-ink); font-size: 13px; text-align: center; padding: 6px 0 10px; }
+footer.colophon .wordmark { display: block; font: 600 11px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; margin-top: 10px; }
+footer.colophon code { font-size: 12px; }
+
+/* ---------------------------------------------------------------- narrow */
+@media (max-width: 900px) {
+  .concept { grid-template-columns: 1fr; }
+  .gpanels { grid-template-columns: 1fr; }
+  .stacks { grid-template-columns: 1fr; }
+  .glegend, .callout { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .phones { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .phones .wide { grid-column: 1 / -1; }
+}
+@media (max-width: 700px) {
+  :root { --gut: 18px; }
+  .board { padding-top: 18px; }
+  .masthead { grid-template-columns: auto minmax(0, 1fr); }
+  .masthead .mark { width: 72px; height: 72px; }
+  .masthead .toggle { grid-column: 1 / -1; justify-self: start; }
+  .masthead .sub { font-size: 18px; }
+  .sheet { padding-top: 24px; padding-bottom: 26px; }
+  .sec-head h2 { font-size: 26px; }
+  .principles, .changes, .qs, .glegend, .callout { grid-template-columns: 1fr; }
+  .pgroup { grid-template-columns: 1fr; }
+  .swatches { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .crow { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .crow .pair, .crow .use { grid-column: 1 / -1; }
+  .crow .need { display: none; }
+  .cell { flex-wrap: wrap; gap: 6px 8px; }
+  .cell .badge { flex-basis: 100%; width: max-content; max-width: max-content; }
+  .crow.head { display: none; }
+  .spec { grid-template-columns: 1fr; }
+  .t-title { font-size: 56px; }
+  .row { flex-direction: column; gap: 20px; }
+  .row > .shot { flex: none; width: 100%; }
+  .phones { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gsheet { grid-template-columns: 46px repeat(5, minmax(0, 1fr)); }
+  .gsheet .ch small { display: none; }
+  .gsheet .rl { font-size: 10px; letter-spacing: .04em; }
+  .scores { font-size: 13px; }
+  .scores th, .scores td { padding: 6px 4px; }
+  .scores tr.win td:first-child::after { display: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .masthead h1 .ul path { stroke-dasharray: 320; stroke-dashoffset: 320; animation: drawline .6s ease-out .15s forwards; }
+}
+@keyframes drawline { to { stroke-dashoffset: 0; } }
+@media print { body::before { display: none; } .toggle, nav.toc { display: none; } .sheet { break-inside: avoid-page; box-shadow: none; } }
+</style>
+</head>
+<body>
+<div class="board">
+
+  <!-- ============================================================ masthead -->
+  <header class="masthead">
+    <svg class="mark" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+      <defs>
+        <radialGradient id="ballg" cx="34%" cy="30%" r="74%">
+          <stop offset="0" stop-color="#fff7e8" stop-opacity=".55"/>
+          <stop offset=".5" stop-color="#fff7e8" stop-opacity="0"/>
+          <stop offset="1" stop-color="#2a1608" stop-opacity=".45"/>
+        </radialGradient>
+        <linearGradient id="woodg" x1="0" x2="1">
+          <stop offset="0" style="stop-color: var(--hook-1)"/>
+          <stop offset=".5" style="stop-color: var(--hook-2)"/>
+          <stop offset="1" style="stop-color: var(--hook-3)"/>
+        </linearGradient>
+        <clipPath id="ballc"><circle cx="54" cy="68" r="39.5"/></clipPath>
+      </defs>
+      <circle cx="54" cy="68" r="40" style="fill: var(--yarn-rose)"/>
+      <g clip-path="url(#ballc)" fill="none" stroke-linecap="round">
+        <g stroke="#2a1608" stroke-opacity=".3" stroke-width="2.6">
+          <path d="M-40 0A40 9 0 0 0 40 0" transform="translate(54 68) rotate(-32)"/>
+          <path d="M-40 0A40 16 0 0 0 40 0" transform="translate(54 68) rotate(-32)"/>
+          <path d="M-40 0A40 23 0 0 0 40 0" transform="translate(54 68) rotate(-32)"/>
+          <path d="M-40 0A40 30 0 0 0 40 0" transform="translate(54 68) rotate(-32)"/>
+          <path d="M-40 0A40 7 0 0 0 40 0" transform="translate(54 68) rotate(38)"/>
+          <path d="M-40 0A40 14 0 0 0 40 0" transform="translate(54 68) rotate(38)"/>
+          <path d="M-40 0A40 21 0 0 0 40 0" transform="translate(54 68) rotate(38)"/>
+          <path d="M-40 0A40 11 0 0 0 40 0" transform="translate(54 68) rotate(100)"/>
+          <path d="M-40 0A40 19 0 0 0 40 0" transform="translate(54 68) rotate(100)"/>
+        </g>
+        <g stroke="#fff7e8" stroke-opacity=".42" stroke-width="1.1">
+          <path d="M-40 0A40 9 0 0 0 40 0" transform="translate(54 66) rotate(-32)"/>
+          <path d="M-40 0A40 16 0 0 0 40 0" transform="translate(54 66) rotate(-32)"/>
+          <path d="M-40 0A40 23 0 0 0 40 0" transform="translate(54 66) rotate(-32)"/>
+          <path d="M-40 0A40 30 0 0 0 40 0" transform="translate(54 66) rotate(-32)"/>
+          <path d="M-40 0A40 7 0 0 0 40 0" transform="translate(54 66) rotate(38)"/>
+          <path d="M-40 0A40 14 0 0 0 40 0" transform="translate(54 66) rotate(38)"/>
+          <path d="M-40 0A40 21 0 0 0 40 0" transform="translate(54 66) rotate(38)"/>
+          <path d="M-40 0A40 11 0 0 0 40 0" transform="translate(54 66) rotate(100)"/>
+          <path d="M-40 0A40 19 0 0 0 40 0" transform="translate(54 66) rotate(100)"/>
+        </g>
+      </g>
+      <circle cx="54" cy="68" r="40" fill="url(#ballg)"/>
+      <path d="M90 52 C 106 40, 102 18, 86 18 S 60 30, 61 46" fill="none" style="stroke: var(--yarn-rose)" stroke-width="4.4" stroke-linecap="round"/>
+      <path d="M90 52 C 106 40, 102 18, 86 18 S 60 30, 61 46" fill="none" stroke="#fff7e8" stroke-opacity=".45" stroke-width="1.3" stroke-linecap="round" transform="translate(-.4 -1.2)"/>
+      <g transform="translate(66 58) rotate(30)">
+        <rect x="-4" y="-62" width="8" height="52" rx="4" fill="url(#woodg)"/>
+        <rect x="-5.5" y="-44" width="11" height="16" rx="5" fill="url(#woodg)"/>
+        <path d="M0 -12 Q0 3 -8 2 Q-12 1 -10 -6" fill="none" stroke="url(#woodg)" stroke-width="5.5" stroke-linecap="round"/>
+        <path d="M-2.4 -59 V -12" stroke="#fff7e8" stroke-opacity=".7" stroke-width="1"/>
+      </g>
+    </svg>
+    <div>
+      <div class="eyebrow">Design board &middot; visual direction for review</div>
+      <h1>Hooked
+        <svg class="ul" viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M3 7 C 60 2, 120 10, 180 5 S 270 3, 297 8" fill="none" style="stroke: var(--yarn-rose)" stroke-width="5" stroke-linecap="round"/></svg>
+      </h1>
+      <p class="sub"><em>Cosy craft room</em>, lit Night Yarn&rsquo;s way after dark.</p>
+      <p class="meta">October 2026 &middot; drawn from <code>docs/design-brief.md</code>, the token file and the game&rsquo;s own renderer &middot; every picture is a real capture of the build</p>
+    </div>
+    <div class="toggle" role="group" aria-label="Board theme">
+      <button type="button" data-set-theme="light" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Day</button>
+      <button type="button" data-set-theme="dark" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>Lamp</button>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="Sections">
+    <a class="pill" href="#concept"><b>01</b>Concept</a>
+    <a class="pill" href="#palette"><b>02</b>Palette</a>
+    <a class="pill" href="#type"><b>03</b>Type</a>
+    <a class="pill" href="#glyphs"><b>04</b>Stitch glyphs</a>
+    <a class="pill" href="#states"><b>05</b>UI states</a>
+    <a class="pill" href="#three"><b>06</b>3D view</a>
+    <a class="pill" href="#changes"><b>07</b>Since v0.1</a>
+    <a class="pill" href="#questions"><b>08</b>Open questions</a>
+  </nav>
+
+  <!-- ============================================================ 01 concept -->
+  <section class="sheet" id="concept" aria-labelledby="h-concept">
+    <i class="tape" style="left: 70px" aria-hidden="true"></i>
+    <div class="concept">
+      <div>
+        <div class="sec-head" style="margin-bottom: 16px">
+          <div class="num">01 &middot; CONCEPT</div>
+          <h2 id="h-concept">The game is played on a lamp-lit oak craft table</h2>
+        </div>
+        <p class="lead">Every piece of interface is a thing on that table: a linen blocking mat under the work (with a faint gauge grid), a printed pattern leaflet, paper tags for the stitch keys, a sewing pin marking the last release on the tension meter, a beech hook with a 5&nbsp;mm size mark, and a wound ball of yarn that shrinks as you use it. Everything structural is a warm neutral (oak, linen, cream paper, walnut ink); the four yarn colours and one clay accent are the only saturated things on the table, and the accent only ever points at the next action. Stitches are plied yarn, not chart symbols, so a sloppy row looks sloppy; the chart symbols live in the keys and chips so the game quietly teaches chart reading. After dark the same table sits under a lamp: darker wood, warmer key light, and a small halo on the yarn so it stays the brightest thing in the room without turning into neon.</p>
+        <ul class="principles">
+          <li><b>Things, not widgets</b>Mat, leaflet, tags, pin, hook and ball. If it is on screen, it could be on the table.</li>
+          <li><b>Neutral room, colourful yarn</b>Oak, linen, paper and walnut ink carry the structure; only yarn is saturated.</li>
+          <li><b>One accent, one next action</b>Clay marks the step to take now, and nothing else competes with it.</li>
+          <li><b>A lamp, not neon</b>After dark the halo is rationed to yarn strands and meter fills, never the light theme.</li>
+        </ul>
+      </div>
+      <div>
+        <figure class="hero-shot">
+          <a href="visuals/og-card.png"><img src="visuals/og-card.png" width="1200" height="630" alt="Social card: the Hooked wordmark with its rose underline on the oak table beside a taped linen mat holding a striped teal and mustard scarf swatch, hook in the last row and the mustard ball at the lower right."></a>
+          <figcaption>The direction in one frame: the social card, composed from the game&rsquo;s own tokens, mark and a scarf swatch drawn by <code>js/render.js</code>.</figcaption>
+        </figure>
+        <table class="scores">
+          <caption class="eyebrow">How it was chosen &middot; four mockups, three lenses (out of 10)</caption>
+          <thead><tr><th scope="col">Direction</th><th scope="col">Craft</th><th scope="col">Phone use</th><th scope="col">Delight</th><th scope="col">Total</th></tr></thead>
+          <tbody>
+            <tr class="win"><td>craft-room</td><td>8.5</td><td>8</td><td>8</td><td class="total">24.5</td></tr>
+            <tr><td>night-yarn</td><td>6.5</td><td>6.5</td><td>8.5</td><td class="total">21.5</td></tr>
+            <tr><td>studio-minimal</td><td>7</td><td>7</td><td>5.5</td><td class="total">19.5</td></tr>
+            <tr><td>arcade-juice</td><td>5</td><td>6</td><td>6</td><td class="total">17</td></tr>
+          </tbody>
+        </table>
+        <p class="grafts">Grafted in: studio-minimal&rsquo;s corrected chart symbols and one-accent rule; night-yarn&rsquo;s hook-in-the-last-loop and the lamp-lit dark theme; arcade-juice&rsquo;s thick tension trough, bouncing &ldquo;next&rdquo; cue and the &ldquo;Uh oh&rdquo; card. Left out on purpose: combo meters, score pop-ups, sparkles and neon in daylight.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ 02 palette -->
+  <section class="sheet" id="palette" aria-labelledby="h-palette">
+    <div class="sec-head">
+      <div class="num">02 &middot; PALETTE</div>
+      <h2 id="h-palette">Day table and lamp-lit table, one set of tokens</h2>
+      <p>Each chip shows the day value on the left and the lamp value on the right, read from <code>docs/design-tokens.css</code> (inlined in this page). CSS, the 2D canvas and the 3D scene all read these same custom properties.</p>
+    </div>
+    <div id="swatches"><p class="muted">The swatches are built from the token block by a script.</p></div>
+
+    <div class="sub-head">
+      <h3>Contrast, computed from the hex values</h3>
+      <p>WCAG 2.x relative luminance &middot; text needs 4.5:1, titles on wood 7:1, rings and strokes 3:1</p>
+    </div>
+    <div class="ctable" id="contrast" role="table" aria-label="Contrast ratios for each token pair, day and lamp"></div>
+    <p class="cnote">Two pairs are kept off text on purpose in daylight: <code>--muted</code> and <code>--accent</code> on the wood (links on wood are ink with an accent underline). Yarn is never text; on the light mat its contrast comes from the warm shadow pass every strand is drawn with, which is what you see in the glyph sheet below.</p>
+  </section>
+
+  <!-- ============================================================ 03 type -->
+  <section class="sheet" id="type" aria-labelledby="h-type">
+    <div class="sec-head">
+      <div class="num">03 &middot; TYPOGRAPHY</div>
+      <h2 id="h-type">System stacks only, nothing fetched</h2>
+      <p>A bookish serif for the things printed on paper (titles, the leaflet, numerals), the platform UI face for reading, and a mono for keycaps, chips and gauge labels. Weights 400 and 700 (600 for mono); nothing on the page is smaller than 11&nbsp;px.</p>
+    </div>
+    <div class="stacks">
+      <div class="stack">
+        <div class="eyebrow">Display &middot; <code>--font-display</code></div>
+        <div class="big" style="font-family: var(--font-display); font-weight: 700">Aa Hooked</div>
+        <div class="fam">"Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Charter, "Bitstream Charter", Georgia, Caladea, "DejaVu Serif", serif</div>
+        <div class="res">Renders here as <b id="res-display">&hellip;</b></div>
+      </div>
+      <div class="stack">
+        <div class="eyebrow">Body &middot; <code>--font-body</code></div>
+        <div class="big" style="font-family: var(--font-body); font-weight: 400">Aa Follow</div>
+        <div class="fam">system-ui, -apple-system, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif</div>
+        <div class="res">Renders here as <b id="res-body">&hellip;</b></div>
+      </div>
+      <div class="stack">
+        <div class="eyebrow">Mono &middot; <code>--font-mono</code></div>
+        <div class="big" style="font-family: var(--font-mono); font-weight: 600; font-size: 34px">Aa sc*8</div>
+        <div class="fam">ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", "Liberation Mono", monospace</div>
+        <div class="res">Renders here as <b id="res-mono">&hellip;</b></div>
+      </div>
+    </div>
+
+    <div class="spec">
+      <div class="what"><b>Title</b><span>display &middot; clamp(48px, 9vw, 76px) / 700 &middot; &minus;0.012em &middot; drawn rose underline</span></div>
+      <div class="eg"><span class="t-title">Hooked<svg class="ul" viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M3 7 C 60 2, 120 10, 180 5 S 270 3, 297 8" fill="none" style="stroke: var(--yarn-rose)" stroke-width="5" stroke-linecap="round"/></svg></span></div>
+    </div>
+    <div class="spec">
+      <div class="what"><b>Screen title</b><span>display &middot; 26px / 700 (22 on phone) &middot; parenthetical 0.7em italic 400</span></div>
+      <div class="eg t-screen">Striped scarf <i>(swatch)</i></div>
+    </div>
+    <div class="spec">
+      <div class="what"><b>Leaflet and card names</b><span>display &middot; 22px / 700</span></div>
+      <div class="eg t-card">Bobble pouch panel</div>
+    </div>
+    <div class="spec">
+      <div class="what"><b>Next instruction</b><span>display &middot; 18px / 700 &middot; --accent, --bad when blocked</span></div>
+      <div class="eg"><span class="t-next">Next: single crochet <kbd>S</kbd></span> &nbsp; <span class="t-next bad">Frog the wrong stitch <kbd>F</kbd></span></div>
+    </div>
+    <div class="spec">
+      <div class="what"><b>Tag abbreviation</b><span>display &middot; 22px / 700 (19 on phone)</span></div>
+      <div class="eg t-abbr">ch &nbsp; sc &nbsp; hdc &nbsp; dc &nbsp; bo</div>
+    </div>
+    <div class="spec">
+      <div class="what"><b>Pattern rows</b><span>display &middot; 15px / 400 &middot; line-height 1.35 &middot; done rows struck through</span></div>
+      <div class="eg t-row"><div><s><b>Row 5</b>ch 2, turn. dc in each st across (12)</s></div><div><b>Row 6</b>Change to Teal. ch 1, turn. sc in each st across (12)</div></div>
+    </div>
+    <div class="spec">
+      <div class="what"><b>Stats numerals</b><span>display &middot; 24px / 700 &middot; tabular-nums &middot; stamp letter 66px</span></div>
+      <div class="eg t-stat"><span>0:21</span><span>95%</span><span>1</span></div>
+    </div>
+    <div class="spec">
+      <div class="what"><b>Body and hints</b><span>body &middot; 16px / 400 / 1.5 &middot; hints 14px --muted</span></div>
+      <div class="eg"><p class="t-body">Release in the green to pull the loop through at a neat tension. Too quick is loose, too long is tight.</p><p class="t-hint">Stitch 8 of 13 in this row. Hold the key, release in the green.</p></div>
+    </div>
+    <div class="spec">
+      <div class="what"><b>Eyebrows</b><span>body &middot; 11px / 700 &middot; 0.16em &middot; uppercase</span></div>
+      <div class="eg"><span class="eyebrow">Improver &middot; Row 6 of 9</span> &nbsp;&nbsp; <span class="eyebrow">Tension</span> &nbsp;&nbsp; <span class="eyebrow">Pattern</span></div>
+    </div>
+    <div class="spec">
+      <div class="what"><b>Keycaps, chips, readouts</b><span>mono &middot; 11px / 600 keycaps &middot; 12px / 700 chips &middot; 12px / 600 readouts</span></div>
+      <div class="eg"><kbd>C</kbd> <kbd>S</kbd> <kbd>Enter</kbd> &nbsp; <span class="t-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 5 19 19 M19 5 5 19"/></svg>sc</span><span class="t-read">last stitch: <em>neat</em> &middot; 0.24 s</span></div>
+    </div>
+    <div class="spec">
+      <div class="what"><b>Meter ticks and mat labels</b><span>mono &middot; 11px / 600 &middot; ticks 0.12em uppercase &middot; labels --ink at 70%</span></div>
+      <div class="eg"><div class="t-ticks"><span>Loose</span><span>Neat</span><span>Tight</span></div><div class="t-corner" style="margin-top: 10px">13 st &times; 9 rows &nbsp;&middot;&nbsp; hook 5.0 mm</div></div>
+    </div>
+  </section>
+
+  <!-- ============================================================ 04 glyphs -->
+  <section class="sheet" id="glyphs" aria-labelledby="h-glyphs">
+    <div class="sec-head">
+      <div class="num">04 &middot; STITCH GLYPHS</div>
+      <h2 id="h-glyphs">Five stitches, four ways to make them</h2>
+      <p>Drawn live on these canvases by <code>drawStitch()</code> from <code>js/render.js</code>, the function the game, the title-screen guide and the social card all use, with tension <code>t</code> &minus;0.9 for loose, 0 for neat and +0.9 for tight. The column heads are the chart symbols the keys and chips carry (<code>STITCH_SYMBOLS</code>).</p>
+    </div>
+    <div class="gpanels" id="gpanels">
+      <div class="gpanel" data-force="day"><div class="gp-head"><span class="eyebrow">Day &middot; linen mat</span><span class="mono" data-hex="surface-2"></span></div><div class="gsheet" data-sheet="day"></div></div>
+      <div class="gpanel" data-force="lamp"><div class="gp-head"><span class="eyebrow">Lamp &middot; linen mat</span><span class="mono" data-hex="surface-2"></span></div><div class="gsheet" data-sheet="lamp"></div></div>
+    </div>
+    <ul class="glegend">
+      <li><b>Neat</b>Upright, even width, a whole cap loop on top. A &plusmn;0.6&nbsp;px wobble keeps a perfect row hand-made.</li>
+      <li><b>Loose</b>Wider and taller, leaning, paler at 82%; the cap sags 2&nbsp;px and a slack loop hangs off the base.</li>
+      <li><b>Tight</b>Narrower and shorter, leaning the other way, 22% darker, a pinched cap. Reads &ldquo;pulled hard&rdquo;.</li>
+      <li><b>Wrong</b>Brick red in stripes with a sewing pin pushed in. Never colour alone: shape, stripes and pin all say it.</li>
+    </ul>
+    <p class="gnote">After dark the halo pass switches on (<code>--halo-canvas: .3</code>), and runs at 1.3&times; on a wrong stitch only.</p>
+  </section>
+
+  <!-- ============================================================ 05 UI states -->
+  <section class="sheet" id="states" aria-labelledby="h-states">
+    <div class="sec-head">
+      <div class="num">05 &middot; UI STATES</div>
+      <h2 id="h-states">Every screen, captured from the build</h2>
+      <p>Desktop at 1180 &times; 820, phone at 390 &times; 844, from <code>scripts/shots2d.mjs</code>. Click any picture for the full-size file.</p>
+    </div>
+
+    <div class="sub-head" style="margin-top: 0; border-top: 0; padding-top: 0"><h3>Title and projects</h3><p>The table, the mark and three leaflet cards</p></div>
+    <div class="row">
+      <figure class="shot" style="--ar: 1.439"><a href="visuals/2d-title-desktop.png"><img loading="lazy" src="visuals/2d-title-desktop.png" width="1180" height="820" alt="Title screen in daylight: yarn ball mark, Hooked with a rose underline, three project cards and the How to play card under washi tape."></a>
+        <figcaption><span class="tagline day">Day</span><b>Title.</b> Mark, drawn underline, three leaflet cards on the oak, the How to play card under washi tape. <code>2d-title-desktop.png</code></figcaption></figure>
+      <figure class="shot" style="--ar: 1.439"><a href="visuals/2d-title-dark-desktop.png"><img loading="lazy" src="visuals/2d-title-dark-desktop.png" width="1180" height="820" alt="The same title screen under the lamp: dark wood, a pool of light at the top left, cream ink."></a>
+        <figcaption><span class="tagline lamp">Lamp</span><b>Title after dark.</b> Darker wood with the lamp&rsquo;s pool top left; the clay accent warms to <code>#e0a070</code>. <code>2d-title-dark-desktop.png</code></figcaption></figure>
+    </div>
+    <div class="row">
+      <figure class="shot stack2" style="--ar: 4.014"><a href="visuals/2d-cards.png"><img loading="lazy" src="visuals/2d-cards.png" width="2280" height="568" alt="Project cards at 2x in daylight: Mug coaster best A, Striped scarf best A+, Bobble pouch panel not yet made."></a><a href="visuals/2d-cards-dark.png"><img loading="lazy" src="visuals/2d-cards-dark.png" width="2280" height="568" alt="The same project cards at 2x under the lamp."></a>
+        <figcaption><b>Project cards at 2&times;, day and lamp.</b> Level in the accent, the pattern&rsquo;s skeins, rows and moves, and the best result with its grade in <code>--neat</code>. <code>2d-cards.png</code> <code>2d-cards-dark.png</code></figcaption></figure>
+    </div>
+
+    <div class="sub-head"><h3>Working a row</h3><p>The striped scarf, row 6 to row 8</p></div>
+    <div class="row">
+      <figure class="shot" style="--ar: 1.439"><a href="visuals/2d-play-desktop.png"><img loading="lazy" src="visuals/2d-play-desktop.png" width="1180" height="820" alt="Play screen: the scarf on the linen mat, tension meter with a pin in the green, the sc tag tinted with a NEXT flag, the pattern leaflet on the right."></a>
+        <figcaption><span class="tagline day">Day</span><b>Playing.</b> The expected tag is tinted, ringed and flagged NEXT; the last release left a pin in the green; the toast &ldquo;Too tight&rdquo; sits clear of the hook. <code>2d-play-desktop.png</code></figcaption></figure>
+      <figure class="shot" style="--ar: 1.439"><a href="visuals/2d-hold-desktop.png"><img loading="lazy" src="visuals/2d-hold-desktop.png" width="1180" height="820" alt="Holding the S key: the tension strand runs to its knob, readout single crochet 0.32 s."></a>
+        <figcaption><b>Holding <kbd>S</kbd>.</b> The meter strand runs out to its knob with the readout &ldquo;single crochet &middot; 0.32 s&rdquo;; the hook glides toward the next slot. <code>2d-hold-desktop.png</code></figcaption></figure>
+    </div>
+    <div class="row">
+      <figure class="shot" style="--ar: 1.439"><a href="visuals/2d-streak-desktop.png"><img loading="lazy" src="visuals/2d-streak-desktop.png" width="1180" height="820" alt="Row 8 of the scarf in mustard with every chip so far green, 100 percent neat, 35 percent yarn left."></a>
+        <figcaption><b>A clean run.</b> Row 8 in Mustard, every chip so far green, 100% neat; the ball and the yarn meter both show 35% left. <code>2d-streak-desktop.png</code></figcaption></figure>
+      <figure class="shot" style="--ar: 1.439"><a href="visuals/2d-play-dark-desktop.png"><img loading="lazy" src="visuals/2d-play-dark-desktop.png" width="1180" height="820" alt="Play screen under the lamp: dark mat, yarn with a soft halo, chips in the lamp status colours."></a>
+        <figcaption><span class="tagline lamp">Lamp</span><b>Playing after dark.</b> The halo is on the yarn only; chips switch to the lamp status colours and the honey ring stays on the expected tag. <code>2d-play-dark-desktop.png</code></figcaption></figure>
+    </div>
+
+    <div class="sub-head"><h3>Mistakes</h3><p>A wrong stitch blocks play until it is frogged</p></div>
+    <div class="row">
+      <figure class="shot" style="--ar: 1.439"><a href="visuals/2d-wrong-desktop.png"><img loading="lazy" src="visuals/2d-wrong-desktop.png" width="1180" height="820" alt="Wrong stitch state: a red pinned dc on the hook, the Uh oh card in the leaflet, dimmed stitch tags and the frog tag with a NOW flag."></a>
+        <figcaption><b>Wrong stitch.</b> A dc where an sc belongs: red, striped, pinned and still on the hook. The &ldquo;Uh oh&rdquo; card replaces the next line, the tags dim, frog wears NOW. <code>2d-wrong-desktop.png</code></figcaption></figure>
+      <figure class="shot" style="--ar: 1.439"><a href="visuals/2d-oops-desktop.png"><img loading="lazy" src="visuals/2d-oops-desktop.png" width="1180" height="820" alt="Out of yarn card for the bobble pouch: 23 percent done, 1 percent yarn left, an empty dashed ball icon instead of the stamp."></a>
+        <figcaption><b>Out of yarn.</b> The pouch stops at 23% done with 1% left; the card keeps the results list and swaps the stamp for an empty ball. <code>2d-oops-desktop.png</code></figcaption></figure>
+    </div>
+    <div class="row">
+      <figure class="shot" style="--ar: 1.995"><a href="visuals/2d-fabric-2x.png"><img loading="lazy" src="visuals/2d-fabric-2x.png" width="1468" height="736" alt="The mat at 2x in daylight with the wrong stitch on the hook and the toast moved to the top right."></a>
+        <figcaption><span class="tagline day">Day</span><b>The mat at 2&times;.</b> The pin&rsquo;s white &times; reads at a glance; with the hook in the left 40% the toast moves to the top right. <code>2d-fabric-2x.png</code></figcaption></figure>
+      <figure class="shot" style="--ar: 1.995"><a href="visuals/2d-fabric-2x-dark.png"><img loading="lazy" src="visuals/2d-fabric-2x-dark.png" width="1468" height="736" alt="The same moment at 2x under the lamp, yarn with a soft halo on the dark linen."></a>
+        <figcaption><span class="tagline lamp">Lamp</span><b>Same moment, lamp-lit.</b> Gauge dots and row hairlines stay faint; the wrong stitch keeps its stripes and pin. <code>2d-fabric-2x-dark.png</code></figcaption></figure>
+    </div>
+
+    <div class="sub-head"><h3>Endings</h3><p>Fastened off, day and lamp</p></div>
+    <div class="row">
+      <figure class="shot" style="--ar: 1.439"><a href="visuals/2d-done-desktop.png"><img loading="lazy" src="visuals/2d-done-desktop.png" width="1180" height="820" alt="Completion card: Fastened off, a green A+ rubber stamp, results list and Make it again button."></a>
+        <figcaption><span class="tagline day">Day</span><b>Fastened off.</b> Rubber-stamp A+ &ldquo;neatly made&rdquo;, a hairline results list, &ldquo;New personal best&rdquo;, and one primary: Make it again <kbd>Enter</kbd>. <code>2d-done-desktop.png</code></figcaption></figure>
+      <figure class="shot" style="--ar: 1.439"><a href="visuals/2d-done-dark-desktop.png"><img loading="lazy" src="visuals/2d-done-dark-desktop.png" width="1180" height="820" alt="Completion card under the lamp with a light green stamp and a warm accent button."></a>
+        <figcaption><span class="tagline lamp">Lamp</span><b>Fastened off after dark.</b> The stamp switches to lamp green; the primary button turns warm clay with dark text. <code>2d-done-dark-desktop.png</code></figcaption></figure>
+    </div>
+
+    <div class="sub-head"><h3>Phone</h3><p>Everything needed to play sits above the fold at 390 &times; 844 &middot; full-length scrolls: <a href="visuals/2d-title-full-phone.png">title</a>, <a href="visuals/2d-play-full-phone.png">play</a></p></div>
+    <div class="phones">
+      <figure class="shot" style="--ar: .462"><a href="visuals/2d-title-phone.png"><img loading="lazy" src="visuals/2d-title-phone.png" width="390" height="844" alt="Title screen on a phone."></a><figcaption><b>Title</b> <code>2d-title-phone.png</code></figcaption></figure>
+      <figure class="shot" style="--ar: .462"><a href="visuals/2d-play-phone.png"><img loading="lazy" src="visuals/2d-play-phone.png" width="390" height="844" alt="Play screen on a phone: mat, meters, next strip, five tags and the action row."></a><figcaption><b>Playing.</b> Mat, meters, next strip, five tags, actions <code>2d-play-phone.png</code></figcaption></figure>
+      <figure class="shot" style="--ar: .462"><a href="visuals/2d-hold-phone.png"><img loading="lazy" src="visuals/2d-hold-phone.png" width="390" height="844" alt="Holding a stitch key on a phone."></a><figcaption><b>Holding</b> <code>2d-hold-phone.png</code></figcaption></figure>
+      <figure class="shot" style="--ar: .462"><a href="visuals/2d-wrong-phone.png"><img loading="lazy" src="visuals/2d-wrong-phone.png" width="390" height="844" alt="Wrong stitch on a phone, frog tag flagged NOW."></a><figcaption><b>Wrong stitch</b> <code>2d-wrong-phone.png</code></figcaption></figure>
+      <figure class="shot" style="--ar: .462"><a href="visuals/2d-streak-phone.png"><img loading="lazy" src="visuals/2d-streak-phone.png" width="390" height="844" alt="A clean run on row 8 on a phone."></a><figcaption><b>Clean run</b> <code>2d-streak-phone.png</code></figcaption></figure>
+      <figure class="shot" style="--ar: .462"><a href="visuals/2d-done-phone.png"><img loading="lazy" src="visuals/2d-done-phone.png" width="390" height="844" alt="Completion card on a phone."></a><figcaption><b>Fastened off</b> <code>2d-done-phone.png</code></figcaption></figure>
+      <figure class="shot" style="--ar: .462"><a href="visuals/2d-title-dark-phone.png"><img loading="lazy" src="visuals/2d-title-dark-phone.png" width="390" height="844" alt="Title screen on a phone under the lamp."></a><figcaption><span class="tagline lamp">Lamp</span><b>Title</b> <code>2d-title-dark-phone.png</code></figcaption></figure>
+      <figure class="shot" style="--ar: .462"><a href="visuals/2d-play-dark-phone.png"><img loading="lazy" src="visuals/2d-play-dark-phone.png" width="390" height="844" alt="Play screen on a phone under the lamp."></a><figcaption><span class="tagline lamp">Lamp</span><b>Playing</b> <code>2d-play-dark-phone.png</code></figcaption></figure>
+      <figure class="shot" style="--ar: .462"><a href="visuals/2d-done-dark-phone.png"><img loading="lazy" src="visuals/2d-done-dark-phone.png" width="390" height="844" alt="Completion card on a phone under the lamp."></a><figcaption><span class="tagline lamp">Lamp</span><b>Fastened off</b> <code>2d-done-dark-phone.png</code></figcaption></figure>
+      <figure class="shot wide" style="--ar: 2.167"><a href="visuals/2d-play-landscape.png"><img loading="lazy" src="visuals/2d-play-landscape.png" width="932" height="430" alt="Play screen on a phone held sideways: mat on the left, meters, next strip and keys on the right."></a>
+        <figcaption><b>Held sideways (932 &times; 430).</b> The mat moves left; meters, the next strip and every key end above the fold, which the smoke test checks from 568 &times; 320 up. <code>2d-play-landscape.png</code></figcaption></figure>
+    </div>
+  </section>
+
+  <!-- ============================================================ 06 3D -->
+  <section class="sheet" id="three" aria-labelledby="h-three">
+    <div class="sec-head">
+      <div class="num">06 &middot; THE 3D VIEW</div>
+      <h2 id="h-three">The same work, lying on the table</h2>
+      <p>Another view of the same game, not another game: press <kbd>V</kbd> and only the mat changes. Each stitch is a yarn tube built from the 2D layout, so both views always agree on where every stitch is and where the hook stands. three.js r160 is vendored and loaded only when a player picks 3D.</p>
+    </div>
+    <div class="row">
+      <figure class="shot" style="--ar: 1.6"><a href="visuals/3d-hero.png"><img loading="lazy" src="visuals/3d-hero.png" width="1920" height="1200" alt="The finished striped scarf in 3D on a linen blocking mat on a light oak table, the mustard working yarn running to the ball."></a>
+        <figcaption><span class="tagline day">Day</span><b>Finished scarf on the blocking mat.</b> Twisted-ply yarn tubes, the gauge grid baked into the linen, the working yarn running to the ball. <code>3d-hero.png</code></figcaption></figure>
+      <figure class="shot" style="--ar: 1.333"><a href="visuals/3d-turntable.mp4"><img loading="lazy" src="visuals/3d-turntable.gif" width="480" height="360" alt="Animated turntable: the finished scarf turning on the table."></a>
+        <figcaption><b>Completion turntable.</b> 48 frames at 12 fps: the whole piece comes back into view and turns. <a href="visuals/3d-turntable.mp4">MP4</a> <code>3d-turntable.gif</code></figcaption></figure>
+    </div>
+    <ul class="callout">
+      <li><b>Hook in the last loop</b>Exactly where the 2D chart puts it, so a wrong stitch is on the hook and frogging pulls it back a stitch.</li>
+      <li><b>Follows the row</b>The camera pans to each new row and the ball travels beside it, so its shrinking still warns you.</li>
+      <li><b>Cheap where it must be</b>Draws only when something changes; phones get a stepped-down pixel ratio and lighter materials.</li>
+    </ul>
+
+    <div class="sub-head" style="margin-top: 0"><h3>In the game</h3><p>The mat switches; keys, meters and leaflet stay as they are</p></div>
+    <div class="row">
+      <figure class="shot" style="--ar: 1.439"><a href="visuals/game-3d.png"><img loading="lazy" src="visuals/game-3d.png" width="1180" height="820" alt="The play screen with the mat in 3D: row 4 of the scarf, the hook standing in the last mustard stitch, the ball beside the row."></a>
+        <figcaption><b>Row 4 in 3D.</b> The hook stands in the last top loop and the Mustard ball sits beside the row being worked. <code>game-3d.png</code></figcaption></figure>
+      <figure class="shot" style="--ar: 1.439"><a href="visuals/game-3d-wrong.png"><img loading="lazy" src="visuals/game-3d-wrong.png" width="1180" height="820" alt="A wrong stitch in the 3D view: a red pinned stitch on the hook in the last row, the Uh oh card in the leaflet."></a>
+        <figcaption><b>Wrong stitch in 3D.</b> Red, striped and pinned on the hook; the &ldquo;Uh oh&rdquo; card and the NOW flag are the same as in 2D. <code>game-3d-wrong.png</code></figcaption></figure>
+    </div>
+    <div class="row">
+      <figure class="shot" style="--ar: 1.439"><a href="visuals/game-3d-dark.png"><img loading="lazy" src="visuals/game-3d-dark.png" width="1180" height="820" alt="The 3D mat under the lamp in the game, dark table, lit yarn."></a>
+        <figcaption><span class="tagline lamp">Lamp</span><b>The table under the lamp.</b> Scene colours come from the same tokens as the page. <code>game-3d-dark.png</code></figcaption></figure>
+      <figure class="shot" style="--ar: .462"><a href="visuals/3d-phone.png"><img loading="lazy" src="visuals/3d-phone.png" width="390" height="844" alt="The 3D showcase on a phone: toolbar in two lines, the scarf small on the mat in the middle of the table."></a>
+        <figcaption><b>Showcase on a phone.</b> <code>3d-phone.png</code></figcaption></figure>
+      <figure class="shot" style="--ar: 1.6"><a href="visuals/3d-dark.png"><img loading="lazy" src="visuals/3d-dark.png" width="1920" height="1200" alt="The finished scarf in 3D under the lamp on a dark mat."></a>
+        <figcaption><span class="tagline lamp">Lamp</span><b>Showcase after dark.</b> The yarn stays the brightest thing in the room. <code>3d-dark.png</code></figcaption></figure>
+    </div>
+
+    <div class="sub-head"><h3>Showcase renders</h3><p><code>3d.html</code>, from <code>scripts/shots3d.mjs</code>, which also checks rows, stripes, hook position and yarn hues</p></div>
+    <div class="row">
+      <figure class="shot" style="--ar: 1.6"><a href="visuals/3d-top.png"><img loading="lazy" src="visuals/3d-top.png" width="1920" height="1200" alt="The scarf from directly above: straight rows, stripes in pattern order."></a>
+        <figcaption><b>From above.</b> Rows stack straight and the stripes come out in pattern order. <code>3d-top.png</code></figcaption></figure>
+      <figure class="shot" style="--ar: 1.6"><a href="visuals/3d-grazing.png"><img loading="lazy" src="visuals/3d-grazing.png" width="1920" height="1200" alt="The scarf from a low grazing angle showing the ply and depth of each stitch."></a>
+        <figcaption><b>Grazing.</b> A low camera shows the ply and the depth of the work. <code>3d-grazing.png</code></figcaption></figure>
+      <figure class="shot" style="--ar: 1.6"><a href="visuals/3d-dark-close.png"><img loading="lazy" src="visuals/3d-dark-close.png" width="1920" height="1200" alt="Close view of the scarf under the lamp."></a>
+        <figcaption><span class="tagline lamp">Lamp</span><b>Close, lamp-lit.</b> Warm key light and sheen; no neon. <code>3d-dark-close.png</code></figcaption></figure>
+    </div>
+    <div class="row">
+      <figure class="shot" style="--ar: 1.6"><a href="visuals/3d-closeup.png"><img loading="lazy" src="visuals/3d-closeup.png" width="1920" height="1200" alt="Close-up of a lavender bobble standing out of the fabric under its cap."></a>
+        <figcaption><b>Bobble close-up.</b> Loops puff forward out of the fabric under a cap. <code>3d-closeup.png</code></figcaption></figure>
+      <figure class="shot" style="--ar: 1.6"><a href="visuals/3d-pouch.png"><img loading="lazy" src="visuals/3d-pouch.png" width="1920" height="1200" alt="The bobble pouch panel in lavender with staggered bobbles."></a>
+        <figcaption><b>Bobble pouch panel.</b> Bobbles stand proud in a staggered grid. <code>3d-pouch.png</code></figcaption></figure>
+      <figure class="shot" style="--ar: 1.6"><a href="visuals/3d-coaster.png"><img loading="lazy" src="visuals/3d-coaster.png" width="1920" height="1200" alt="The mug coaster in rose single crochet."></a>
+        <figcaption><b>Mug coaster.</b> Single crochet in Rose. <code>3d-coaster.png</code></figcaption></figure>
+    </div>
+    <div class="row">
+      <figure class="shot" style="--ar: 1.6"><a href="visuals/3d-wrong.png"><img loading="lazy" src="visuals/3d-wrong.png" width="1280" height="800" alt="Showcase close-up of a red pinned wrong stitch with the hook crook in view while frogging."></a>
+        <figcaption><b>Frogging a wrong stitch.</b> The red striped stitch and its pin, with the J of the hook in view. <code>3d-wrong.png</code></figcaption></figure>
+      <figure class="shot" style="--ar: 1.6"><a href="visuals/3d-hold.png"><img loading="lazy" src="visuals/3d-hold.png" width="1280" height="800" alt="Showcase mid-hold on the pouch: the working loop swollen round the throat of the hook."></a>
+        <figcaption><b>Mid-hold.</b> The working loop swells round the throat of the hook as the key is held. <code>3d-hold.png</code></figcaption></figure>
+    </div>
+  </section>
+
+  <!-- ============================================================ 07 changes -->
+  <section class="sheet" id="changes" aria-labelledby="h-changes">
+    <div class="sec-head">
+      <div class="num">07 &middot; SINCE v0.1</div>
+      <h2 id="h-changes">What changed from the first prototype</h2>
+      <p>v0.1 (the first commit) played the same game on a flat cream page. The rules, patterns and scoring are unchanged; everything you see is new.</p>
+    </div>
+    <div class="row">
+      <figure class="shot versus" style="--ar: 1.439"><a href="visuals/v01-play-desktop.png"><img loading="lazy" src="visuals/v01-play-desktop.png" width="1180" height="820" alt="v0.1 play screen: flat line-drawn stitches on a white panel, a thin tension bar, plain white key buttons, pink accents."></a>
+        <figcaption><span class="tagline old">v0.1</span><b>Play screen.</b> Line symbols on a white panel, the hook parked at the left edge. <code>v01-play-desktop.png</code></figcaption></figure>
+      <figure class="shot versus" style="--ar: 1.439"><a href="visuals/2d-play-desktop.png"><img loading="lazy" src="visuals/2d-play-desktop.png" width="1180" height="820" alt="Current play screen on the craft table."></a>
+        <figcaption><span class="tagline new">Now</span><b>Play screen.</b> The same pattern, worked on the craft table. <code>2d-play-desktop.png</code></figcaption></figure>
+    </div>
+    <div class="row">
+      <figure class="shot versus" style="--ar: 1.439"><a href="visuals/v01-title-desktop.png"><img loading="lazy" src="visuals/v01-title-desktop.png" width="1180" height="820" alt="v0.1 title screen: pink Hooked heading, three white cards, How to play card."></a>
+        <figcaption><span class="tagline old">v0.1</span><b>Title.</b> Pink heading, white cards, dots for yarn. <code>v01-title-desktop.png</code></figcaption></figure>
+      <figure class="shot versus" style="--ar: 1.439"><a href="visuals/2d-title-desktop.png"><img loading="lazy" src="visuals/2d-title-desktop.png" width="1180" height="820" alt="Current title screen on the craft table."></a>
+        <figcaption><span class="tagline new">Now</span><b>Title.</b> Mark, underline, leaflet cards with skeins and best results. <code>2d-title-desktop.png</code></figcaption></figure>
+    </div>
+    <div class="changes">
+      <div>
+        <h3>Look and world</h3>
+        <ul>
+          <li><span class="was">A flat cream page with white cards</span>an oak craft table: paper leaflets, a linen blocking mat with a gauge grid, paper tags, washi tape and a rubber stamp.</li>
+          <li><span class="was">Pink on the title, turn, frog and next</span>one clay accent that marks only the next action; status colours mark only quality.</li>
+          <li><span class="was">Nunito named in CSS but never shipped</span>three system stacks (serif display, UI body, mono), nothing fetched.</li>
+          <li>A lamp-lit night theme on <kbd>N</kbd>, remembered per device, with every contrast pair checked in both themes.</li>
+        </ul>
+        <h3>Fabric</h3>
+        <ul>
+          <li><span class="was">4 px line symbols</span>plied yarn in shadow, body and highlight passes; tension changes width, height and lean, so a sloppy row looks sloppy.</li>
+          <li><span class="was">hdc drawn with a bar, dc with two (a treble)</span>chart convention fixed: hdc is a plain post, dc has one bar, sc is two legs under a cap.</li>
+          <li><span class="was">A wrong stitch was a dashed red outline</span>red, striped and pinned, and it stays on the hook until frogged.</li>
+          <li><span class="was">Hook at the left edge, yarn arcing over the work</span>a beech hook in the top loop of the last stitch; the working yarn runs down to a ball that shrinks as yarn is used.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Controls and feedback</h3>
+        <ul>
+          <li><span class="was">Plain text buttons</span>paper tags with chart symbols and keycaps; the expected tag is tinted with a NEXT flag and chevron, and a blocked game dims the tags and flags frog NOW.</li>
+          <li><span class="was">A thin tension bar</span>an 18 px trough with loose / neat / tight ticks, a knob while holding, a pin at the release and a readout in words and seconds.</li>
+          <li>Leaflet chips carry chart symbols and quality colours, a highlighter band marks the current row, and an &ldquo;Uh oh&rdquo; card explains a wrong stitch.</li>
+          <li>Completion gets a rubber-stamp grade, a results list and personal bests, plus an out-of-yarn ending.</li>
+        </ul>
+        <h3>Reach</h3>
+        <ul>
+          <li>Phones: every play control above the fold at 390 &times; 844, five tags in one row, and phones held sideways.</li>
+          <li>A 3D view on <kbd>V</kbd> (vendored three.js r160, loaded on demand) and a 3D showcase page.</li>
+          <li>The smoke test now covers 360 / 375 / 390 px, sideways phones and the 3D switch; the shot scripts regenerate every picture on this board and fail on visual regressions they can measure.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ 08 questions -->
+  <section class="sheet" id="questions" aria-labelledby="h-questions">
+    <div class="sec-head">
+      <div class="num">08 &middot; OPEN QUESTIONS</div>
+      <h2 id="h-questions">Decisions we would like help with</h2>
+      <p>None of these blocks the prototype. The first three are carried over from the brief; the rest came from looking at the captures on this board.</p>
+    </div>
+    <ol class="qs">
+      <li><h3>Does the single crochet read as a stitch, or as a triangle?</h3>
+        <p>The sc is now two legs to an apex under a cap (night-yarn&rsquo;s path) instead of craft-room&rsquo;s plump arch.</p>
+        <p><b>Proposal:</b> ask crocheters in playtest; if it reads as a triangle, bow the legs 0.10&nbsp;w instead of 0.06&nbsp;w before going back to the arch.</p>
+        <span class="who">Decide in playtest</span></li>
+      <li><h3>Should the ball stay at the lower right?</h3>
+        <p>Odd rows end at the right edge, so their turning chains finish near the ball.</p>
+        <p><b>Proposal:</b> if they crowd it, move the ball half a cell further right, never back over the work.</p>
+        <span class="who">Decide in playtest</span></li>
+      <li><h3>Is the lamp halo strong enough on cheap screens?</h3>
+        <p>The halo runs at 35% / .3, in the dark theme only.</p>
+        <p><b>Proposal:</b> raise it to 45% / .4 only if yarn looks dull on low-end LCDs; never add it to the day theme.</p>
+        <span class="who">Decide on devices</span></li>
+      <li><h3>Which view should a new player see first?</h3>
+        <p>2D is the default and the choice of <kbd>V</kbd> is remembered. 3D is the more striking picture, the chart the more legible one at phone size.</p>
+        <p><b>Proposal:</b> keep 2D first; invite players to try 3D from the completion card after their first finished piece.</p>
+        <span class="who">Stakeholder call</span></li>
+      <li><h3>The leaflet&rsquo;s row list cuts a line in half</h3>
+        <p>On the desktop play screens the list stops part-way through a row (&ldquo;Row 8&rdquo; is half visible above the stats).</p>
+        <p><b>Proposal:</b> a soft fade at the bottom edge, and keep the current row second from the top as rows are done.</p>
+        <span class="who">Design</span></li>
+      <li><h3>3D on a phone: the table, or the piece?</h3>
+        <p>In the showcase at 390 &times; 844 the whole mat fits, so the work is small and most of the screen is table.</p>
+        <p><b>Proposal:</b> a portrait camera that brings the work to about 80% of the width while playing; keep the wide table for the completion turntable.</p>
+        <span class="who">Design + engineering</span></li>
+      <li><h3>Skein bands under the lamp</h3>
+        <p>The paper bands on the project-card skeins use <code>--surface</code>, which is dark brown after dark, so in <code>2d-cards-dark.png</code> they read as dark stripes rather than paper labels.</p>
+        <p><b>Proposal:</b> give the bands a fixed cream in both themes, as real skein labels would be.</p>
+        <span class="who">Design (small)</span></li>
+      <li><h3>Does strike-through help or hurt the leaflet?</h3>
+        <p>Done rows are struck through, row number included, so the top half of the leaflet is mostly crossed-out text by the end of a project.</p>
+        <p><b>Proposal:</b> strike the instruction only and keep the row number plain, or swap the strike for a small tick.</p>
+        <span class="who">Design</span></li>
+    </ol>
+  </section>
+
+  <footer class="colophon">
+    Sources: <code>docs/design-brief.md</code> &middot; <code>docs/design-tokens.css</code> (inlined) &middot; <code>js/render.js</code> (glyphs drawn live) &middot; <code>docs/visuals/</code> (<code>scripts/shots2d.mjs</code>, <code>scripts/shots3d.mjs</code>). Screenshot of this board: <code>node scripts/shots-board.mjs</code>.
+    <span class="wordmark">Hooked &middot; a crochet game</span>
+  </footer>
+</div>
+
+<script>
+// ---------------------------------------------------------------- tokens -> swatches, contrast, fonts (classic script: works without modules)
+(function () {
+  var css = document.getElementById('tokens').textContent;
+  function block(re) {
+    var m = css.match(re); var o = {};
+    if (!m) return o;
+    m[1].replace(/--([\w-]+):\s*([^;]+);/g, function (_, k, v) { o[k] = v.trim(); return ''; });
+    return o;
+  }
+  var DAY = block(/:root\s*\{([\s\S]*?)\n\}/);
+  var LAMP = block(/:root\[data-theme="dark"\]\s*\{([\s\S]*?)\n\}/);
+  var T = { day: DAY, lamp: LAMP };
+  window.__tokens = T;
+
+  function rgb(h) { var n = parseInt(String(h).slice(1, 7), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+  function lum(h) { return rgb(h).map(function (c) { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }).reduce(function (a, c, i) { return a + c * [0.2126, 0.7152, 0.0722][i]; }, 0); }
+  function ratio(a, b) { var x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+  function onColour(h) { return ratio(h, '#2f2318') >= ratio(h, '#fbf6ec') ? '#2f2318' : '#fbf6ec'; }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+  // Values for forced-theme panels (the glyph sheet shows day and lamp side by side whatever the page theme).
+  document.querySelectorAll('[data-force]').forEach(function (el) {
+    var t = T[el.getAttribute('data-force')];
+    Object.keys(t).forEach(function (k) { el.style.setProperty('--' + k, t[k]); });
+    var hx = el.querySelector('[data-hex]');
+    if (hx) hx.textContent = '--' + hx.getAttribute('data-hex') + ' ' + t[hx.getAttribute('data-hex')];
+  });
+
+  var GROUPS = [
+    ['Table', 'The oak top everything sits on.', [['bg', 'oak tabletop, mid tone'], ['bg-2', 'grain shadow'], ['bg-3', 'lamp-lit highlight']]],
+    ['Paper and linen', 'Leaflets, tags, chips and the blocking mat.', [['surface', 'paper'], ['surface-2', 'linen mat under the work'], ['surface-3', 'chips, meter grooves, disabled tags'], ['surface-next', 'tinted paper of the expected tag'], ['line', 'hairlines and borders']]],
+    ['Ink', 'Walnut ink, and the one other ink allowed on wood.', [['ink', 'walnut ink: all body text'], ['table-ink', 'text on the wood (eyebrows, tagline)'], ['muted', 'secondary text on paper, linen, chips']]],
+    ['Accent and status', 'Clay points at the next action; status marks quality.', [['accent', 'clay: next step, primary button, row numbers'], ['accent-2', 'honey: the 3 px next ring, never text'], ['neat', 'neat chips, stamp, pin head'], ['ok', 'nearly chips, highlighter band'], ['bad', 'wrong stitch, blocked step, frog ring']]],
+    ['Yarn', 'Graphic objects only, never text.', [['yarn-rose', 'Rose: mug coaster'], ['yarn-teal', 'Teal: scarf'], ['yarn-mustard', 'Mustard: scarf'], ['yarn-lavender', 'Lavender: bobble pouch']]],
+    ['Beech hook', 'Light to shadow across the shaft.', [['hook-1', 'lit side'], ['hook-2', 'body'], ['hook-3', 'shadow side, grain, 5 mm mark']]],
+  ];
+  var sw = document.getElementById('swatches');
+  sw.innerHTML = GROUPS.map(function (g) {
+    return '<div class="pgroup"><div><h3>' + esc(g[0]) + '</h3><p>' + esc(g[1]) + '</p></div><div class="swatches">' +
+      g[2].map(function (s) {
+        var d = DAY[s[0]], l = LAMP[s[0]];
+        return '<div class="sw"><div class="chip" role="img" aria-label="--' + s[0] + ': day ' + d + ', lamp ' + l + '">' +
+          '<span style="background:' + d + ';color:' + onColour(d) + '"><i>Day</i>' + d + '</span>' +
+          '<span style="background:' + l + ';color:' + onColour(l) + '"><i>Lamp</i>' + l + '</span></div>' +
+          '<code>--' + s[0] + '</code><div class="role">' + esc(s[1]) + '</div></div>';
+      }).join('') + '</div></div>';
+  }).join('');
+
+  // kind: text (needs min), ring (non-text 3:1), graphic (yarn: carried by the shadow pass), avoidDay (kept off text in day)
+  var PAIRS = [
+    ['ink', 'bg', 'Title and back link on the wood', 7, 'text'],
+    ['ink', 'surface', 'Body text on paper', 4.5, 'text'],
+    ['ink', 'surface-2', 'Corner labels on the linen mat', 4.5, 'text'],
+    ['ink', 'surface-next', 'Text on the expected tag', 4.5, 'text'],
+    ['table-ink', 'bg', 'Eyebrows, tagline, footer on the wood', 4.5, 'text'],
+    ['muted', 'surface', 'Hints, meta, tag names on paper', 4.5, 'text'],
+    ['muted', 'surface-2', 'Secondary text on the mat', 4.5, 'text'],
+    ['muted', 'surface-3', 'Secondary text on chips', 4.5, 'text'],
+    ['muted', 'bg', 'Kept off the wood in day: use --table-ink', 4.5, 'avoidDay'],
+    ['accent', 'surface', 'Next instruction, row numbers', 4.5, 'text'],
+    ['accent', 'bg', 'Not text on the wood in day', 4.5, 'avoidDay'],
+    ['surface', 'accent', 'Primary button label, next flag', 4.5, 'text'],
+    ['bad', 'surface', 'Blocked instruction, wrong chip', 4.5, 'text'],
+    ['neat', 'surface', 'Neat chips, stamp, pin head', 4.5, 'text'],
+    ['ok', 'surface', 'Nearly chips', 4.5, 'text'],
+    ['accent-2', 'surface', 'The 3 px next ring (non-text)', 3, 'ring'],
+    ['yarn-rose', 'surface-2', 'Rose strand on the mat', 3, 'graphic'],
+    ['yarn-teal', 'surface-2', 'Teal strand on the mat', 3, 'graphic'],
+    ['yarn-mustard', 'surface-2', 'Mustard strand on the mat', 3, 'graphic'],
+    ['yarn-lavender', 'surface-2', 'Lavender strand on the mat', 3, 'graphic'],
+  ];
+  function cell(p, t, theme) {
+    var fg = t[p[0]], bg = t[p[1]], r = ratio(fg, bg), kind = p[4], badge;
+    if (r >= p[3]) badge = '<span class="badge pass">' + (p[3] >= 4.5 ? (r >= 7 ? 'AAA' : 'AA') : '3:1') + '</span>';
+    else if (kind === 'avoidDay' && theme === 'day') badge = '<span class="badge na">not text</span>';
+    else if (kind === 'graphic') badge = '<span class="badge na">shadow pass</span>';
+    else badge = '<span class="badge fail">fails</span>';
+    var sample;
+    if (kind === 'ring') sample = '<span class="sample ring" style="background:' + bg + '"><i style="box-shadow:0 0 0 3px ' + fg + ' inset"></i></span>';
+    else if (kind === 'graphic') sample = '<span class="sample bar" style="background:' + bg + '"><i style="background:' + fg + '"></i></span>';
+    else sample = '<span class="sample" style="background:' + bg + ';color:' + fg + '">Aa</span>';
+    return '<div class="cell" role="cell">' + sample + '<span class="ratio">' + r.toFixed(2) + '</span>' + badge + '</div>';
+  }
+  document.getElementById('contrast').innerHTML =
+    '<div class="crow head" role="row"><span role="columnheader">Pair</span><span role="columnheader">Used for</span><span role="columnheader">Day</span><span role="columnheader">Lamp</span><span role="columnheader" style="text-align:right">Needs</span></div>' +
+    PAIRS.map(function (p) {
+      return '<div class="crow" role="row"><div class="pair" role="cell"><code>--' + p[0] + '</code> <span>on</span> <code>--' + p[1] + '</code></div>' +
+        '<div class="use" role="cell">' + esc(p[2]) + '</div>' + cell(p, DAY, 'day') + cell(p, LAMP, 'lamp') +
+        '<div class="need" role="cell">' + p[3] + ':1</div></div>';
+    }).join('');
+
+  // Which face each stack actually lands on in this browser (width match against installed candidates).
+  var ctx = document.createElement('canvas').getContext('2d');
+  var probe = 'mmmmmmmmmmlli1WQ@#&gyAaBb0123';
+  function w(f) { ctx.font = '72px ' + f; return ctx.measureText(probe).width; }
+  function resolve(stack, extra) {
+    // Real faces first: fontconfig substitutes for names it does not have, so an alias (say "Segoe UI" on Linux)
+    // can measure the same as the face it stands in for. The stack's own names come after.
+    var names = extra.concat(stack.split(',').map(function (s) { return s.trim().replace(/^["']|["']$/g, ''); }));
+    var target = w(stack);
+    var generic = /^(system-ui|-apple-system|ui-monospace|ui-serif|ui-sans-serif|serif|sans-serif|monospace)$/;
+    for (var i = 0; i < names.length; i++) {
+      var n = names[i]; if (generic.test(n)) continue;
+      var installed = ['monospace', 'serif'].some(function (fb) { return Math.abs(w('"' + n + '", ' + fb) - w(fb)) > 0.01; });
+      if (installed && Math.abs(w('"' + n + '", monospace') - target) < 0.01) return n;
+    }
+    return 'the platform default';
+  }
+  var cs = getComputedStyle(document.documentElement);
+  var stacks = { display: cs.getPropertyValue('--font-display'), body: cs.getPropertyValue('--font-body'), mono: cs.getPropertyValue('--font-mono') };
+  var extras = {
+    display: ['DejaVu Serif', 'Liberation Serif', 'Noto Serif', 'Times New Roman'],
+    body: ['Inter', 'Cantarell', 'Ubuntu', 'Noto Sans', 'DejaVu Sans', 'Liberation Sans', 'Roboto', 'Segoe UI', 'Helvetica Neue', 'Arial'],
+    mono: ['DejaVu Sans Mono', 'Liberation Mono', 'Noto Sans Mono', 'Courier New'],
+  };
+  ['display', 'body', 'mono'].forEach(function (k) {
+    var el = document.getElementById('res-' + k);
+    if (el) el.textContent = resolve(stacks[k].trim(), extras[k]);
+  });
+
+  // Theme toggle (Day / Lamp). The board's own key, so it never changes the game's theme.
+  function setTheme(t, save) {
+    document.documentElement.setAttribute('data-theme', t);
+    document.querySelectorAll('[data-set-theme]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-set-theme') === t)); });
+    if (save) { try { localStorage.setItem('hooked.board.theme', t); } catch (e) { /* storage blocked */ } }
+  }
+  setTheme(document.documentElement.getAttribute('data-theme') || 'light', false);
+  document.querySelectorAll('[data-set-theme]').forEach(function (b) {
+    b.addEventListener('click', function () { setTheme(b.getAttribute('data-set-theme'), true); });
+  });
+})();
+</script>
+
+<script type="module">
+// ---------------------------------------------------------------- the glyph sheet, drawn by the game's renderer
+const board = (window.__board = { ready: false, glyphs: 0 });
+const STATES = [
+  { label: 'neat', t: 0, q: 'neat' },
+  { label: 'loose', t: -0.9, q: 'loose' },
+  { label: 'tight', t: 0.9, q: 'tight' },
+  { label: 'wrong', t: 0, q: 'wrong', wrong: true },
+];
+const COLS = [['ch', 'chain', 'teal'], ['sc', 'single', 'rose'], ['hdc', 'half double', 'mustard'], ['dc', 'double', 'lavender'], ['bo', 'bobble', 'teal']];
+const BOX_W = 50; const BOX_H = 58; const BASE = 50; // layout px per cell; row baseline at y = 50
+
+try {
+  const [{ drawStitch, symbolSvg, CELL }, { STITCHES }] = await Promise.all([import('../js/render.js'), import('../js/patterns.js')]);
+  const T = window.__tokens;
+  const paletteOf = (t) => ({
+    ink: t.ink, muted: t.muted, bad: t.bad, neat: t.neat, ok: t.ok,
+    surface: t.surface, surface2: t['surface-2'], surface3: t['surface-3'], line: t.line,
+    bg: t.bg, bg2: t['bg-2'], bg3: t['bg-3'],
+    yarns: { rose: t['yarn-rose'], teal: t['yarn-teal'], mustard: t['yarn-mustard'], lavender: t['yarn-lavender'] },
+    hook: [t['hook-1'], t['hook-2'], t['hook-3']],
+    shadowInk: t['shadow-ink'], halo: parseFloat(t['halo-canvas']) || 0, fontMono: t['font-mono'],
+  });
+  const PAL = { day: paletteOf(T.day), lamp: paletteOf(T.lamp) };
+  const cells = [];
+
+  document.querySelectorAll('[data-sheet]').forEach((sheet) => {
+    const theme = sheet.getAttribute('data-sheet');
+    let html = '<span></span>';
+    COLS.forEach(([st, name]) => { html += `<div class="ch">${symbolSvg(st, 20)}<b>${st}</b><small>${name}</small></div>`; });
+    STATES.forEach((s, ri) => {
+      html += `<div class="rl">${s.label}</div>`;
+      COLS.forEach(([st, name], ci) => {
+        html += `<canvas data-theme-pal="${theme}" data-st="${st}" data-ri="${ri}" data-ci="${ci}" role="img" aria-label="${s.label} ${name} in ${theme} theme"></canvas>`;
+      });
+    });
+    sheet.innerHTML = html;
+    sheet.querySelectorAll('canvas').forEach((c) => cells.push(c));
+  });
+
+  const drawCell = (canvas) => {
+    const pal = PAL[canvas.dataset.themePal];
+    const st = canvas.dataset.st; const ri = +canvas.dataset.ri; const ci = +canvas.dataset.ci;
+    const state = STATES[ri];
+    const cssW = canvas.clientWidth || 80; const cssH = canvas.clientHeight || 92;
+    const dpr = Math.min(3, window.devicePixelRatio || 1);
+    const W = Math.round(cssW * dpr); const H = Math.round(cssH * dpr);
+    if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    const k = Math.min(W / BOX_W, H / BOX_H);
+    ctx.setTransform(k, 0, 0, k, (W - BOX_W * k) / 2, (H - BOX_H * k) / 2);
+    // the mat's gauge: a row baseline and a dot at the stitch column, as on the game's mat
+    ctx.strokeStyle = pal.ink; ctx.globalAlpha = 0.08; ctx.lineWidth = 1 / k * dpr;
+    ctx.beginPath(); ctx.moveTo(2, BASE); ctx.lineTo(BOX_W - 2, BASE); ctx.stroke();
+    ctx.globalAlpha = 0.14; ctx.fillStyle = pal.ink;
+    ctx.beginPath(); ctx.arc(BOX_W / 2, BASE + 4, 0.9, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 1;
+    const g = { x: BOX_W / 2 - CELL / 2, y: BASE, w: CELL, h: STITCHES[st].height, dir: 1 };
+    drawStitch(ctx, { st, t: state.t, q: state.q, wrong: !!state.wrong, n: ri * 5 + ci }, g, pal.yarns[COLS[ci][2]], { k, palette: pal });
+  };
+  const drawAll = () => { cells.forEach(drawCell); board.glyphs = cells.length; };
+  drawAll();
+  if ('ResizeObserver' in window) {
+    let raf = 0;
+    new ResizeObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(drawAll); }).observe(document.getElementById('gpanels'));
+  }
+} catch (err) {
+  document.querySelectorAll('[data-sheet]').forEach((s) => {
+    s.outerHTML = '<p class="gfail">The glyphs are drawn by <code>js/render.js</code>, which loads as an ES module: open this page over HTTP (for example <code>npx serve .</code> from the project root).</p>';
+  });
+  board.error = String(err && err.message || err);
+}
+board.ready = true;
+</script>
+</body>
+</html>

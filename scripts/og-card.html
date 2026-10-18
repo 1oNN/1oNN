@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=1200" />
+  <title>Hooked social card</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23e2869f'/%3E%3C/svg%3E" />
+  <!-- The 1200 x 630 social preview (docs/visuals/og-card.png), composed from the game's own parts:
+       its tokens and tabletop (css/style.css), its mark, and a scarf swatch worked by js/game.js and
+       drawn by js/render.js. scripts/shots2d.mjs (mode "og") serves the folder and screenshots this. -->
+  <link rel="stylesheet" href="../css/style.css" />
+  <style>
+    html { overflow: hidden; }
+    body { width: 1200px; height: 630px; min-height: 0; overflow: hidden; position: relative; }
+    .og {
+      position: relative; z-index: 1; height: 630px;
+      display: grid; grid-template-columns: 424px 1fr; align-items: center; gap: 24px; padding: 0 42px 0 76px;
+    }
+    .brand { display: grid; justify-items: start; }
+    .brand .mark { width: 104px; height: 104px; margin: 0 0 10px -10px; filter: drop-shadow(0 8px 10px rgba(var(--shadow-ink), .35)); }
+    .brand .eyebrow { color: var(--accent); font-size: 15px; letter-spacing: .2em; margin: 0 0 12px 4px; }
+    .brand h1 { font: 700 130px/.92 var(--font-display); letter-spacing: -.035em; position: relative; margin-left: -4px; }
+    .brand h1 .ul { position: absolute; left: -1%; width: 102%; bottom: -14px; height: 18px; overflow: visible; }
+    .tagline {
+      margin: 44px 0 0 2px; font: 400 29px/1.25 var(--font-display); color: var(--table-ink);
+      white-space: nowrap; min-width: 0; max-width: 100%; overflow: hidden;
+    }
+    .tagline em { color: var(--ink); }
+    .swatch { padding: 16px; transform: rotate(-1.2deg); }
+    .swatch canvas { display: block; width: 100%; height: auto; }
+    .swatch .tape { top: -12px; left: 18%; transform: rotate(-4deg); }
+    .swatch .tape.r { left: auto; right: 12%; margin-left: 0; transform: rotate(3deg); }
+  </style>
+</head>
+<body>
+  <main class="og">
+    <section class="brand">
+      <svg class="mark" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+        <defs>
+          <radialGradient id="ballg" cx="34%" cy="30%" r="74%">
+            <stop offset="0" stop-color="#fff7e8" stop-opacity=".55"/>
+            <stop offset=".5" stop-color="#fff7e8" stop-opacity="0"/>
+            <stop offset="1" stop-color="#2a1608" stop-opacity=".45"/>
+          </radialGradient>
+          <linearGradient id="woodg" x1="0" x2="1">
+            <stop offset="0" style="stop-color: var(--hook-1)"/>
+            <stop offset=".5" style="stop-color: var(--hook-2)"/>
+            <stop offset="1" style="stop-color: var(--hook-3)"/>
+          </linearGradient>
+          <clipPath id="ballc"><circle cx="54" cy="68" r="39.5"/></clipPath>
+        </defs>
+        <circle cx="54" cy="68" r="40" style="fill: var(--yarn-rose)"/>
+        <g clip-path="url(#ballc)" fill="none" stroke-linecap="round">
+          <g stroke="#2a1608" stroke-opacity=".3" stroke-width="2.6">
+          <path d="M-40 0A40 9 0 0 0 40 0" transform="translate(54 68) rotate(-32)"/>
+          <path d="M-40 0A40 16 0 0 0 40 0" transform="translate(54 68) rotate(-32)"/>
+          <path d="M-40 0A40 23 0 0 0 40 0" transform="translate(54 68) rotate(-32)"/>
+          <path d="M-40 0A40 30 0 0 0 40 0" transform="translate(54 68) rotate(-32)"/>
+          <path d="M-40 0A40 7 0 0 0 40 0" transform="translate(54 68) rotate(38)"/>
+          <path d="M-40 0A40 14 0 0 0 40 0" transform="translate(54 68) rotate(38)"/>
+          <path d="M-40 0A40 21 0 0 0 40 0" transform="translate(54 68) rotate(38)"/>
+          <path d="M-40 0A40 11 0 0 0 40 0" transform="translate(54 68) rotate(100)"/>
+          <path d="M-40 0A40 19 0 0 0 40 0" transform="translate(54 68) rotate(100)"/>
+          </g>
+          <g stroke="#fff7e8" stroke-opacity=".42" stroke-width="1.1">
+          <path d="M-40 0A40 9 0 0 0 40 0" transform="translate(54 66) rotate(-32)"/>
+          <path d="M-40 0A40 16 0 0 0 40 0" transform="translate(54 66) rotate(-32)"/>
+          <path d="M-40 0A40 23 0 0 0 40 0" transform="translate(54 66) rotate(-32)"/>
+          <path d="M-40 0A40 30 0 0 0 40 0" transform="translate(54 66) rotate(-32)"/>
+          <path d="M-40 0A40 7 0 0 0 40 0" transform="translate(54 66) rotate(38)"/>
+          <path d="M-40 0A40 14 0 0 0 40 0" transform="translate(54 66) rotate(38)"/>
+          <path d="M-40 0A40 21 0 0 0 40 0" transform="translate(54 66) rotate(38)"/>
+          <path d="M-40 0A40 11 0 0 0 40 0" transform="translate(54 66) rotate(100)"/>
+          <path d="M-40 0A40 19 0 0 0 40 0" transform="translate(54 66) rotate(100)"/>
+          </g>
+        </g>
+        <circle cx="54" cy="68" r="40" fill="url(#ballg)"/>
+        <path d="M90 52 C 106 40, 102 18, 86 18 S 60 30, 61 46" fill="none" style="stroke: var(--yarn-rose)" stroke-width="4.4" stroke-linecap="round"/>
+        <path d="M90 52 C 106 40, 102 18, 86 18 S 60 30, 61 46" fill="none" stroke="#fff7e8" stroke-opacity=".45" stroke-width="1.3" stroke-linecap="round" transform="translate(-.4 -1.2)"/>
+        <g transform="translate(66 58) rotate(30)">
+          <rect x="-4" y="-62" width="8" height="52" rx="4" fill="url(#woodg)"/>
+          <rect x="-5.5" y="-44" width="11" height="16" rx="5" fill="url(#woodg)"/>
+          <path d="M0 -12 Q0 3 -8 2 Q-12 1 -10 -6" fill="none" stroke="url(#woodg)" stroke-width="5.5" stroke-linecap="round"/>
+          <path d="M-2.4 -59 V -12" stroke="#fff7e8" stroke-opacity=".7" stroke-width="1"/>
+        </g>
+      </svg>
+      <div class="eyebrow">A crochet game</div>
+      <h1>Hooked
+        <svg class="ul" viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M3 7 C 60 2, 120 10, 180 5 S 270 3, 297 8" fill="none" style="stroke: var(--yarn-rose)" stroke-width="5" stroke-linecap="round"/></svg>
+      </h1>
+      <p class="tagline"><em>Keep your tension.</em> Frog your mistakes.</p>
+    </section>
+
+    <figure class="mat swatch" style="margin: 0">
+      <i class="tape" aria-hidden="true"></i><i class="tape r" aria-hidden="true"></i>
+      <canvas id="swatch" aria-label="A striped scarf swatch in progress, drawn by the game's renderer"></canvas>
+      <span class="mat-label tl" id="gauge"></span>
+      <span class="mat-label tr">hook 5.0 mm</span>
+    </figure>
+  </main>
+
+  <script type="module">
+    import { PATTERNS } from '../js/patterns.js';
+    import { Game, HOLD } from '../js/game.js';
+    import { layout, draw, setPalette, readPalette, getPalette, yarnColor } from '../js/render.js';
+
+    // A seeded run of the striped scarf: every stitch in the green, with the small hand-made wobble
+    // of real holds (+-70 ms round the centre), stopped halfway along the last row so the hook is in.
+    let seed = 7;
+    const rand = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+    const pattern = PATTERNS.find((p) => p.id === 'scarf');
+    const game = new Game(pattern, { now: () => 0 });
+    const last = pattern.rows.length - 1;
+    while (game.active) {
+      const s = game.step;
+      if (s.type === 'stitch' && s.row === last && s.i === 8) break;
+      if (s.type === 'stitch') game.pressStitch(s.st, HOLD.centre + (rand() - 0.5) * 140);
+      else if (s.type === 'yarn') game.pressYarn(s.yarn);
+      else game.pressTurn();
+    }
+    const lay = layout(pattern);
+    document.getElementById('gauge').textContent = `${lay.cols} st × ${pattern.rows.length} rows`;
+
+    function paint() {
+      setPalette(readPalette());
+      const canvas = document.getElementById('swatch');
+      const dpr = window.devicePixelRatio || 1;
+      const k = (dpr * canvas.clientWidth) / lay.width;
+      canvas.width = Math.round(lay.width * k);
+      canvas.height = Math.round(lay.height * k);
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(k, 0, 0, k, 0, 0);
+      draw(ctx, game, lay, {
+        time: 0, hold: null, k, fx: {}, reduced: true, palette: getPalette(),
+        yarnColor: yarnColor(pattern.yarns[game.currentYarn]),
+      });
+    }
+
+    /** Shrink the tagline until it sits on one line in its column. */
+    function fitTagline() {
+      const el = document.querySelector('.tagline');
+      let size = parseFloat(getComputedStyle(el).fontSize);
+      while (el.scrollWidth > el.clientWidth + 0.5 && size > 18) { size -= 0.5; el.style.fontSize = `${size}px`; }
+    }
+
+    /** Slide the tabletop's plank seams (3 px every 230 px) into the gaps between the lines of text. */
+    function placeSeams() {
+      const spans = [...document.querySelectorAll('.brand .eyebrow, .brand h1, .tagline')].map((el) => {
+        const r = el.getBoundingClientRect(); return [r.top - 6, r.bottom + 6];
+      });
+      let best = 0; let bestCost = Infinity;
+      for (let o = 0; o < 230; o += 1) {
+        let c = 0;
+        spans.forEach(([a, b]) => { for (let y = o - 230; y < 630; y += 230) if (y + 3 > a && y < b) c += 1; });
+        // prefer seams well away from text: distance to the nearest span edge breaks ties
+        const d = Math.min(...spans.flatMap(([a, b]) => [0, 1, 2, 3].map((n) => Math.min(Math.abs(o + n * 230 - a), Math.abs(o + n * 230 - b)))));
+        const score = c * 1000 - d;
+        if (score < bestCost) { bestCost = score; best = o; }
+      }
+      document.body.style.setProperty('--seam-y', `${best}px`);
+      return best;
+    }
+
+    /** Layout checks for the screenshot script: one-line tagline, nothing out of frame. */
+    window.__ogCheck = () => {
+      const out = [];
+      const tl = document.querySelector('.tagline');
+      const lh = parseFloat(getComputedStyle(tl).lineHeight);
+      if (tl.getBoundingClientRect().height > lh * 1.5) out.push('the tagline wraps');
+      if (tl.scrollWidth > tl.clientWidth + 0.5) out.push('the tagline is cut off');
+      ['.brand .mark', '.brand h1', '.tagline', '.swatch'].forEach((sel) => {
+        const r = document.querySelector(sel).getBoundingClientRect();
+        if (r.left < 24 || r.top < 20 || r.right > 1200 - 24 || r.bottom > 630 - 20) out.push(`${sel} is too close to the edge (${Math.round(r.left)},${Math.round(r.top)} to ${Math.round(r.right)},${Math.round(r.bottom)})`);
+      });
+      const s = document.querySelector('.swatch').getBoundingClientRect();
+      ['.brand', '.brand .eyebrow', '.brand h1', '.tagline'].forEach((sel) => {
+        const el = document.querySelector(sel);
+        if (el.getBoundingClientRect().left + el.scrollWidth > s.left - 12) out.push(`${sel} runs into the swatch`);
+      });
+      return { problems: out, tagline: parseFloat(getComputedStyle(tl).fontSize), seam: getComputedStyle(document.body).getPropertyValue('--seam-y') };
+    };
+
+    await document.fonts.ready;
+    fitTagline();
+    paint();
+    placeSeams();
+    requestAnimationFrame(() => requestAnimationFrame(() => { window.__ogReady = true; }));
+  </script>
+</body>
+</html>

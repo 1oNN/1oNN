@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hooked in 3D</title>
+<link rel="icon" href="data:,">
+<meta name="description" content="The crochet work from Hooked, seen on the table in 3D. Watches a pattern being worked stitch by stitch.">
+<style>
+  /* Tokens from docs/design-tokens.css (light = the daytime table, dark = the same table under the lamp). */
+  :root {
+    color-scheme: light;
+    --bg: #d4b188; --bg-2: #bf9666; --bg-3: #e3c9a4;
+    --surface: #fbf6ec; --surface-2: #f1e7d4; --surface-3: #e9dcc5; --surface-next: #f7e3bb;
+    --ink: #2f2318; --table-ink: #4f3a2a; --muted: #6b5543; --line: #d6c3a6;
+    --accent: #9a4a2b; --accent-2: #a8743a; --neat: #4d7536; --ok: #8f6a10; --bad: #b23a30;
+    --yarn-rose: #e2869f; --yarn-teal: #3b9e98; --yarn-mustard: #dcae36; --yarn-lavender: #9c86d2;
+    --hook-1: #ecd3a4; --hook-2: #c69c63; --hook-3: #86603a;
+    --shadow-ink: 60, 35, 15; --radius: 10px;
+    --paper-shadow: 0 1px 0 rgba(255,255,255,.65) inset, 0 1px 2px rgba(60,35,15,.18), 0 12px 28px -12px rgba(60,35,15,.45);
+    --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Charter, "Bitstream Charter", Georgia, Caladea, "DejaVu Serif", serif;
+    --font-body: system-ui, -apple-system, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", "Liberation Mono", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #3b2a1e; --bg-2: #2a1d14; --bg-3: #4c392a;
+      --surface: #302822; --surface-2: #28211b; --surface-3: #3b322a; --surface-next: #4a3a24;
+      --ink: #f1e6d3; --table-ink: #d9c8ae; --muted: #b9a78f; --line: #4f4236;
+      --accent: #e0a070; --accent-2: #c08b58; --neat: #8cc278; --ok: #e2b84f; --bad: #e46f60;
+      --yarn-rose: #ee9db5; --yarn-teal: #55c0b8; --yarn-mustard: #eac35a; --yarn-lavender: #b6a3ea;
+      --hook-1: #e2c69a; --hook-2: #b6895a; --hook-3: #6e4c2c;
+      --shadow-ink: 0, 0, 0;
+      --paper-shadow: 0 1px 0 rgba(255,255,255,.06) inset, 0 1px 2px rgba(0,0,0,.4), 0 12px 28px -12px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #3b2a1e; --bg-2: #2a1d14; --bg-3: #4c392a;
+    --surface: #302822; --surface-2: #28211b; --surface-3: #3b322a; --surface-next: #4a3a24;
+    --ink: #f1e6d3; --table-ink: #d9c8ae; --muted: #b9a78f; --line: #4f4236;
+    --accent: #e0a070; --accent-2: #c08b58; --neat: #8cc278; --ok: #e2b84f; --bad: #e46f60;
+    --yarn-rose: #ee9db5; --yarn-teal: #55c0b8; --yarn-mustard: #eac35a; --yarn-lavender: #b6a3ea;
+    --hook-1: #e2c69a; --hook-2: #b6895a; --hook-3: #6e4c2c;
+    --shadow-ink: 0, 0, 0;
+    --paper-shadow: 0 1px 0 rgba(255,255,255,.06) inset, 0 1px 2px rgba(0,0,0,.4), 0 12px 28px -12px rgba(0,0,0,.7);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg-2);
+    color: var(--ink);
+    font: 16px/1.5 var(--font-body);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .bar {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+    padding: 10px 16px;
+    background: var(--surface);
+    box-shadow: var(--paper-shadow);
+    position: relative; z-index: 2;
+  }
+  .home {
+    display: grid; place-items: center; width: 34px; height: 34px; flex: none; border-radius: 50%;
+    color: var(--ink); background: var(--surface-3); border: 1px solid var(--line);
+  }
+  .home:hover { background: var(--surface-next); }
+  .home:focus-visible { outline: 3px solid var(--accent-2); outline-offset: 2px; }
+  .home svg { width: 18px; height: 18px; display: block; }
+  .bar h1 {
+    font: 700 22px/1 var(--font-display); letter-spacing: -0.012em; margin: 0 6px 0 0;
+  }
+  .bar h1 small { font: italic 400 0.7em var(--font-display); color: var(--muted); }
+  .group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .eyebrow { font: 700 11px/1 var(--font-body); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin-right: 2px; }
+  button {
+    font: 600 13px/1 var(--font-body); color: var(--ink);
+    background: var(--surface-3); border: 1px solid var(--line); border-radius: 999px;
+    padding: 8px 12px; cursor: pointer; min-height: 34px;
+  }
+  button:hover { background: var(--surface-next); }
+  button[aria-pressed="true"] { background: var(--accent); color: var(--surface); border-color: var(--accent); }
+  button:focus-visible { outline: 3px solid var(--accent-2); outline-offset: 2px; }
+  button kbd { font: 600 11px var(--font-mono); opacity: .75; margin-left: 4px; }
+  button .short { display: none; }
+  @media (max-width: 600px) { #patterns button .short { display: inline; } }
+  .status { margin-left: auto; font: 600 12px/1.4 var(--font-mono); color: var(--muted); min-width: 0; }
+  .status b { color: var(--accent); font-weight: 700; }
+  .stage { position: relative; flex: 1 1 auto; min-height: 240px; }
+  .stage .view3d-canvas { position: absolute; inset: 0; }
+  .stage::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .2; mix-blend-mode: multiply;
+    background-image: repeating-radial-gradient(circle at 37% 61%, rgba(0,0,0,.05) 0 1px, transparent 1px 3px);
+  }
+  .hint {
+    position: absolute; left: 16px; bottom: 12px; z-index: 1;
+    font: 600 11px/1.5 var(--font-mono); letter-spacing: .06em; text-transform: uppercase;
+    /* paper on walnut in both themes (13:1), so it never depends on the scene behind it */
+    color: #fbf6ec; background: rgba(47, 35, 24, .72); padding: 6px 10px; border-radius: 6px;
+    pointer-events: none;
+  }
+  @media (max-width: 600px) {
+    .bar { padding: 8px 16px; gap: 6px; }
+    .bar h1 { font-size: 19px; margin-right: auto; }
+    .group { gap: 4px; }
+    .eyebrow { display: none; }
+    button { padding: 6px 9px; min-height: 32px; font-size: 12px; }
+    button kbd, button .long { display: none; }
+    .status { width: 100%; margin-left: 0; }
+    .hint { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+  <header class="bar">
+    <a class="home" href="./" title="Back to the game" aria-label="Back to the game">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5 M11 6l-6 6 6 6"/></svg>
+    </a>
+    <h1>Hooked <small>in 3D</small></h1>
+    <div class="group" id="patterns" role="group" aria-label="Project"><span class="eyebrow">Project</span></div>
+    <div class="group">
+      <button id="btn-theme" aria-pressed="false" title="Light or lamp-lit (dark) table">Lamp <kbd>N</kbd></button>
+      <button id="btn-turn" aria-pressed="false" title="Orbit the camera round the work">Turntable <kbd>R</kbd></button>
+      <button id="btn-pause" aria-pressed="false">Pause <kbd>Space</kbd></button>
+      <button id="btn-view">Reset<span class="long"> view</span></button>
+    </div>
+    <div class="status" id="status" aria-live="polite">Loading the table…</div>
+  </header>
+  <main class="stage" id="stage"></main>
+  <div class="hint" id="hint">drag to orbit · wheel to zoom</div>
+
+<script type="module">
+  import { PATTERNS } from './js/patterns.js';
+  import { Game, HOLD, tensionFromHold } from './js/game.js';
+  import { createView3D, supportsWebGL } from './js/view3d.js';
+  import { mulberry32 } from './js/view3d/textures.js';
+
+  const $ = (s) => document.querySelector(s);
+  const params = new URLSearchParams(location.search);
+  const speed = params.get('speed') === 'fast' ? 0.3 : params.get('speed') === 'slow' ? 2 : 1;
+  const seed = Number(params.get('seed') || 7);
+  const autoplay = params.get('autoplay') !== '0';
+  const pauseAt = params.has('pauseAt') ? Number(params.get('pauseAt')) : null;
+  const pauseHold = params.has('hold') ? Number(params.get('hold')) : 0.55;
+  if (params.get('theme') === 'dark' || params.get('theme') === 'light') document.documentElement.dataset.theme = params.get('theme');
+  else {
+    try { const saved = localStorage.getItem('hooked.theme'); if (saved === 'dark' || saved === 'light') document.documentElement.dataset.theme = saved; } catch { /* ignore */ }
+  }
+  $('#btn-theme').setAttribute('aria-pressed', String(document.documentElement.dataset.theme === 'dark'));
+
+  if (!supportsWebGL()) {
+    $('#status').textContent = 'WebGL is not available in this browser, so the 3D table cannot be shown.';
+    throw new Error('no webgl');
+  }
+
+  // ---------- auto-player: works the pattern with human-ish tension, one slip, frogged ----------
+  let game = null;
+  let hold = null;          // { st, start, realDur, simMs, frozen }
+  let paused = false;
+  let gapUntil = 0;
+  let wrongDone = false;
+  let rng = mulberry32(seed);
+  let stepCount = 0;
+
+  function sampleHoldMs() {
+    const g = (rng() + rng() + rng() - 1.5) * 0.76;   // ~N(0, 0.38): mostly neat, sometimes ok, rarely loose/tight
+    const t = Math.max(-1, Math.min(1, g));
+    return Math.round(HOLD.centre + HOLD.span * t);
+  }
+  function wrongFor(st) { return st === 'dc' ? 'sc' : 'dc'; }
+  /** The one slip of the run: an sc instead of the 6th dc of the first Mustard row (row 4). */
+  function isSlip(step) { return !wrongDone && step.row === 3 && step.i === 5; }
+
+  function getHold() {
+    if (!hold) return null;
+    const p = hold.frozen != null ? hold.frozen : Math.min(1, (performance.now() - hold.start) / hold.realDur);
+    const simMs = p * hold.simMs;
+    const progress = Math.min(1, simMs / HOLD.max);
+    return { progress, zone: tensionFromHold(simMs).q };
+  }
+
+  function beginStep(now) {
+    const step = game.step;
+    if (!step) return;
+    if (game.blocked) { game.frog(); gapUntil = now + 260 * speed; return; }
+    if (step.type === 'stitch') {
+      stepCount += 1;
+      const slip = isSlip(step);
+      const st = slip ? wrongFor(step.st) : step.st;
+      if (slip) wrongDone = true;
+      const simMs = slip ? 320 : sampleHoldMs();
+      hold = { st, start: now, realDur: Math.max(40, 0.3 * simMs * speed), simMs, frozen: null };
+      if (pauseAt != null && game.idx === pauseAt) { hold.frozen = pauseHold; paused = true; }
+    } else if (step.type === 'turn' || step.type === 'finish') {
+      game.pressTurn(); gapUntil = now + 220 * speed;
+    } else if (step.type === 'yarn') {
+      game.pressYarn(step.yarn); gapUntil = now + 220 * speed;
+    }
+  }
+
+  function tick() {
+    if (!game || !game.active) return;
+    const now = performance.now();
+    if (hold) {
+      if (hold.frozen != null || paused) return;
+      if (now - hold.start >= hold.realDur) {
+        const { st, simMs } = hold;
+        hold = null;
+        game.pressStitch(st, simMs);
+        gapUntil = now + 25 * speed;
+      }
+      return;
+    }
+    if (paused || now < gapUntil) return;
+    beginStep(now);
+  }
+
+  const player = {
+    pause() { paused = true; setPressed('#btn-pause', true); },
+    resume() { paused = false; if (hold) hold.frozen = null; setPressed('#btn-pause', false); },
+    get paused() { return paused; },
+    /** Freeze a hold at `progress` (0..1) on the current stitch step, for screenshots. */
+    freezeHold(progress = 0.55) {
+      if (!game || !game.active) return false;
+      if (hold) { hold.frozen = progress; paused = true; return true; }
+      const step = game.step;
+      if (!step || step.type !== 'stitch') return false;
+      hold = { st: step.st, start: performance.now(), realDur: 1, simMs: progress * HOLD.max, frozen: 1 };
+      paused = true;
+      return true;
+    },
+    /** Play synchronously (same rules as the timer: tension spread, the one slip, frog it) up to step
+     *  `idx` or the end; `untilSlip` stops with the wrong stitch on the hook. */
+    advanceTo(idx = Infinity, { untilSlip = false } = {}) {
+      if (!game) return;
+      hold = null;
+      let guard = 2000;
+      while (game.active && game.idx < idx && guard > 0) {
+        guard -= 1;
+        const step = game.step;
+        if (game.blocked) { if (untilSlip) break; game.frog(); }
+        else if (step.type === 'stitch') {
+          if (isSlip(step)) { wrongDone = true; game.pressStitch(wrongFor(step.st), 320); }
+          else game.pressStitch(step.st, sampleHoldMs());
+        }
+        else if (step.type === 'yarn') game.pressYarn(step.yarn);
+        else game.pressTurn();
+      }
+      gapUntil = performance.now() + 400 * speed;
+    },
+    /** Play on until the slip is on the hook (blocked), for the wrong-stitch screenshot. */
+    playUntilSlip() { player.advanceTo(Infinity, { untilSlip: true }); return game.blocked; },
+    /** Finish the rest of the project at once. */
+    finish() { paused = false; player.advanceTo(Infinity); },
+    /** Put a wrong stitch on the work now (it must then be frogged). */
+    slip() {
+      if (!game || !game.active || game.blocked) return false;
+      const step = game.step;
+      if (!step || step.type !== 'stitch') return false;
+      hold = null;
+      game.pressStitch(wrongFor(step.st), 320);
+      wrongDone = true;
+      return game.blocked;
+    },
+    frog() { if (game) game.frog(); },
+  };
+
+  // ---------- view ----------
+  const stage = $('#stage');
+  const view = createView3D(stage, { game: null, getHold, theme: 'auto', autoLoop: true });
+
+  function setPressed(sel, on) { $(sel).setAttribute('aria-pressed', String(on)); }
+
+  function start(pattern) {
+    game = new Game(pattern);
+    hold = null; paused = false; gapUntil = performance.now() + 400 * speed; wrongDone = false; stepCount = 0;
+    rng = mulberry32(seed);
+    view.setGame(game);
+    setPressed('#btn-pause', false);
+    [...$('#patterns').querySelectorAll('button')].forEach((b) => setPressed(`#${b.id}`, b.dataset.id === pattern.id));
+    if (!autoplay) paused = true;
+  }
+
+  PATTERNS.forEach((p, i) => {
+    const b = document.createElement('button');
+    b.id = `pat-${p.id}`; b.dataset.id = p.id;
+    const [first, ...rest] = p.name.replace(' (swatch)', '').split(' ');
+    const short = { coaster: 'Coaster', scarf: 'Scarf', pouch: 'Pouch' }[p.id] || first;
+    b.innerHTML = `<span class="long">${first} ${rest.join(' ')}</span><span class="short">${short}</span> <kbd>${i + 1}</kbd>`;
+    b.title = p.name;
+    b.addEventListener('click', () => start(p));
+    $('#patterns').appendChild(b);
+  });
+
+  function setTheme(next) {
+    const cur = document.documentElement.dataset.theme;
+    const t = next || (cur === 'dark' ? 'light' : 'dark');
+    document.documentElement.dataset.theme = t;      // the view observes data-theme and re-reads the tokens
+    try { localStorage.setItem('hooked.theme', t); } catch { /* ignore */ }
+    setPressed('#btn-theme', t === 'dark');
+  }
+  let turning = false;
+  function setTurntable(on) {
+    turning = on;
+    view.turntable(on, 1.6);
+    setPressed('#btn-turn', on);
+  }
+
+  $('#btn-theme').addEventListener('click', () => setTheme());
+  $('#btn-turn').addEventListener('click', () => setTurntable(!turning));
+  $('#btn-pause').addEventListener('click', () => (paused ? player.resume() : player.pause()));
+  $('#btn-view').addEventListener('click', () => { setTurntable(false); view.resetCamera(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.repeat || e.metaKey || e.ctrlKey) return;
+    const k = e.key.toLowerCase();
+    if (k === 'n') setTheme();
+    else if (k === 'r') setTurntable(!turning);
+    else if (k === ' ') { e.preventDefault(); if (paused) player.resume(); else player.pause(); }
+    else if (/^[1-3]$/.test(k) && PATTERNS[Number(k) - 1]) start(PATTERNS[Number(k) - 1]);
+  });
+
+  function status() {
+    if (!game) return;
+    const s = game.stats();
+    const step = game.step;
+    let text;
+    if (game.status === 'done') text = `Fastened off · grade <b>${s.grade}</b> · ${s.neat}% neat · ${s.mistakes} mistake${s.mistakes === 1 ? '' : 's'}`;
+    else if (game.status === 'out-of-yarn') text = 'Out of yarn';
+    else if (game.blocked) text = `Row ${step.row + 1} of ${game.pattern.rows.length} · <b>wrong stitch, frogging it</b>`;
+    else if (step && step.type === 'stitch') text = `Row ${step.row + 1} of ${game.pattern.rows.length} · <b>${step.st}</b> ${step.i + 1} · ${s.neat}% neat · yarn ${Math.round((s.yarnLeft / s.yarnTotal) * 100)}%`;
+    else if (step) text = `Row ${step.row + 1} of ${game.pattern.rows.length} · <b>${step.type === 'yarn' ? `change to ${game.pattern.yarns[step.yarn].name}` : step.type}</b>`;
+    $('#status').innerHTML = `${text}${paused && game.active ? ' · paused' : ''}`;
+  }
+
+  (function loop() {
+    tick();
+    status();
+    requestAnimationFrame(loop);
+  }());
+
+  start(PATTERNS.find((p) => p.id === params.get('pattern')) || PATTERNS[1]);
+
+  window.__view3d = {
+    view, player, start, setTheme, setTurntable, PATTERNS,
+    get game() { return game; },
+    get hold() { return getHold(); },
+  };
+</script>
+</body>
+</html>
