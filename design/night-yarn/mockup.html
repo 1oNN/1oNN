@@ -1,0 +1,803 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hooked — Night Yarn</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%230e1120'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='%23f29bbb' stroke-width='3'/%3E%3C/svg%3E" />
+<meta name="description" content="Static design mockup for the Night Yarn direction of Hooked, a crochet game: play screen, title screen and completion dialog." />
+<style>
+/* ---------- tokens ---------- */
+:root, :root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0e1120; --bg-2: #151a33; --bg-glow: #1d2347; --bg-glow-2: #2a1a33;
+  --surface: #171b2d; --surface-2: #1f2440; --ink: #eef0fa; --muted: #a3a9c4; --line: #2b3150;
+  --accent: #f29bbb; --accent-2: #7cd6cf; --neat: #62d69c; --ok: #f0c44f; --bad: #ff6f86;
+  --rose: #ef98b6; --teal: #48b9b2; --mustard: #e9bb45; --lavender: #ab97e8;
+  --on-accent: #0e1120; --on-status: #0e1120; --on-bad: #0e1120;
+  --stage-hi: #262c4a; --stage: #161a2c; --stage-lo: #0c0f1c;
+  --mat: #232841; --mat-2: #1a1e33; --mat-shadow: rgba(0,0,0,.65);
+  --key-bg: #121527; --edge-hi: rgba(255,255,255,.07);
+  --card-shadow: 0 24px 48px rgba(0,0,0,.45);
+  --halo: 60%; --halo-canvas: .55; --noise: .07;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f4f3fb; --bg-2: #ebeaf6; --bg-glow: #ffffff; --bg-glow-2: #f9e7ef;
+  --surface: #ffffff; --surface-2: #f1f0f8; --ink: #1b1e32; --muted: #5f6484; --line: #dcdce9;
+  --accent: #b5446c; --accent-2: #166f6a; --neat: #15794b; --ok: #846000; --bad: #c42c48;
+  --rose: #e58aa8; --teal: #3aa6a0; --mustard: #e2b23a; --lavender: #a08ad8;
+  --on-accent: #ffffff; --on-status: #ffffff; --on-bad: #ffffff;
+  --stage-hi: #ffffff; --stage: #f6f5fc; --stage-lo: #e6e5f2;
+  --mat: #ffffff; --mat-2: #f0eff8; --mat-shadow: rgba(40,30,90,.22);
+  --key-bg: #ffffff; --edge-hi: rgba(255,255,255,.9);
+  --card-shadow: 0 18px 40px rgba(40,30,90,.10);
+  --halo: 38%; --halo-canvas: .3; --noise: .05;
+}
+:root {
+  --font-ui: "Inter", "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  --font-display: "Iowan Old Style", "Palatino Linotype", "Charter", "Bitstream Charter", Georgia, "Times New Roman", serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+  --radius: 18px;
+}
+
+/* ---------- base ---------- */
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font-family: var(--font-ui); font-size: 15px; line-height: 1.4;
+  background: var(--bg); color: var(--ink); min-height: 100vh; position: relative;
+  -webkit-font-smoothing: antialiased; overflow-x: hidden;
+}
+body::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(900px 540px at 22% -6%, var(--bg-glow) 0%, transparent 62%),
+    radial-gradient(760px 520px at 100% 38%, var(--bg-glow-2) 0%, transparent 60%);
+}
+body::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0; opacity: var(--noise);
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+#app { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 20px 16px 72px; }
+h1, h2, h3 { margin: 0; }
+button { font: inherit; color: inherit; cursor: pointer; }
+kbd {
+  font: 600 11px/1 var(--font-mono); background: var(--key-bg); border: 1px solid var(--line); border-bottom-width: 2px;
+  border-radius: 6px; padding: 3px 6px; color: var(--muted); white-space: nowrap;
+}
+.link {
+  background: none; border: 0; color: var(--accent); padding: 4px 0; font-size: 14px;
+  text-decoration: underline; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+.dot {
+  display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: var(--c); flex: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 22%, transparent), 0 0 14px color-mix(in srgb, var(--c) var(--halo), transparent),
+    inset -2px -3px 4px rgba(0,0,0,.28), inset 2px 2px 3px rgba(255,255,255,.4);
+}
+
+/* ---------- mockup chrome (not part of the game) ---------- */
+.mock-bar {
+  position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+  font: 500 12px/1.3 var(--font-mono); color: var(--muted); padding: 10px 16px; border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+}
+.mock-bar b { color: var(--ink); font-weight: 600; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 2px; background: var(--surface); }
+.seg button { border: 0; background: transparent; color: var(--muted); font: 600 12px/1 var(--font-ui); padding: 6px 12px; border-radius: 999px; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 50%, transparent); }
+.mock-label {
+  display: flex; align-items: center; gap: 12px; margin: 44px 0 14px; font: 600 11px/1 var(--font-mono);
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+}
+.mock-label:first-of-type { margin-top: 8px; }
+.mock-label::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.mock-note { color: var(--muted); font-size: 13px; margin: -6px 0 14px; max-width: 70ch; }
+
+/* ---------- play ---------- */
+.play { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 20px; align-items: start; }
+@media (max-width: 860px) { .play { grid-template-columns: 1fr; } }
+.work { display: grid; gap: 14px; min-width: 0; }
+.work-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.work-head h2 { font: 500 27px/1.1 var(--font-display); letter-spacing: -.01em; }
+.work-head h2 small { display: block; font: 500 12px/1.4 var(--font-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.stage {
+  position: relative; border-radius: var(--radius); padding: 14px; border: 1px solid var(--line); overflow: hidden;
+  background: radial-gradient(78% 88% at 50% 36%, var(--stage-hi) 0%, var(--stage) 56%, var(--stage-lo) 100%);
+  box-shadow: var(--card-shadow), inset 0 1px 0 var(--edge-hi);
+}
+.stage::after { content: ""; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 80px rgba(0,0,0,.25); border-radius: inherit; }
+:root[data-theme="light"] .stage::after { box-shadow: inset 0 0 60px rgba(40,30,90,.06); }
+.canvas-box { min-width: 0; }
+canvas { display: block; margin: 0 auto; max-width: 100%; }
+.toast {
+  position: absolute; top: 14px; left: 50%; transform: translateX(-50%); z-index: 2; white-space: nowrap;
+  background: var(--bad); color: var(--on-bad); padding: 7px 14px; border-radius: 999px; font-weight: 700; font-size: 13px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 8px 24px color-mix(in srgb, var(--bad) 45%, transparent);
+}
+.toast.neat { background: var(--neat); color: var(--on-status); box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 8px 24px color-mix(in srgb, var(--neat) 45%, transparent); }
+
+/* meters */
+.meter-block { display: grid; gap: 7px; }
+.meter-head { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: .02em; }
+.meter-head b { color: var(--ink); font-weight: 600; }
+.meter {
+  position: relative; height: 12px; border-radius: 999px; background: var(--surface-2); overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.45), inset 0 0 0 1px var(--line);
+}
+:root[data-theme="light"] .meter { box-shadow: inset 0 1px 2px rgba(40,30,90,.12), inset 0 0 0 1px var(--line); }
+.meter .zone { position: absolute; top: 0; bottom: 0; }
+.meter .zone.ok { background: color-mix(in srgb, var(--ok) 26%, transparent); }
+.meter .zone.neat { background: color-mix(in srgb, var(--neat) 42%, transparent); box-shadow: 0 0 12px color-mix(in srgb, var(--neat) 55%, transparent); }
+.meter .fill { position: absolute; inset: 0 auto 0 0; border-radius: 999px; }
+.meter.yarn .fill { background: var(--c); box-shadow: 0 0 14px color-mix(in srgb, var(--c) 70%, transparent), inset 0 1px 0 rgba(255,255,255,.4); }
+.meter.tension .fill { background: var(--neat); box-shadow: 0 0 16px var(--neat), inset 0 1px 0 rgba(255,255,255,.45); }
+.ticks { position: relative; height: 12px; font: 500 10px/1 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-top: -2px; }
+.ticks span { position: absolute; transform: translateX(-50%); }
+.ticks .n { color: var(--neat); }
+.meter-gap { height: 4px; }
+
+/* buttons */
+.buttons { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+.buttons.actions { grid-template-columns: 1fr 1fr 3fr; }
+.stitch-btn {
+  display: grid; gap: 3px; justify-items: center; padding: 12px 6px 10px; min-width: 0;
+  background: linear-gradient(180deg, var(--surface-2), var(--surface)); border: 1px solid var(--line); border-radius: 14px;
+  box-shadow: inset 0 1px 0 var(--edge-hi), 0 6px 18px rgba(0,0,0,.22); user-select: none;
+}
+:root[data-theme="light"] .stitch-btn { box-shadow: inset 0 1px 0 var(--edge-hi), 0 6px 16px rgba(40,30,90,.08); }
+.stitch-btn .abbr { font-weight: 700; font-size: 18px; letter-spacing: -.01em; }
+.stitch-btn .name { font-size: 11px; color: var(--muted); text-align: center; line-height: 1.25; }
+.stitch-btn kbd { margin-top: 4px; }
+.stitch-btn.expected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 24px color-mix(in srgb, var(--accent) 55%, transparent), inset 0 1px 0 var(--edge-hi); }
+.stitch-btn.expected kbd { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 50%, var(--line)); }
+.stitch-btn.action .abbr { color: var(--accent); }
+.stitch-btn.action.frog .abbr { color: var(--bad); }
+.stitch-btn.frog.expected { border-color: var(--bad); box-shadow: 0 0 0 1px var(--bad), 0 0 24px color-mix(in srgb, var(--bad) 55%, transparent), inset 0 1px 0 var(--edge-hi); animation: breathe 1.4s ease-in-out infinite; }
+.stitch-btn.frog.expected kbd { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 50%, var(--line)); }
+@keyframes breathe { 50% { box-shadow: 0 0 0 1px var(--bad), 0 0 8px color-mix(in srgb, var(--bad) 30%, transparent); } }
+.yarn-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+.yarn-btn {
+  display: flex; align-items: center; gap: 10px; padding: 8px 14px; flex: 1; min-width: 0;
+  border: 1px solid var(--line); border-radius: 14px; background: linear-gradient(180deg, var(--surface-2), var(--surface)); color: var(--ink);
+  box-shadow: inset 0 1px 0 var(--edge-hi);
+}
+.yarn-btn kbd { margin-left: auto; }
+.yarn-btn.active { border-color: color-mix(in srgb, var(--c) 70%, var(--line)); box-shadow: 0 0 0 1px color-mix(in srgb, var(--c) 45%, transparent), 0 0 20px color-mix(in srgb, var(--c) 32%, transparent), inset 0 1px 0 var(--edge-hi); }
+@media (max-width: 520px) {
+  .buttons { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .buttons.actions { grid-template-columns: 1fr 1fr; }
+  .yarn-buttons { grid-column: 1 / -1; }
+}
+
+/* panel */
+.panel {
+  background: linear-gradient(180deg, var(--surface-2) 0%, var(--surface) 32%); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 18px; box-shadow: var(--card-shadow), inset 0 1px 0 var(--edge-hi); display: grid; gap: 12px; min-width: 0;
+}
+.next { font-size: 19px; font-weight: 700; color: var(--accent); letter-spacing: -.01em; line-height: 1.25; }
+.next.blocked { color: var(--bad); text-shadow: 0 0 18px color-mix(in srgb, var(--bad) 50%, transparent); }
+.hint { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.45; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 600 11.5px/1 var(--font-mono); padding: 7px 8px; border-radius: 8px; background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
+.chip.action { background: transparent; }
+.chip.done { color: var(--on-status); border-color: transparent; }
+.chip.done.action { color: var(--muted); background: transparent; border-color: var(--line); opacity: .6; }
+.chip.done.neat { background: var(--neat); box-shadow: 0 0 10px color-mix(in srgb, var(--neat) 40%, transparent); }
+.chip.done.ok { background: var(--ok); }
+.chip.done.loose, .chip.done.tight { background: var(--bad); }
+.chip.current { background: var(--accent); color: var(--on-accent); border-color: transparent; box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 60%, transparent); animation: pulse 1.2s infinite; }
+.chip.current.wrong { background: var(--bad); color: var(--on-bad); box-shadow: 0 0 16px color-mix(in srgb, var(--bad) 60%, transparent); }
+@keyframes pulse { 50% { opacity: .6; } }
+.panel h3 { font: 600 11px/1 var(--font-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
+.rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; font-size: 13.5px; }
+.rows li { padding: 7px 10px; border-radius: 10px; border-left: 2px solid transparent; line-height: 1.4; }
+.rows li b { color: var(--accent); margin-right: 4px; font-weight: 600; }
+.rows li.done { color: var(--muted); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--muted) 50%, transparent); }
+.rows li.done b { color: color-mix(in srgb, var(--accent) 55%, var(--muted)); }
+.rows li.current { background: color-mix(in srgb, var(--accent) 12%, transparent); border-left-color: var(--accent); }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 6px 0 0; border-top: 1px solid var(--line); padding-top: 12px; }
+.stats dt { font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); grid-row: 1; }
+.stats dd { margin: 0; font: 500 26px/1.1 var(--font-display); grid-row: 2; font-variant-numeric: tabular-nums; }
+
+/* ---------- moments ---------- */
+.moments { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; }
+@media (max-width: 860px) { .moments { grid-template-columns: 1fr; } }
+.moment { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; box-shadow: inset 0 1px 0 var(--edge-hi); display: grid; gap: 12px; align-content: start; min-width: 0; }
+.moment h3 { font: 600 11px/1 var(--font-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.moment .stage { padding: 10px; }
+.moment p { margin: 0; color: var(--muted); font-size: 13px; }
+.moment-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; }
+.moment-row .stitch-btn { min-width: 108px; }
+@media (max-width: 520px) { .moment-row { grid-template-columns: 1fr; } }
+
+/* ---------- title ---------- */
+.hero { text-align: center; padding: 30px 0 22px; }
+.hero .mark { width: 76px; height: 76px; display: block; margin: 0 auto 6px; filter: drop-shadow(0 0 14px color-mix(in srgb, var(--accent) 70%, transparent)); }
+.hero h1 { font: 500 clamp(58px, 9vw, 92px)/1 var(--font-display); letter-spacing: -.025em; color: var(--ink); text-shadow: 0 0 44px color-mix(in srgb, var(--accent) 50%, transparent); }
+.hero h1 i { font-style: italic; color: var(--accent); }
+.hero .tagline { color: var(--muted); font-size: 17px; margin: 12px auto 0; max-width: 48ch; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin: 26px 0 26px; }
+.card {
+  position: relative; overflow: hidden; text-align: left; display: grid; gap: 8px; padding: 20px; min-width: 0;
+  background: linear-gradient(180deg, var(--surface-2), var(--surface)); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--card-shadow), inset 0 1px 0 var(--edge-hi); color: var(--ink); transition: transform .18s, box-shadow .18s, border-color .18s;
+}
+.card::before { content: ""; position: absolute; top: -70px; right: -60px; width: 220px; height: 180px; pointer-events: none; background: radial-gradient(closest-side, color-mix(in srgb, var(--c) 30%, transparent), transparent); }
+.card:hover, .card:focus-visible { transform: translateY(-3px); border-color: color-mix(in srgb, var(--c) 60%, var(--line)); outline: none; }
+.card .level { font: 600 11px/1 var(--font-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+.card strong { font: 500 23px/1.15 var(--font-display); letter-spacing: -.01em; }
+.card .blurb { color: var(--muted); font-size: 14px; line-height: 1.45; }
+.card .yarns { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
+.card .yarns small { margin-left: auto; color: var(--muted); font-size: 12px; }
+.card .best { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 10px; margin-top: 2px; }
+.card .best b { color: var(--neat); font-weight: 700; }
+.howto { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 24px; box-shadow: inset 0 1px 0 var(--edge-hi); }
+.howto h2 { font: 600 11px/1 var(--font-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+.howto ol { margin: 0; padding-left: 20px; line-height: 1.6; font-size: 14.5px; display: grid; gap: 5px; }
+.howto strong { font-weight: 600; }
+.foot { display: flex; gap: 22px; justify-content: center; margin-top: 18px; color: var(--muted); flex-wrap: wrap; }
+
+/* ---------- completion ---------- */
+.done-stage { position: relative; border-radius: 22px; overflow: hidden; min-height: 560px; border: 1px solid var(--line); background: var(--bg-2); }
+.done-stage .stage { position: absolute; inset: 0; border: 0; border-radius: 0; display: grid; place-items: center; }
+.done-stage .canvas-box { width: min(100%, 980px); }
+.done-stage .stage canvas { filter: blur(4px) saturate(.9); opacity: .85; }
+.overlay { position: absolute; inset: 0; display: grid; place-items: center; padding: 16px; background: color-mix(in srgb, var(--bg) 38%, transparent); backdrop-filter: blur(1.5px); }
+.dialog {
+  background: linear-gradient(180deg, var(--surface-2), var(--surface)); border: 1px solid var(--line); border-radius: 22px;
+  padding: 28px 28px 26px; max-width: 420px; width: 100%; text-align: center;
+  box-shadow: 0 40px 80px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.03), inset 0 1px 0 var(--edge-hi); animation: pop .3s ease-out;
+}
+:root[data-theme="light"] .dialog { box-shadow: 0 30px 70px rgba(40,30,90,.22), inset 0 1px 0 var(--edge-hi); }
+@keyframes pop { from { transform: scale(.94); opacity: 0; } }
+.dialog .eyebrow { font: 600 11px/1 var(--font-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.dialog h2 { font: 500 26px/1.2 var(--font-display); margin: 8px 0 6px; letter-spacing: -.01em; }
+.grade { font: 500 104px/1 var(--font-display); color: var(--neat); margin: 2px 0 14px; letter-spacing: -.03em; text-shadow: 0 0 40px color-mix(in srgb, var(--neat) 60%, transparent), 0 0 4px color-mix(in srgb, var(--neat) 30%, transparent); }
+.dialog dl { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; margin: 0 auto 12px; max-width: 280px; text-align: left; }
+.dialog dt { color: var(--muted); font-size: 14px; }
+.dialog dd { margin: 0; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+.new-best { color: var(--accent); font-weight: 600; margin: 4px 0 0; text-shadow: 0 0 16px color-mix(in srgb, var(--accent) 45%, transparent); }
+.dialog-actions { display: flex; gap: 10px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
+.dialog-actions button { padding: 11px 18px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); font-weight: 600; font-size: 14px; }
+.dialog-actions .primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); box-shadow: 0 0 26px color-mix(in srgb, var(--accent) 50%, transparent); }
+
+</style>
+</head>
+<body>
+
+<div class="mock-bar">
+  <span><b>Hooked</b> · direction 04 · Night Yarn · static mockup, nothing is wired up</span>
+  <span class="seg" role="group" aria-label="Theme">
+    <button type="button" data-theme-pick="dark" aria-pressed="true">Night</button>
+    <button type="button" data-theme-pick="light" aria-pressed="false">Day</button>
+  </span>
+</div>
+
+<main id="app">
+
+  <!-- ===================== 01 PLAY ===================== -->
+  <div class="mock-label">01 · Play screen</div>
+  <p class="mock-note">Striped bobble scarf, row 6 of 6. A double crochet was made where a single was due: it burns red on the hook, the frog button lights, nothing else is expected.</p>
+
+  <section id="play" class="screen play">
+    <div class="work">
+      <div class="work-head">
+        <h2><small>Improver · two yarns</small>Striped bobble scarf</h2>
+        <button class="link" type="button">Back to projects (Esc)</button>
+      </div>
+
+      <div class="stage">
+        <div class="canvas-box"><canvas id="fabric" aria-label="Your crochet work"></canvas></div>
+        <div class="toast" aria-live="polite">Wrong stitch! Frog it (F)</div>
+      </div>
+
+      <div class="meter-block">
+        <div class="meter-head"><span>Tension</span><span><b>frog first</b> · then hold a stitch key</span></div>
+        <div class="meter tension" aria-hidden="true">
+          <div class="zone ok" style="left:11.9%;width:56.2%"></div>
+          <div class="zone neat" style="left:23.1%;width:33.8%"></div>
+          <div class="fill" style="width:0%"></div>
+        </div>
+        <div class="ticks" aria-hidden="true"><span style="left:9%">loose</span><span class="n" style="left:40%">neat</span><span style="left:78%">tight</span></div>
+        <div class="meter-gap"></div>
+        <div class="meter-head"><span>Yarn</span><span><b>46%</b> left · Teal</span></div>
+        <div class="meter yarn" style="--c: var(--teal)" aria-hidden="true"><div class="fill" style="width:46%"></div></div>
+      </div>
+
+      <div class="buttons">
+        <button class="stitch-btn" type="button"><span class="abbr">ch</span><span class="name">chain</span><kbd>C</kbd></button>
+        <button class="stitch-btn" type="button"><span class="abbr">sc</span><span class="name">single crochet</span><kbd>S</kbd></button>
+        <button class="stitch-btn" type="button"><span class="abbr">hdc</span><span class="name">half double crochet</span><kbd>H</kbd></button>
+        <button class="stitch-btn" type="button"><span class="abbr">dc</span><span class="name">double crochet</span><kbd>D</kbd></button>
+        <button class="stitch-btn" type="button"><span class="abbr">bo</span><span class="name">bobble</span><kbd>B</kbd></button>
+      </div>
+      <div class="buttons actions">
+        <button class="stitch-btn action" type="button"><span class="abbr">turn</span><span class="name">end of row</span><kbd>T</kbd></button>
+        <button class="stitch-btn action frog expected" type="button"><span class="abbr">frog</span><span class="name">rip back</span><kbd>F</kbd></button>
+        <div class="yarn-buttons">
+          <button class="yarn-btn active" style="--c: var(--teal)" type="button"><i class="dot"></i>Teal <kbd>1</kbd></button>
+          <button class="yarn-btn" style="--c: var(--mustard)" type="button"><i class="dot"></i>Mustard <kbd>2</kbd></button>
+        </div>
+      </div>
+    </div>
+
+    <aside class="panel">
+      <div class="next blocked">Wrong stitch! Frog it (F)</div>
+      <p class="hint">Rip the red stitch back out before carrying on. Stitch 7 of 10 in this row is a single crochet.</p>
+      <div class="chips">
+        <span class="chip done action">Teal</span>
+        <span class="chip done neat">ch</span>
+        <span class="chip done neat">sc</span><span class="chip done neat">sc</span><span class="chip done neat">sc</span>
+        <span class="chip done ok">sc</span><span class="chip done neat">sc</span><span class="chip done neat">sc</span>
+        <span class="chip current wrong">sc</span>
+        <span class="chip">sc</span><span class="chip">sc</span><span class="chip">sc</span>
+        <span class="chip action">fasten off</span>
+      </div>
+      <h3>Pattern</h3>
+      <ol class="rows">
+        <li class="done"><b>Row 1</b> With Teal, ch 11</li>
+        <li class="done"><b>Row 2</b> sc in 2nd ch from hook and in each ch across (10)</li>
+        <li class="done"><b>Row 3</b> ch 1, turn. sc, *bo, sc 2* 3 times (10)</li>
+        <li class="done"><b>Row 4</b> Change to Mustard. ch 2, turn. dc in each st across (10)</li>
+        <li class="done"><b>Row 5</b> ch 2, turn. dc in each st across (10)</li>
+        <li class="current"><b>Row 6</b> Change to Teal. ch 1, turn. sc in each st across (10)</li>
+      </ol>
+      <dl class="stats">
+        <dt>Time</dt><dd>1:52</dd>
+        <dt>Neat</dt><dd>91%</dd>
+        <dt>Mistakes</dt><dd>1</dd>
+      </dl>
+    </aside>
+  </section>
+
+  <!-- ===================== moments ===================== -->
+  <div class="mock-label">Glyph key and feedback moments</div>
+  <section class="moments">
+    <div class="moment">
+      <h3>Stitch glyphs · neat row, then sc at loose / ok / neat / tight / wrong</h3>
+      <div class="stage"><div class="canvas-box"><canvas id="glyphs" aria-label="Stitch glyph key"></canvas></div></div>
+      <p>Every glyph is one yarn stroke rendered in four passes: halo, underside shade, core, top highlight. Loose stitches spread, thin and dim; tight ones narrow, darken and catch more light; wrong ones burn in the bad colour with a dashed strand.</p>
+    </div>
+    <div class="moment">
+      <h3>Hold to tension</h3>
+      <div class="stage"><div class="canvas-box"><canvas id="hold" aria-label="Holding a stitch key: the loop grows on the hook"></canvas></div><div class="toast neat">Neat</div></div>
+      <div class="meter-block">
+        <div class="meter-head"><span>Tension</span><span><b>single crochet</b></span></div>
+        <div class="meter tension" aria-hidden="true">
+          <div class="zone ok" style="left:11.9%;width:56.2%"></div>
+          <div class="zone neat" style="left:23.1%;width:33.8%"></div>
+          <div class="fill" style="width:44%"></div>
+        </div>
+      </div>
+      <div class="moment-row">
+        <p>While the key is held the loop on the hook swells and its halo brightens; the meter fill takes the colour of the zone it is in. Release in the green and the stitch settles with a soft ring flash and a "Neat" toast.</p>
+        <button class="stitch-btn expected" type="button"><span class="abbr">sc</span><span class="name">single crochet</span><kbd>S</kbd></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 02 TITLE ===================== -->
+  <div class="mock-label">02 · Title and project picker</div>
+  <section id="title" class="screen">
+    <header class="hero">
+      <svg class="mark" viewBox="0 0 72 72" aria-hidden="true">
+        <defs>
+          <linearGradient id="hk" x1="0" x2="1"><stop offset="0" stop-color="#55524b"/><stop offset=".3" stop-color="#cfc9ba"/><stop offset=".45" stop-color="#fbf7ee"/><stop offset=".7" stop-color="#b3ad9e"/><stop offset="1" stop-color="#605c54"/></linearGradient>
+          <linearGradient id="wd" x1="0" x2="1"><stop offset="0" stop-color="#2b1d16"/><stop offset=".4" stop-color="#6e4b36"/><stop offset=".55" stop-color="#916750"/><stop offset="1" stop-color="#2b1d16"/></linearGradient>
+        </defs>
+        <g transform="rotate(22 36 36)">
+          <ellipse cx="30" cy="54" rx="15" ry="8" fill="none" stroke="var(--accent)" stroke-width="4.5"/>
+          <path d="M40 4v40c0 7-5 10-10 8-4-1.5-5-5-3-8" fill="none" stroke="url(#hk)" stroke-width="6.5" stroke-linecap="round"/>
+          <path d="M38.4 6v36" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="1.2" stroke-linecap="round"/>
+          <rect x="34" y="12" width="12" height="18" rx="5" fill="url(#wd)"/>
+          <path d="M45 54a15 8 0 0 1-15 8 15 8 0 0 1-15-8" fill="none" stroke="var(--accent)" stroke-width="4.5" stroke-linecap="round"/>
+          <circle cx="27" cy="50" r="3" fill="rgba(255,255,255,.85)"/>
+        </g>
+      </svg>
+      <h1>Hooked</h1>
+      <p class="tagline">A little crochet game. Follow the pattern, keep your tension, frog your mistakes.</p>
+    </header>
+    <div class="cards">
+      <button class="card" style="--c: var(--rose)" type="button">
+        <span class="level">Beginner</span>
+        <strong>Mug coaster</strong>
+        <span class="blurb">Chains and single crochet only. Learn to hold your tension.</span>
+        <span class="yarns"><i class="dot" title="Rose"></i><small>8 rows · 79 moves</small></span>
+        <span class="best">Best: <b>A</b> · 94% neat · 1:12</span>
+      </button>
+      <button class="card" style="--c: var(--teal)" type="button">
+        <span class="level">Improver</span>
+        <strong>Striped scarf (swatch)</strong>
+        <span class="blurb">Two yarns, two stitch heights. Change colour when the pattern says.</span>
+        <span class="yarns"><i class="dot" title="Teal"></i><i class="dot" style="--c: var(--mustard)" title="Mustard"></i><small>9 rows · 132 moves</small></span>
+        <span class="best">Best: <b>A+</b> · 97% neat · 2:48</span>
+      </button>
+      <button class="card" style="--c: var(--lavender)" type="button">
+        <span class="level">Confident</span>
+        <strong>Bobble pouch panel</strong>
+        <span class="blurb">Bobbles eat yarn. Keep every stitch neat or you will run short.</span>
+        <span class="yarns"><i class="dot" title="Lavender"></i><small>9 rows · 107 moves</small></span>
+        <span class="best">Not yet made</span>
+      </button>
+    </div>
+    <section class="howto">
+      <h2>How to play</h2>
+      <ol>
+        <li><strong>Make the stitch the pattern asks for.</strong> Press and hold its key: <kbd>C</kbd> chain, <kbd>S</kbd> single, <kbd>H</kbd> half double, <kbd>D</kbd> double, <kbd>B</kbd> bobble.</li>
+        <li><strong>Release in the green</strong> to pull the loop through at a neat tension. Too quick is loose, too long is tight. Loose stitches waste yarn.</li>
+        <li><strong>Turn</strong> at the end of each row with <kbd>T</kbd>, and <strong>change yarn</strong> with <kbd>1</kbd>, <kbd>2</kbd> when the pattern says.</li>
+        <li><strong>Frog</strong> a wrong or wonky stitch with <kbd>F</kbd> to rip it back out and try again.</li>
+      </ol>
+    </section>
+    <footer class="foot"><button class="link" type="button">Sound: on (M)</button><button class="link" type="button">Theme: night (N)</button></footer>
+  </section>
+
+  <!-- ===================== 03 DONE ===================== -->
+  <div class="mock-label">03 · Completion</div>
+  <section id="done" class="done-stage">
+    <div class="stage"><div class="canvas-box"><canvas id="finished" aria-hidden="true"></canvas></div></div>
+    <div class="overlay">
+      <div class="dialog">
+        <div class="eyebrow">Fastened off</div>
+        <h2>Striped bobble scarf: finished!</h2>
+        <div class="grade">A</div>
+        <dl>
+          <dt>Neatness</dt><dd>91%</dd>
+          <dt>Mistakes</dt><dd>1</dd>
+          <dt>Time</dt><dd>2:48</dd>
+          <dt>Yarn left</dt><dd>18%</dd>
+        </dl>
+        <p class="new-best">New personal best!</p>
+        <div class="dialog-actions">
+          <button class="primary" type="button">Make it again</button>
+          <button type="button">Choose a project</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+
+<script>
+(() => {
+  // ---------- model (mirrors js/patterns.js + js/render.js layout, restyled) ----------
+  const STITCHES = { ch: { h: 14 }, sc: { h: 22 }, hdc: { h: 28 }, dc: { h: 36 }, bo: { h: 28 } };
+  const CELL = 30, PAD = 26, MARGIN = CELL, HOOK_ROOM = 70;
+
+  function expand(spec) {
+    const tokens = spec.match(/\[|\]\*\d+|\]|[a-z]+\*\d+|[a-z]+/g) || [];
+    let pos = 0;
+    function seq() {
+      const out = [];
+      while (pos < tokens.length) {
+        const tok = tokens[pos];
+        if (tok === '[') { pos += 1; const inner = seq(); const close = tokens[pos]; pos += 1; const reps = close === ']' ? 1 : Number(close.slice(2)); for (let i = 0; i < reps; i += 1) out.push(...inner); }
+        else if (tok.startsWith(']')) return out;
+        else { pos += 1; const [id, n] = tok.split('*'); for (let i = 0; i < (n ? Number(n) : 1); i += 1) out.push(id); }
+      }
+      return out;
+    }
+    return seq();
+  }
+
+  function layout(rows) {
+    const L = rows.map((row) => {
+      const ids = expand(row.spec);
+      const foundation = ids.every((id) => id === 'ch');
+      const slots = foundation ? ids.length : ids.filter((id) => id !== 'ch').length;
+      const height = Math.max(...ids.map((id) => STITCHES[id].h));
+      return { ids, foundation, slots, height };
+    });
+    const cols = Math.max(...L.map((r) => r.slots));
+    const width = PAD * 2 + MARGIN * 2 + cols * CELL;
+    const height = PAD * 2 + HOOK_ROOM + L.reduce((s, r) => s + r.height, 0);
+    let y = height - PAD;
+    L.forEach((r) => { r.y = y; y -= r.height; });
+    const left = PAD + MARGIN + ((cols - L[0].slots) * CELL) / 2;
+    return { rows: L, cols, width, height, left };
+  }
+  function slotX(lay, r, k) { const row = lay.rows[r]; const idx = r % 2 === 0 ? k : row.slots - 1 - k; return lay.left + idx * CELL; }
+  function geom(lay, r, placed, i) {
+    const row = lay.rows[r];
+    let slot = 0, turning = 0;
+    for (let j = 0; j < i; j += 1) { if (placed[j].st === 'ch' && !row.foundation) turning += 1; else slot += 1; }
+    const s = placed[i];
+    if (s.st === 'ch' && !row.foundation) {
+      const edge = r % 2 === 0 ? lay.left - CELL * 0.85 : lay.left + row.slots * CELL - CELL * 0.15;
+      return { x: edge, y: row.y - turning * 11, w: CELL, h: STITCHES.ch.h, turning: true };
+    }
+    return { x: slotX(lay, r, slot), y: row.y, w: CELL, h: STITCHES[s.st].h, turning: false };
+  }
+
+  // ---------- colour helpers ----------
+  const rgb = (h) => { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+  const rgba = (h, a) => { const [r, g, b] = rgb(h); return `rgba(${r},${g},${b},${a})`; };
+  const mix = (h, target, amt) => { const a = rgb(h), b = rgb(target); return `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * amt)).join(',')})`; };
+
+  function palette() {
+    const cs = getComputedStyle(document.documentElement);
+    const g = (n) => cs.getPropertyValue(n).trim();
+    return {
+      light: cs.getPropertyValue('color-scheme').trim() === 'light',
+      bg: g('--bg'), ink: g('--ink'), muted: g('--muted'), bad: g('--bad'), neat: g('--neat'),
+      mat: g('--mat'), mat2: g('--mat-2'), matShadow: g('--mat-shadow'), halo: parseFloat(g('--halo-canvas')) || .5,
+      yarns: { teal: g('--teal'), mustard: g('--mustard'), rose: g('--rose'), lavender: g('--lavender') },
+      shadowHex: cs.getPropertyValue('color-scheme').trim() === 'light' ? '#2a2050' : '#02030a',
+    };
+  }
+
+  // ---------- yarn rendering ----------
+  function stitchPath(ctx, st, x, y, w, h) {
+    const cx = x + w / 2, top = y - h * 0.82;
+    const ell = (ex, ey, rx, ry) => { ctx.moveTo(ex + rx, ey); ctx.ellipse(ex, ey, rx, ry, 0, 0, Math.PI * 2); };
+    const ln = (a, b, c, d) => { ctx.moveTo(a, b); ctx.lineTo(c, d); };
+    ctx.beginPath();
+    switch (st) {
+      case 'ch': ell(cx, y - h / 2, w * 0.4, h * 0.36); break;
+      case 'sc':
+        ctx.moveTo(x + w * 0.2, y); ctx.quadraticCurveTo(x + w * 0.3, y - h * 0.36, cx, y - h * 0.62);
+        ctx.moveTo(x + w * 0.8, y); ctx.quadraticCurveTo(x + w * 0.7, y - h * 0.36, cx, y - h * 0.62);
+        ell(cx, top, w * 0.38, h * 0.14); break;
+      case 'hdc':
+        ctx.moveTo(cx, y); ctx.bezierCurveTo(cx - w * 0.05, y - h * 0.3, cx + w * 0.05, y - h * 0.45, cx, y - h * 0.7);
+        ln(cx - w * 0.28, y - h * 0.3, cx + w * 0.28, y - h * 0.5);
+        ell(cx, top, w * 0.38, h * 0.12); break;
+      case 'dc':
+        ctx.moveTo(cx, y); ctx.bezierCurveTo(cx - w * 0.06, y - h * 0.3, cx + w * 0.06, y - h * 0.46, cx, y - h * 0.72);
+        ln(cx - w * 0.3, y - h * 0.3, cx + w * 0.3, y - h * 0.5);
+        ln(cx - w * 0.3, y - h * 0.46, cx + w * 0.3, y - h * 0.66);
+        ell(cx, top, w * 0.38, h * 0.1); break;
+      case 'bo': ell(cx, top, w * 0.38, h * 0.12); break;
+      default: break;
+    }
+  }
+
+  // Four passes: halo, underside shade, core, top-left highlight. Key light is upper-left.
+  function yarnStroke(ctx, build, color, s, P, S) {
+    const q = s.q, wrong = s.wrong;
+    const base = wrong ? P.bad : color;
+    const lw = wrong ? 3.6 : q === 'loose' ? 2.9 : q === 'tight' ? 4.9 : 4.1;
+    const alpha = q === 'loose' ? 0.72 : 1;
+    const dash = wrong ? [5, 4] : [];
+    ctx.save(); ctx.setLineDash(dash); ctx.globalAlpha = alpha * (q === 'loose' ? P.halo * 0.55 : wrong ? P.halo * 1.3 : P.halo);
+    ctx.strokeStyle = base; ctx.lineWidth = lw + 1.6; ctx.shadowBlur = 14 * S; ctx.shadowColor = base; build(); ctx.stroke(); ctx.restore();
+    ctx.save(); ctx.setLineDash(dash); ctx.translate(0.9, 1.3); ctx.globalAlpha = 0.5 * alpha;
+    ctx.strokeStyle = mix(base, P.bg, 0.62); ctx.lineWidth = lw; build(); ctx.stroke(); ctx.restore();
+    ctx.save(); ctx.setLineDash(dash); ctx.globalAlpha = alpha;
+    ctx.strokeStyle = q === 'tight' ? mix(base, P.bg, 0.24) : base; ctx.lineWidth = lw; build(); ctx.stroke(); ctx.restore();
+    ctx.save(); ctx.setLineDash(dash); ctx.translate(-0.8, -1.0); ctx.globalAlpha = alpha * (q === 'loose' ? 0.28 : q === 'tight' ? 0.62 : 0.55);
+    ctx.strokeStyle = mix(base, '#ffffff', 0.68); ctx.lineWidth = Math.max(1, lw * (q === 'tight' ? 0.28 : 0.36)); build(); ctx.stroke(); ctx.restore();
+  }
+
+  function drawPuffs(ctx, cx, y, w, h, color, P, S) {
+    const puffs = [[cx - w * 0.19, y - h * 0.42, w * 0.3, h * 0.36], [cx + w * 0.19, y - h * 0.42, w * 0.3, h * 0.36], [cx, y - h * 0.47, w * 0.31, h * 0.4]];
+    ctx.save(); ctx.shadowBlur = 10 * S; ctx.shadowColor = rgba(P.shadowHex, 0.55); ctx.shadowOffsetY = 3 * S;
+    ctx.fillStyle = mix(color, P.bg, 0.55); ctx.beginPath(); ctx.ellipse(cx, y - h * 0.4, w * 0.5, h * 0.42, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+    ctx.save(); ctx.globalAlpha = P.halo * 0.6; ctx.shadowBlur = 18 * S; ctx.shadowColor = color; ctx.fillStyle = color;
+    ctx.beginPath(); ctx.ellipse(cx, y - h * 0.42, w * 0.44, h * 0.42, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+    for (const [px, py, rx, ry] of puffs) {
+      const g = ctx.createRadialGradient(px - rx * 0.35, py - ry * 0.5, rx * 0.08, px, py, rx * 1.2);
+      g.addColorStop(0, mix(color, '#ffffff', 0.5)); g.addColorStop(0.5, color); g.addColorStop(1, mix(color, P.bg, 0.5));
+      ctx.save(); ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(px, py, rx, ry, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 0.55; ctx.strokeStyle = mix(color, P.bg, 0.4); ctx.lineWidth = 1; ctx.stroke(); ctx.restore();
+    }
+  }
+
+  function drawStitch(ctx, s, g, color, P, S) {
+    const t = s.t || 0;
+    const w = g.w * (1 - 0.3 * t), h = g.h * (1 - 0.14 * t);
+    const x = g.x + (g.w - w) / 2, y = g.y, cx = x + w / 2;
+    const tilt = Math.abs(t) > 0.45 ? t * 0.12 : 0;
+    ctx.save();
+    ctx.translate(cx, y); ctx.rotate(tilt); ctx.translate(-cx, -y);
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    if (s.wrong) {
+      const halo = ctx.createRadialGradient(cx, y - h * 0.4, 2, cx, y - h * 0.4, w * 1.4);
+      halo.addColorStop(0, rgba(P.bad, 0.4)); halo.addColorStop(1, rgba(P.bad, 0));
+      ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(cx, y - h * 0.4, w * 1.4, 0, Math.PI * 2); ctx.fill();
+    }
+    if (s.st === 'bo') drawPuffs(ctx, cx, y, w, h, color, P, S);
+    yarnStroke(ctx, () => stitchPath(ctx, s.st, x, y, w, h), color, s, P, S);
+    ctx.restore();
+  }
+
+  function drawHook(ctx, x, y, P, S, dip = 0) {
+    ctx.save(); ctx.translate(x, y + dip); ctx.lineCap = 'round';
+    ctx.save(); ctx.globalAlpha = 0.45; ctx.strokeStyle = P.shadowHex; ctx.lineWidth = 7; ctx.shadowBlur = 10 * S; ctx.shadowColor = P.shadowHex;
+    ctx.beginPath(); ctx.moveTo(4, -50); ctx.lineTo(4, -4); ctx.stroke(); ctx.restore();
+    const metal = ctx.createLinearGradient(-3.5, 0, 3.5, 0);
+    metal.addColorStop(0, '#55524b'); metal.addColorStop(0.28, '#cfc9ba'); metal.addColorStop(0.44, '#fbf7ee'); metal.addColorStop(0.7, '#b3ad9e'); metal.addColorStop(1, '#605c54');
+    ctx.strokeStyle = metal; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(0, -58); ctx.lineTo(0, -8); ctx.stroke();
+    ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(0, -10); ctx.quadraticCurveTo(0, 4, -7, 2); ctx.quadraticCurveTo(-11, 1, -9, -5); ctx.stroke();
+    const wood = ctx.createLinearGradient(-5, 0, 5, 0);
+    wood.addColorStop(0, '#2b1d16'); wood.addColorStop(0.38, '#6e4b36'); wood.addColorStop(0.52, '#916750'); wood.addColorStop(1, '#2b1d16');
+    ctx.fillStyle = wood; ctx.beginPath(); ctx.roundRect(-5, -66, 10, 20, 4); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,.28)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(-2.4, -63); ctx.lineTo(-2.4, -49); ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,.8)'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(-1.3, -44); ctx.lineTo(-1.3, -13); ctx.stroke();
+    ctx.strokeStyle = P.light ? 'rgba(255,255,255,.4)' : 'rgba(150,178,255,.6)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(2.3, -56); ctx.lineTo(2.3, -12); ctx.stroke();
+    const fl = ctx.createRadialGradient(-8, -3, 0, -8, -3, 9);
+    fl.addColorStop(0, 'rgba(255,255,255,.95)'); fl.addColorStop(0.3, 'rgba(255,255,255,.35)'); fl.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = fl; ctx.beginPath(); ctx.arc(-8, -3, 9, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+
+  function drawLoop(ctx, hx, hy, color, P, S, progress = 0) {
+    const rx = 8 + progress * 15, ry = 5.5 + progress * 10;
+    const neat = { q: 'neat', wrong: false };
+    ctx.save(); ctx.lineCap = 'round';
+    const build = () => { ctx.beginPath(); ctx.moveTo(hx + rx, hy); ctx.ellipse(hx, hy, rx, ry, 0, 0, Math.PI * 2); };
+    yarnStroke(ctx, build, color, neat, P, S * (1 + progress));
+    ctx.restore();
+    return { rx, ry };
+  }
+  function drawLoopFront(ctx, hx, hy, rx, ry, color, P) {
+    ctx.save(); ctx.lineCap = 'round'; ctx.lineWidth = 4.1; ctx.strokeStyle = color;
+    ctx.beginPath(); ctx.ellipse(hx, hy, rx, ry, 0, 0.15, Math.PI - 0.15); ctx.stroke();
+    ctx.translate(-0.8, -1); ctx.globalAlpha = 0.5; ctx.lineWidth = 1.5; ctx.strokeStyle = mix(color, '#ffffff', 0.68);
+    ctx.beginPath(); ctx.ellipse(hx, hy, rx, ry, 0, 0.3, Math.PI - 0.3); ctx.stroke(); ctx.restore();
+  }
+  function drawWorkingYarn(ctx, hx, hy, width, height, color, P, S) {
+    const side = hx < width / 2 ? -1 : 1;
+    const edgeX = side < 0 ? PAD * 0.4 : width - PAD * 0.4;
+    const build = () => {
+      ctx.beginPath(); ctx.moveTo(hx + side * 4, hy - 6);
+      ctx.bezierCurveTo(hx + side * 28, hy - 40, edgeX, hy - 30, edgeX, hy + 20);
+      ctx.quadraticCurveTo(edgeX + side * 4, height - 30, edgeX - side * 6, height - 4);
+    };
+    ctx.save(); ctx.lineCap = 'round';
+    ctx.globalAlpha = P.halo * 0.8; ctx.strokeStyle = color; ctx.lineWidth = 4; ctx.shadowBlur = 12 * S; ctx.shadowColor = color; build(); ctx.stroke();
+    ctx.shadowBlur = 0; ctx.globalAlpha = 1; ctx.lineWidth = 3; build(); ctx.stroke();
+    ctx.translate(-0.7, -0.8); ctx.globalAlpha = 0.5; ctx.lineWidth = 1.1; ctx.strokeStyle = mix(color, '#ffffff', 0.68); build(); ctx.stroke();
+    ctx.restore();
+  }
+
+  function fit(canvas, w, h, maxK) {
+    const box = canvas.parentElement;
+    const cssW = Math.max(120, box.clientWidth);
+    const k = Math.min(maxK, cssW / w);
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.style.width = `${Math.round(w * k)}px`; canvas.style.height = `${Math.round(h * k)}px`;
+    canvas.width = Math.round(w * k * dpr); canvas.height = Math.round(h * k * dpr);
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(k * dpr, 0, 0, k * dpr, 0, 0);
+    return { ctx, S: k * dpr };
+  }
+
+  function drawMat(ctx, x, y, w, h, P, S, rowsY) {
+    ctx.save(); ctx.shadowBlur = 30 * S; ctx.shadowColor = P.matShadow; ctx.shadowOffsetY = 16 * S;
+    const mg = ctx.createLinearGradient(0, y, 0, y + h); mg.addColorStop(0, P.mat); mg.addColorStop(1, P.mat2);
+    ctx.fillStyle = mg; ctx.beginPath(); ctx.roundRect(x, y, w, h, 12); ctx.fill(); ctx.restore();
+    ctx.save(); ctx.strokeStyle = rgba('#ffffff', P.light ? 0.9 : 0.07); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.roundRect(x + 0.5, y + 0.5, w - 1, h - 1, 12); ctx.stroke(); ctx.restore();
+    ctx.save(); ctx.beginPath(); ctx.roundRect(x, y, w, h, 12); ctx.clip();
+    ctx.strokeStyle = rgba(P.light ? '#2a2050' : '#ffffff', P.light ? 0.035 : 0.04); ctx.lineWidth = 1;
+    for (let d = 0; d < w + h; d += 6) { ctx.beginPath(); ctx.moveTo(x + d, y); ctx.lineTo(x + d - h, y + h); ctx.stroke(); }
+    ctx.strokeStyle = rgba(P.light ? '#2a2050' : '#ffffff', P.light ? 0.06 : 0.06);
+    (rowsY || []).forEach((ry) => { ctx.beginPath(); ctx.moveTo(x, ry + 0.5); ctx.lineTo(x + w, ry + 0.5); ctx.stroke(); });
+    ctx.restore();
+  }
+  function drawSpot(ctx, cx, cy, r, w, h, P) {
+    const spot = ctx.createRadialGradient(cx, cy - 16, 6, cx, cy, r);
+    spot.addColorStop(0, rgba('#ffffff', P.light ? 0.55 : 0.075)); spot.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = spot; ctx.fillRect(0, 0, w, h);
+  }
+
+  // ---------- the project shown on the play screen ----------
+  const YARNS = ['teal', 'mustard'];
+  const ROWS = [
+    { spec: 'ch*11', yarn: 0 }, { spec: 'sc*10', yarn: 0 }, { spec: 'ch sc [bo sc*2]*3', yarn: 0 },
+    { spec: 'ch*2 dc*10', yarn: 1 }, { spec: 'ch*2 dc*10', yarn: 1 }, { spec: 'ch sc*10', yarn: 0 },
+  ];
+  // deterministic hand-made jitter so neat stitches are not machine-perfect
+  const jitter = (r, i) => { const v = Math.sin(r * 12.9898 + i * 78.233) * 43758.5453; return ((v - Math.floor(v)) - 0.5) * 0.3; };
+  function placeRow(r, n, tweaks = {}) {
+    return expand(ROWS[r].spec).slice(0, n).map((st, i) => {
+      const tw = tweaks[i]; const t = tw ? tw.t : jitter(r, i);
+      return { st, t, q: tw ? tw.q : 'neat', wrong: false, yarn: ROWS[r].yarn };
+    });
+  }
+  const playRows = [
+    placeRow(0, 11),
+    placeRow(1, 10, { 3: { t: -0.9, q: 'loose' } }),
+    placeRow(2, 11, { 5: { t: 0.55, q: 'ok' } }),
+    placeRow(3, 12, { 8: { t: 0.9, q: 'tight' } }),
+    placeRow(4, 12, { 2: { t: -0.5, q: 'ok' } }),
+    placeRow(5, 7, { 4: { t: -0.5, q: 'ok' } }),
+  ];
+  playRows[5].push({ st: 'dc', t: 0, q: 'wrong', wrong: true, yarn: 0 });
+  const doneRows = ROWS.map((row, r) => placeRow(r, 99));
+  doneRows[1][3] = { ...doneRows[1][3], t: -0.9, q: 'loose' };
+  doneRows[3][8] = { ...doneRows[3][8], t: 0.9, q: 'tight' };
+  const LAY = layout(ROWS);
+
+  function drawFabric(canvas, rows, { hook, maxK = 1.5 }) {
+    const P = palette();
+    const { ctx, S } = fit(canvas, LAY.width, LAY.height, maxK);
+    ctx.clearRect(0, 0, LAY.width, LAY.height);
+    const last = LAY.rows[LAY.rows.length - 1];
+    const fabricTop = last.y - last.height, fabricBottom = LAY.rows[0].y;
+    const fcx = LAY.left + (LAY.cols * CELL) / 2, fcy = (fabricTop + fabricBottom) / 2;
+    drawSpot(ctx, fcx, fcy, LAY.width * 0.62, LAY.width, LAY.height, P);
+    drawMat(ctx, LAY.left - 10, fabricTop - 8, LAY.cols * CELL + 20, fabricBottom - fabricTop + 18, P, S, LAY.rows.map((r) => r.y));
+    rows.forEach((placed, r) => placed.forEach((s, i) => drawStitch(ctx, s, geom(LAY, r, placed, i), P.yarns[YARNS[s.yarn]], P, S)));
+    if (hook) {
+      const r = hook.row, placed = rows[r];
+      const g = geom(LAY, r, placed, placed.length - 1);
+      const lastSt = placed[placed.length - 1];
+      const hx = g.x + CELL / 2, hy = g.y - g.h * 0.82 - 3;
+      const color = P.yarns[YARNS[lastSt.yarn]];
+      drawWorkingYarn(ctx, hx, hy, LAY.width, LAY.height, color, P, S);
+      const { rx, ry } = drawLoop(ctx, hx, hy - 4, color, P, S, hook.progress || 0);
+      drawHook(ctx, hx, hy - 2, P, S, (hook.progress || 0) * 10);
+      drawLoopFront(ctx, hx, hy - 4, rx, ry, color, P);
+    }
+  }
+
+  // ---------- glyph key ----------
+  function drawGlyphKey(canvas) {
+    const P = palette();
+    const W = 420, H = 150;
+    const { ctx, S } = fit(canvas, W, H, 1.6);
+    ctx.clearRect(0, 0, W, H);
+    drawSpot(ctx, W / 2, H / 2, W * 0.6, W, H, P);
+    const cell = 38, left = (W - cell * 5) / 2 + 24, pad = cell * 1.0;
+    drawMat(ctx, 14, 8, W - 28, H - 16, P, S, [60, 126]);
+    ctx.font = `600 10px ${getComputedStyle(document.body).fontFamily}`;
+    ctx.textAlign = 'center'; ctx.fillStyle = P.muted;
+    const rowA = ['ch', 'sc', 'hdc', 'dc', 'bo'];
+    rowA.forEach((st, i) => {
+      const x = left - 24 + i * (cell + 10);
+      drawStitch(ctx, { st, t: 0, q: 'neat', wrong: false }, { x, y: 60, w: cell, h: STITCHES[st].h * 1.15 }, P.yarns.rose, P, S);
+      ctx.fillText(st, x + cell / 2, 76);
+    });
+    const rowB = [['loose', -0.95, false], ['ok', -0.55, false], ['neat', 0.05, false], ['tight', 0.95, false], ['wrong', 0, true]];
+    rowB.forEach(([q, t, wrong], i) => {
+      const x = left - 24 + i * (cell + 10);
+      drawStitch(ctx, { st: 'sc', t, q: wrong ? 'wrong' : q, wrong }, { x, y: 126, w: cell, h: STITCHES.sc.h * 1.15 }, P.yarns.lavender, P, S);
+      ctx.fillStyle = wrong ? P.bad : q === 'neat' ? P.neat : P.muted;
+      ctx.fillText(q, x + cell / 2, 142);
+    });
+  }
+
+  // ---------- hold moment ----------
+  function drawHold(canvas) {
+    const P = palette();
+    const W = 300, H = 150;
+    const { ctx, S } = fit(canvas, W, H, 1.6);
+    ctx.clearRect(0, 0, W, H);
+    drawSpot(ctx, W / 2, 100, W * 0.6, W, H, P);
+    const cell = 30, n = 6, left = (W - cell * n) / 2;
+    drawMat(ctx, left - 10, 90, cell * n + 20, 46, P, S, [128]);
+    for (let i = 0; i < n; i += 1) drawStitch(ctx, { st: 'sc', t: jitter(9, i), q: 'neat', wrong: false }, { x: left + i * cell, y: 128, w: cell, h: 22 }, P.yarns.teal, P, S);
+    for (let i = 0; i < 4; i += 1) drawStitch(ctx, { st: 'sc', t: jitter(8, i), q: 'neat', wrong: false }, { x: left + (n - 1 - i) * cell, y: 106, w: cell, h: 22 }, P.yarns.teal, P, S);
+    const hx = left + (n - 5) * cell + cell / 2, hy = 106 - 8;
+    drawWorkingYarn(ctx, hx, hy, W, H, P.yarns.teal, P, S);
+    const progress = 0.55;
+    const { rx, ry } = drawLoop(ctx, hx, hy - 4 + progress * 10, P.yarns.teal, P, S, progress);
+    drawHook(ctx, hx, hy - 2, P, S, progress * 10);
+    drawLoopFront(ctx, hx, hy - 4 + progress * 10, rx, ry, P.yarns.teal, P);
+  }
+
+  // ---------- wiring ----------
+  function drawAll() {
+    drawFabric(document.getElementById('fabric'), playRows, { hook: { row: 5, progress: 0 } });
+    drawFabric(document.getElementById('finished'), doneRows, { hook: null, maxK: 2.3 });
+    drawGlyphKey(document.getElementById('glyphs'));
+    drawHold(document.getElementById('hold'));
+  }
+  function setTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    document.querySelectorAll('[data-theme-pick]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.themePick === t)));
+    drawAll();
+  }
+  document.querySelectorAll('[data-theme-pick]').forEach((b) => b.addEventListener('click', () => setTheme(b.dataset.themePick)));
+  if (location.hash === '#light') setTheme('light'); else drawAll();
+  window.addEventListener('resize', drawAll);
+  window.__nightYarn = { setTheme, drawAll };
+})();
+</script>
+</body>
+</html>

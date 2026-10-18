@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hooked — Arcade Juice mockup</title>
+<link rel="icon" href="data:," />
+<style>
+:root {
+  --bg: #ffefd2; --bg-dots: rgba(36,27,61,.08);
+  --surface: #ffffff; --surface-2: #fff8e9;
+  --ink: #241b3d; --outline: #241b3d; --muted: #5d5374; --line: #e4d3c2; --on-accent: #241b3d;
+  --accent: #f03e78; --accent-text: #c9183c; --accent2: #3d6dff; --accent2-text: #2856d9;
+  --neat: #19b35f; --neat-text: #0b7a3e; --ok: #ffb020; --ok-text: #8a5a00; --bad: #ff3b5c; --bad-text: #c9183c;
+  --yarn-rose: #ff7aa5; --yarn-teal: #1fb8a9; --yarn-mustard: #ffc337; --yarn-lavender: #9c82ff;
+  --dim: rgba(36,27,61,.55);
+  --radius: 18px; --shadow-hard: 0 6px 0 var(--outline);
+  --font-display: ui-rounded, "SF Pro Rounded", "Nunito", "Inter Display", "Inter", "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --bg: #1c1538; --bg-dots: rgba(255,247,236,.07);
+  --surface: #3a2f6b; --surface-2: #44387a;
+  --ink: #fff7ec; --outline: #0e0a1f; --muted: #b9afd3; --line: #4e4283; --on-accent: #0e0a1f;
+  --accent: #ff6b9a; --accent-text: #ff8fb3; --accent2: #7b93ff; --accent2-text: #a3b3ff;
+  --neat: #35e07f; --neat-text: #6cf0a8; --ok: #ffc846; --ok-text: #ffd97a; --bad: #ff5a73; --bad-text: #ff8aa0;
+  --dim: rgba(14,10,31,.7);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1c1538; --bg-dots: rgba(255,247,236,.07);
+    --surface: #3a2f6b; --surface-2: #44387a;
+    --ink: #fff7ec; --outline: #0e0a1f; --muted: #b9afd3; --line: #4e4283; --on-accent: #0e0a1f;
+    --accent: #ff6b9a; --accent-text: #ff8fb3; --accent2: #7b93ff; --accent2-text: #a3b3ff;
+    --neat: #35e07f; --neat-text: #6cf0a8; --ok: #ffc846; --ok-text: #ffd97a; --bad: #ff5a73; --bad-text: #ff8aa0;
+    --dim: rgba(14,10,31,.7);
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font-family: var(--font-body); font-size: 15px; line-height: 1.45; color: var(--ink);
+  background-color: var(--bg);
+  background-image: radial-gradient(var(--bg-dots) 1.6px, transparent 1.7px);
+  background-size: 18px 18px;
+  -webkit-font-smoothing: antialiased; overflow-x: hidden;
+}
+h1, h2, h3 { margin: 0; font-family: var(--font-display); font-weight: 900; letter-spacing: -0.01em; }
+button { font: inherit; color: inherit; cursor: pointer; }
+kbd { font: 800 12px/1 var(--font-mono); background: var(--surface-2); border: 2px solid var(--outline); border-radius: 7px; padding: 3px 6px; color: var(--ink); }
+.label { font: 900 12px/1 var(--font-display); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+:focus-visible { outline: 3px solid var(--accent2); outline-offset: 3px; }
+
+/* mock chrome */
+.mock-nav {
+  position: relative; z-index: 50; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  padding: 8px 16px; background: var(--surface); border-bottom: 3px solid var(--outline); font: 700 13px/1 var(--font-body);
+}
+.mock-nav .brand { font: 900 14px/1 var(--font-display); letter-spacing: .04em; text-transform: uppercase; margin-right: 6px; }
+.mock-nav a { color: var(--accent2-text); text-decoration: none; padding: 6px 2px; }
+.mock-nav .spacer { flex: 1; }
+.mock-nav .mini { padding: 6px 10px; border: 2px solid var(--outline); border-radius: 10px; background: var(--surface); box-shadow: 0 3px 0 var(--outline); font-weight: 800; }
+.shot { padding: 20px 16px 56px; }
+.shot-label { max-width: 1120px; margin: 0 auto 14px; display: flex; align-items: center; gap: 10px; color: var(--muted); font: 700 12px/1 var(--font-mono); letter-spacing: .04em; text-transform: uppercase; }
+.shot-label::after { content: ""; flex: 1; height: 2px; background: var(--line); }
+.app { max-width: 1120px; margin: 0 auto; }
+
+/* chunky primitives */
+.card { background: var(--surface); border: 3px solid var(--outline); border-radius: var(--radius); box-shadow: var(--shadow-hard); }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 56px; padding: 12px 20px;
+  font: 900 18px/1 var(--font-display); color: var(--ink); background: var(--surface);
+  border: 3px solid var(--outline); border-radius: 16px; box-shadow: var(--shadow-hard); user-select: none;
+  transition: transform .08s, box-shadow .08s, background .15s;
+}
+.btn:active, .btn.is-pressed { transform: translateY(6px); box-shadow: 0 0 0 var(--outline); }
+.btn.icon { width: 56px; padding: 0; font-size: 22px; border-radius: 50%; }
+.btn.accent { background: var(--accent); color: var(--on-accent); }
+.btn.blue { background: var(--accent2); color: var(--on-accent); }
+.btn.red { background: var(--bad); color: var(--on-accent); }
+.btn.lime { background: var(--neat); color: var(--on-accent); }
+.btn.big { min-height: 64px; padding: 14px 28px; font-size: 22px; letter-spacing: .02em; }
+.sticker {
+  display: inline-block; padding: 5px 10px; border: 3px solid var(--outline); border-radius: 10px; box-shadow: 0 3px 0 var(--outline);
+  font: 900 12px/1 var(--font-display); letter-spacing: .06em; text-transform: uppercase; color: var(--on-accent); background: var(--ok);
+}
+.sticker.pink { background: var(--accent); } .sticker.blue { background: var(--accent2); } .sticker.red { background: var(--bad); } .sticker.lime { background: var(--neat); }
+.sticker.tilt { transform: rotate(-6deg); }
+
+/* ================= PLAY ================= */
+.play { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; align-items: start; }
+.work { display: grid; gap: 16px; min-width: 0; }
+.hud { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.hud-title { display: grid; gap: 4px; min-width: 0; margin-right: auto; }
+.hud-title h2 { font-size: 30px; line-height: 1; letter-spacing: -0.02em; }
+.hud-right { display: flex; align-items: stretch; gap: 10px; }
+.tile { display: grid; gap: 3px; justify-items: center; padding: 8px 14px; background: var(--surface); border: 3px solid var(--outline); border-radius: 14px; box-shadow: 0 4px 0 var(--outline); min-width: 84px; }
+.tile .k { font: 900 10px/1 var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.tile .v { font: 900 26px/1 var(--font-display); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.combo { position: relative; background: var(--ok); }
+.combo.t5 { background: var(--accent); } .combo.t10 { background: var(--accent2); }
+.combo.lost { background: var(--surface); color: var(--muted); }
+.combo.lost .v { text-decoration: line-through; text-decoration-thickness: 4px; text-decoration-color: var(--bad); }
+.combo .lost-tag { position: absolute; right: -18px; bottom: -16px; transform: rotate(-8deg); }
+
+.board { position: relative; background: var(--surface-2); border: 3px solid var(--outline); border-radius: 22px; box-shadow: var(--shadow-hard); padding: 12px; display: flex; justify-content: center;
+  background-image: radial-gradient(var(--bg-dots) 1.3px, transparent 1.4px); background-size: 14px 14px; }
+.board.nudge { box-shadow: var(--shadow-hard), inset 0 0 0 5px var(--bad); }
+.board canvas { max-width: 100%; height: auto; display: block; }
+.toast {
+  position: absolute; top: -18px; left: 50%; transform: translateX(-50%) rotate(-2deg); white-space: nowrap;
+  background: var(--bad); color: var(--on-accent); padding: 10px 16px; border: 3px solid var(--outline); border-radius: 14px; box-shadow: 0 4px 0 var(--outline);
+  font: 900 16px/1 var(--font-display); letter-spacing: .02em;
+}
+.toast.neat { background: var(--neat); }
+.toast::after { content: ""; position: absolute; left: 50%; bottom: -12px; width: 14px; height: 14px; background: inherit; border: 3px solid var(--outline); border-top: 0; border-left: 0; transform: translateX(-50%) rotate(45deg); }
+
+.meters { display: grid; gap: 12px; }
+.meter-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.meter-head .val { font: 900 13px/1 var(--font-display); letter-spacing: .02em; }
+.meter-head .val.neat { color: var(--neat-text); }
+.trough { position: relative; height: 30px; background: var(--surface); border: 3px solid var(--outline); border-radius: 999px; overflow: visible; }
+.trough .zone { position: absolute; top: 0; bottom: 0; }
+.trough .zone.ok { background: var(--ok); border-left: 3px solid var(--outline); border-right: 3px solid var(--outline); }
+.trough .zone.neat { background: var(--neat); border-left: 3px solid var(--outline); border-right: 3px solid var(--outline); }
+.trough .zone.ok::before, .trough .zone.ok::after { display: none; }
+.trough .knob { position: absolute; top: 50%; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; background: var(--surface); border: 3px solid var(--outline); box-shadow: 0 3px 0 var(--outline); }
+.trough .knob.ghost { opacity: .45; }
+.trough .knob::after { content: ""; position: absolute; inset: 8px; border-radius: 50%; background: var(--outline); }
+.trough .fill { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 999px; background-color: var(--yarn-rose);
+  background-image: repeating-linear-gradient(-45deg, rgba(255,255,255,.22) 0 6px, transparent 6px 12px); border-right: 3px solid var(--outline); }
+.trough.clip { overflow: hidden; }
+.meter-row { display: grid; grid-template-columns: 40px 1fr; gap: 10px; align-items: center; }
+.ball { width: 40px; height: 40px; border-radius: 50%; background: var(--yarn-rose); border: 3px solid var(--outline); box-shadow: 0 3px 0 var(--outline); position: relative; overflow: hidden; }
+.ball::before { content: ""; position: absolute; inset: -6px; background: repeating-linear-gradient(35deg, transparent 0 5px, rgba(36,27,61,.35) 5px 7px); }
+.ball::after { content: ""; position: absolute; left: 7px; top: 6px; width: 10px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.7); }
+
+.buttons { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+.sbtn { display: grid; gap: 4px; justify-items: center; align-content: center; min-height: 84px; padding: 10px 6px; position: relative;
+  background: var(--surface); border: 3px solid var(--outline); border-radius: 18px; box-shadow: var(--shadow-hard); user-select: none; touch-action: none;
+  transition: transform .08s, box-shadow .08s; }
+.sbtn .abbr { font: 900 26px/1 var(--font-display); letter-spacing: -0.02em; }
+.sbtn .name { font: 700 12px/1 var(--font-body); color: var(--muted); text-align: center; }
+.sbtn.expected { background: var(--accent); color: var(--on-accent); }
+.sbtn.expected .name { color: var(--on-accent); opacity: .85; }
+.sbtn.expected .chev { position: absolute; top: -16px; left: 50%; transform: translateX(-50%); width: 22px; height: 22px; background: var(--surface); border: 3px solid var(--outline); border-radius: 50%; font: 900 14px/16px var(--font-display); text-align: center; color: var(--ink); animation: bob .9s ease-in-out infinite; }
+@keyframes bob { 50% { transform: translateX(-50%) translateY(-4px); } }
+.sbtn.dim { opacity: .55; }
+.sbtn.is-pressed { transform: translateY(6px); box-shadow: 0 0 0 var(--outline); }
+.sbtn.action.turn { background: var(--accent2); color: var(--on-accent); } .sbtn.action.turn .name { color: var(--on-accent); opacity: .85; }
+.sbtn.action.frog { background: var(--surface); } .sbtn.action.frog .abbr { color: var(--bad-text); }
+.sbtn.action.frog.hot { background: var(--bad); color: var(--on-accent); animation: bounce 1s ease-in-out infinite; }
+.sbtn.action.frog.hot .abbr { color: var(--on-accent); } .sbtn.action.frog.hot .name { color: var(--on-accent); opacity: .85; }
+@keyframes bounce { 30% { transform: translateY(-6px); box-shadow: 0 12px 0 var(--outline); } }
+.buttons.actions { grid-template-columns: 1fr 1fr 3fr; }
+.yarns { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.ybtn { display: inline-flex; align-items: center; gap: 10px; min-height: 56px; padding: 8px 14px 8px 10px; background: var(--surface); border: 3px solid var(--outline); border-radius: 16px; box-shadow: 0 4px 0 var(--outline); font: 900 16px/1 var(--font-display); }
+.ybtn i { width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--outline); display: inline-block; }
+.ybtn.active { background: var(--surface-2); box-shadow: 0 4px 0 var(--outline), inset 0 0 0 3px var(--accent2); }
+
+.panel { display: grid; gap: 14px; padding: 16px; }
+.next { display: grid; gap: 6px; padding: 14px 16px; border: 3px solid var(--outline); border-radius: 16px; background: var(--accent); color: var(--on-accent); box-shadow: 0 4px 0 var(--outline); }
+.next .k { font: 900 11px/1 var(--font-display); letter-spacing: .1em; text-transform: uppercase; opacity: .8; }
+.next strong { font: 900 28px/1.05 var(--font-display); letter-spacing: -0.02em; }
+.next .hint { font: 600 14px/1.4 var(--font-body); opacity: .9; }
+.next.blocked { background: var(--bad); }
+.next kbd { background: rgba(255,255,255,.85); color: #241b3d; }
+.beads { display: flex; flex-wrap: wrap; gap: 6px; }
+.bead { width: 34px; height: 34px; display: grid; place-items: center; border: 3px solid var(--outline); border-radius: 10px; background: var(--surface-2); font: 900 11px/1 var(--font-mono); color: var(--muted); }
+.bead.wide { width: auto; padding: 0 8px; }
+.bead.done { color: var(--on-accent); } .bead.done.neat { background: var(--neat); } .bead.done.ok { background: var(--ok); } .bead.done.loose, .bead.done.tight { background: var(--bad); }
+.bead.done.act { background: var(--surface); color: var(--muted); text-decoration: line-through; }
+.bead.current { background: var(--accent); color: var(--on-accent); box-shadow: 0 0 0 3px var(--surface), 0 0 0 6px var(--accent); animation: pulse 1.2s infinite; }
+.bead.current.blocked { background: var(--bad); box-shadow: 0 0 0 3px var(--surface), 0 0 0 6px var(--bad); }
+@keyframes pulse { 50% { opacity: .7; } }
+.rows { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 14px; }
+.rows li { display: grid; grid-template-columns: 44px 1fr; gap: 8px; padding: 6px 8px; border-radius: 10px; align-items: baseline; }
+.rows li b { font: 900 12px/1 var(--font-display); letter-spacing: .04em; text-transform: uppercase; color: var(--accent2-text); }
+.rows li.done { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line); }
+.rows li.done b { color: var(--muted); }
+.rows li.current { background: var(--surface-2); border: 3px solid var(--accent2); font-weight: 700; padding: 8px 10px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stat { display: grid; gap: 2px; justify-items: center; padding: 10px 6px; border: 3px solid var(--outline); border-radius: 14px; background: var(--surface-2); }
+.stat .k { font: 900 10px/1 var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.stat .v { font: 900 26px/1 var(--font-display); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.stat .v.neat { color: var(--neat-text); }
+
+/* ================= TITLE ================= */
+.title { text-align: center; }
+.hero { position: relative; padding: 36px 0 20px; }
+.wordmark { position: relative; display: inline-block; font: 900 clamp(64px, 14vw, 128px)/1 var(--font-display); letter-spacing: -0.03em; color: var(--accent);
+  -webkit-text-stroke: 3px var(--outline); paint-order: stroke fill; text-shadow: 6px 6px 0 var(--outline); transform: rotate(-2deg); margin: 0 0 12px; }
+.wordmark svg { position: absolute; left: -8%; right: -8%; top: 8%; height: 100%; width: 116%; z-index: -1; }
+.tagline { font: 700 18px/1.4 var(--font-body); color: var(--muted); margin: 0 auto; max-width: 560px; }
+.pick { margin: 26px 0 14px; display: inline-block; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin: 0 0 28px; text-align: left; }
+.pcard { display: grid; gap: 10px; padding: 0; overflow: hidden; transition: transform .15s; cursor: pointer; }
+.pcard:hover { transform: translateY(-4px); }
+.pcard .band { padding: 10px 16px; border-bottom: 3px solid var(--outline); font: 900 12px/1 var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: var(--on-accent); display: flex; justify-content: space-between; align-items: center; }
+.pcard .band.lime { background: var(--neat); } .pcard .band.amber { background: var(--ok); } .pcard .band.blue { background: var(--accent2); }
+.pcard .band span:last-child { font: 700 11px/1 var(--font-mono); letter-spacing: 0; text-transform: none; opacity: .8; }
+.pcard .body { display: grid; gap: 8px; padding: 6px 16px 16px; }
+.pcard h3 { font-size: 24px; letter-spacing: -0.02em; }
+.pcard .blurb { color: var(--muted); font-weight: 500; }
+.pcard .yrow { display: flex; align-items: center; gap: 8px; }
+.pcard .yrow i { width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--outline); display: inline-block; }
+.pcard .yrow small { margin-left: auto; color: var(--muted); font-weight: 700; }
+.pcard .best { display: flex; align-items: center; gap: 10px; border-top: 3px dashed var(--line); padding-top: 12px; margin-top: 4px; font-weight: 700; color: var(--muted); font-size: 13px; }
+.grade-pill { display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--neat); border: 3px solid var(--outline); font: 900 15px/1 var(--font-display); color: var(--on-accent); }
+.grade-pill.b { background: var(--ok); } .grade-pill.none { background: var(--surface-2); color: var(--muted); }
+.pcard .best .btn { margin-left: auto; min-height: 44px; padding: 8px 16px; font-size: 15px; box-shadow: 0 4px 0 var(--outline); }
+.howto { text-align: left; }
+.howto h2 { font-size: 22px; margin: 0 0 12px; }
+.steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.step { position: relative; padding: 18px 16px 16px; display: grid; gap: 8px; }
+.step .num { position: absolute; top: -14px; left: 14px; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); border: 3px solid var(--outline); font: 900 14px/1 var(--font-display); color: var(--on-accent); }
+.step svg { width: 100%; height: 64px; }
+.step strong { font: 900 16px/1.2 var(--font-display); }
+.step p { margin: 0; color: var(--muted); font-size: 13px; font-weight: 500; }
+.foot { margin-top: 24px; display: flex; justify-content: center; gap: 12px; }
+
+/* ================= DONE ================= */
+.done-wrap { position: relative; min-height: 640px; border-radius: 22px; overflow: hidden; }
+.done-wrap .under { padding: 16px; }
+.done-wrap .overlay { position: absolute; inset: 0; background: var(--dim); display: grid; place-items: center; padding: 16px; }
+.confetti { position: absolute; inset: 0; width: 100%; height: 100%; }
+.dialog { position: relative; width: 100%; max-width: 460px; padding: 26px 26px 24px; text-align: center; display: grid; gap: 14px; justify-items: center; }
+.dialog h2 { font-size: 34px; letter-spacing: -0.02em; }
+.dialog .sub { margin: -8px 0 0; font-weight: 700; color: var(--muted); }
+.star { position: relative; width: 170px; height: 170px; display: grid; place-items: center; }
+.star svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.star .g { position: relative; font: 900 96px/1 var(--font-display); letter-spacing: -0.04em; color: var(--on-accent); }
+.star .g sup { font-size: 40px; vertical-align: 30px; margin-left: -6px; }
+.dstats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+.dstats .stat { background: var(--surface-2); }
+.newbest { position: absolute; top: -18px; right: -14px; transform: rotate(10deg); font-size: 14px; padding: 8px 12px; }
+.dialog-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 4px; }
+
+/* ================= GLYPHS + MOMENTS ================= */
+.glyph-card { padding: 18px; display: grid; gap: 10px; }
+.glyph-card canvas { max-width: 100%; height: auto; }
+.moments { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.moment { padding: 16px; display: grid; gap: 8px; align-content: start; min-height: 190px; }
+.moment h3 { font-size: 16px; }
+.moment p { margin: 0; font-size: 13px; color: var(--muted); font-weight: 500; }
+.moment .demo { height: 84px; display: flex; align-items: center; justify-content: center; gap: 10px; position: relative; }
+.pop-lbl { font: 900 20px/1 var(--font-display); color: var(--neat-text); transform: rotate(-6deg); }
+.board-mini { width: 120px; height: 60px; border: 3px solid var(--outline); border-radius: 12px; background: var(--surface-2); box-shadow: inset 0 0 0 4px var(--bad), 0 4px 0 var(--outline); transform: translateX(-6px); }
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 900px) {
+  .play { grid-template-columns: 1fr; }
+  .steps { grid-template-columns: 1fr 1fr; }
+  .moments { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 520px) {
+  .shot { padding: 16px 12px 44px; }
+  .hud-title h2 { font-size: 24px; }
+  .hud-right { width: 100%; justify-content: space-between; }
+  .tile { min-width: 0; flex: 1; }
+  .buttons { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .buttons.actions { grid-template-columns: 1fr 1fr; }
+  .yarns { grid-column: 1 / -1; }
+  .ybtn { flex: 1; justify-content: center; }
+  .steps { grid-template-columns: 1fr; }
+  .moments { grid-template-columns: 1fr; }
+  .wordmark { text-shadow: 4px 4px 0 var(--outline); -webkit-text-stroke: 2px var(--outline); }
+  .dialog { padding: 20px 16px; }
+  .newbest { right: -6px; top: -16px; }
+  .toast { font-size: 14px; padding: 8px 12px; top: -14px; }
+  .combo .lost-tag { right: -6px; bottom: auto; top: -16px; transform: rotate(8deg); }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<nav class="mock-nav" aria-label="Mockup sections">
+  <span class="brand">Hooked · Arcade Juice</span>
+  <a href="#play">Play</a><a href="#title">Title</a><a href="#done">Finished</a><a href="#glyphs">Glyphs</a><a href="#moments">Moments</a>
+  <span class="spacer"></span>
+  <button class="mini" id="theme-toggle" type="button">Theme: light</button>
+</nav>
+
+<!-- ============================== PLAY ============================== -->
+<section id="play" class="shot">
+  <div class="shot-label">01 · Play screen · mid-project, a wrong stitch has just landed on the hook</div>
+  <div class="app play">
+    <div class="work">
+      <header class="hud">
+        <button class="btn icon" aria-label="Back to projects">←</button>
+        <div class="hud-title">
+          <span class="label">Improver · row 6 of 9</span>
+          <h2>Bobble scarf</h2>
+        </div>
+        <div class="hud-right">
+          <div class="tile combo lost" aria-live="polite"><span class="k">Combo</span><span class="v">×6</span><span class="sticker red tilt lost-tag">Lost!</span></div>
+          <div class="tile"><span class="k">Time</span><span class="v">1:24</span></div>
+          <button class="btn icon" aria-label="Sound on">♪</button>
+        </div>
+      </header>
+
+      <div class="board nudge">
+        <div class="toast" role="status">Wrong stitch! Frog it</div>
+        <canvas id="fabric" aria-label="Your crochet work"></canvas>
+      </div>
+
+      <div class="meters">
+        <div>
+          <div class="meter-head"><span class="label">Tension</span><span class="val neat">Last release: NEAT · hold a key</span></div>
+          <div class="trough" role="meter" aria-label="Tension" aria-valuemin="0" aria-valuemax="800" aria-valuenow="330" aria-valuetext="neat">
+            <div class="zone ok" style="left:11.9%;width:56.2%"></div>
+            <div class="zone neat" style="left:23.1%;width:33.8%"></div>
+            <div class="knob ghost" style="left:41%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="meter-head"><span class="label">Yarn</span><span class="val">58% left</span></div>
+          <div class="meter-row">
+            <div class="ball" aria-hidden="true"></div>
+            <div class="trough clip" role="meter" aria-label="Yarn left" aria-valuemin="0" aria-valuemax="100" aria-valuenow="58"><div class="fill" style="width:58%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button class="sbtn dim"><span class="abbr">ch</span><span class="name">chain</span><kbd>C</kbd></button>
+        <button class="sbtn expected"><span class="chev">▾</span><span class="abbr">sc</span><span class="name">single crochet</span><kbd>S</kbd></button>
+        <button class="sbtn dim"><span class="abbr">hdc</span><span class="name">half double</span><kbd>H</kbd></button>
+        <button class="sbtn dim"><span class="abbr">dc</span><span class="name">double crochet</span><kbd>D</kbd></button>
+        <button class="sbtn dim"><span class="abbr">bo</span><span class="name">bobble</span><kbd>B</kbd></button>
+      </div>
+      <div class="buttons actions">
+        <button class="sbtn action turn"><span class="abbr">turn</span><span class="name">end of row</span><kbd>T</kbd></button>
+        <button class="sbtn action frog hot"><span class="abbr">frog!</span><span class="name">rip it back</span><kbd>F</kbd></button>
+        <div class="yarns">
+          <button class="ybtn active"><i style="background:var(--yarn-rose)"></i>Rose <kbd>1</kbd></button>
+          <button class="ybtn"><i style="background:var(--yarn-teal)"></i>Teal <kbd>2</kbd></button>
+        </div>
+      </div>
+    </div>
+
+    <aside class="card panel">
+      <div class="next blocked">
+        <span class="k">Uh oh</span>
+        <strong>Wrong stitch!</strong>
+        <span class="hint">That was a double. Rip the red one back out: press <kbd>F</kbd> or tap FROG, then make the single crochet.</span>
+      </div>
+      <div>
+        <div class="label" style="margin-bottom:8px">This row</div>
+        <div class="beads" aria-label="Stitches in this row">
+          <span class="bead done act">ch</span>
+          <span class="bead done neat">sc</span><span class="bead done neat">sc</span><span class="bead done ok">sc</span>
+          <span class="bead done neat">sc</span><span class="bead done neat">sc</span><span class="bead done neat">sc</span>
+          <span class="bead current blocked">sc</span>
+          <span class="bead">sc</span><span class="bead">sc</span><span class="bead">sc</span><span class="bead">sc</span><span class="bead">sc</span>
+          <span class="bead wide">turn</span>
+        </div>
+      </div>
+      <div>
+        <div class="label" style="margin-bottom:8px">Pattern</div>
+        <ol class="rows">
+          <li class="done"><b>Row 1</b><span>With Rose, ch 12</span></li>
+          <li class="done"><b>Row 2</b><span>sc in 2nd ch from hook and in each ch across (12)</span></li>
+          <li class="done"><b>Row 3</b><span>ch 1, turn. sc 2, *bo, sc 2* 3 times, sc (12)</span></li>
+          <li class="done"><b>Row 4</b><span>Change to Teal. ch 2, turn. dc in each st across (12)</span></li>
+          <li class="done"><b>Row 5</b><span>ch 2, turn. dc in each st across (12)</span></li>
+          <li class="current"><b>Row 6</b><span>Change to Rose. ch 1, turn. sc in each st across (12)</span></li>
+          <li><b>Row 7</b><span>ch 1, turn. sc, *bo, sc 2* 3 times, sc 2 (12)</span></li>
+          <li><b>Row 8</b><span>Change to Teal. ch 2, turn. dc in each st across (12)</span></li>
+          <li><b>Row 9</b><span>ch 2, turn. dc in each st across (12)</span></li>
+        </ol>
+      </div>
+      <div class="stats">
+        <div class="stat"><span class="k">Neat</span><span class="v neat">91%</span></div>
+        <div class="stat"><span class="k">Mistakes</span><span class="v">1</span></div>
+        <div class="stat"><span class="k">Best ×</span><span class="v">6</span></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ============================== TITLE ============================== -->
+<section id="title" class="shot">
+  <div class="shot-label">02 · Title / project picker</div>
+  <div class="app title">
+    <header class="hero">
+      <div class="wordmark">HOOKED
+        <svg viewBox="0 0 600 120" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M8 70 C 120 10, 260 120, 380 60 S 560 20, 592 64" fill="none" stroke="var(--yarn-teal)" stroke-width="14" stroke-linecap="round"/>
+          <path d="M8 70 C 120 10, 260 120, 380 60 S 560 20, 592 64" fill="none" stroke="var(--outline)" stroke-width="20" stroke-linecap="round" style="opacity:1" transform="translate(0 0)" />
+          <path d="M8 70 C 120 10, 260 120, 380 60 S 560 20, 592 64" fill="none" stroke="var(--yarn-teal)" stroke-width="12" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <p class="tagline">Follow the pattern. Nail the tension. Frog your mistakes. A crochet game with a combo meter.</p>
+      <div class="pick"><span class="sticker pink">Pick a project</span></div>
+    </header>
+
+    <div class="cards">
+      <article class="card pcard" tabindex="0">
+        <div class="band lime"><span>Beginner</span><span>8 rows · 73 moves</span></div>
+        <div class="body">
+          <h3>Mug coaster</h3>
+          <p class="blurb">Chains and single crochet only. Learn to hold your tension.</p>
+          <div class="yrow"><i style="background:var(--yarn-rose)"></i><small>Rose</small></div>
+          <div class="best"><span class="grade-pill">A+</span><span>98% neat · 1:12</span><button class="btn accent">Play</button></div>
+        </div>
+      </article>
+      <article class="card pcard" tabindex="0">
+        <div class="band amber"><span>Improver</span><span>9 rows · 133 moves</span></div>
+        <div class="body">
+          <h3>Bobble scarf</h3>
+          <p class="blurb">Two yarns, bobbles and double crochet. Change colour when the pattern says.</p>
+          <div class="yrow"><i style="background:var(--yarn-rose)"></i><i style="background:var(--yarn-teal)"></i><small>Rose · Teal</small></div>
+          <div class="best"><span class="grade-pill b">B</span><span>81% neat · 2:40</span><button class="btn accent">Play</button></div>
+        </div>
+      </article>
+      <article class="card pcard" tabindex="0">
+        <div class="band blue"><span>Confident</span><span>9 rows · 109 moves</span></div>
+        <div class="body">
+          <h3>Bobble pouch panel</h3>
+          <p class="blurb">Bobbles eat yarn. Keep every stitch neat or you will run short.</p>
+          <div class="yrow"><i style="background:var(--yarn-lavender)"></i><i style="background:var(--yarn-mustard)"></i><small>Lavender · Mustard</small></div>
+          <div class="best"><span class="grade-pill none">–</span><span>Not yet made</span><button class="btn accent">Play</button></div>
+        </div>
+      </article>
+    </div>
+
+    <div class="howto">
+      <h2>How to play</h2>
+      <div class="steps">
+        <div class="card step"><span class="num">1</span>
+          <svg viewBox="0 0 160 64" aria-hidden="true"><rect x="10" y="10" width="140" height="44" rx="12" fill="var(--surface-2)" stroke="var(--outline)" stroke-width="3"/><text x="80" y="40" text-anchor="middle" font-family="ui-rounded, Inter Display, Inter, sans-serif" font-weight="900" font-size="22" fill="var(--ink)">sc · S</text></svg>
+          <strong>Make the stitch the pattern asks for</strong><p>Press and hold its key or button: C chain, S single, H half double, D double, B bobble.</p></div>
+        <div class="card step"><span class="num">2</span>
+          <svg viewBox="0 0 160 64" aria-hidden="true"><rect x="8" y="22" width="144" height="22" rx="11" fill="var(--surface)" stroke="var(--outline)" stroke-width="3"/><rect x="40" y="22" width="60" height="22" fill="var(--ok)" stroke="var(--outline)" stroke-width="3"/><rect x="55" y="22" width="30" height="22" fill="var(--neat)" stroke="var(--outline)" stroke-width="3"/><circle cx="70" cy="33" r="13" fill="var(--surface)" stroke="var(--outline)" stroke-width="3"/><circle cx="70" cy="33" r="5" fill="var(--outline)"/></svg>
+          <strong>Release in the green</strong><p>Too quick is loose, too long is tight. Loose stitches waste yarn. Neat in a row builds a combo.</p></div>
+        <div class="card step"><span class="num">3</span>
+          <svg viewBox="0 0 160 64" aria-hidden="true"><path d="M30 44 h60 a16 16 0 0 0 0 -32 h-10" fill="none" stroke="var(--outline)" stroke-width="10" stroke-linecap="round"/><path d="M30 44 h60 a16 16 0 0 0 0 -32 h-10" fill="none" stroke="var(--accent2)" stroke-width="5" stroke-linecap="round"/><path d="M86 4 l-10 8 l10 8" fill="none" stroke="var(--outline)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M86 4 l-10 8 l10 8" fill="none" stroke="var(--accent2)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="122" cy="32" r="12" fill="var(--yarn-teal)" stroke="var(--outline)" stroke-width="3"/><circle cx="142" cy="32" r="12" fill="var(--yarn-rose)" stroke="var(--outline)" stroke-width="3"/></svg>
+          <strong>Turn and change yarn</strong><p>T turns the work at the end of a row; 1 and 2 swap yarn when the pattern says.</p></div>
+        <div class="card step"><span class="num">4</span>
+          <svg viewBox="0 0 160 64" aria-hidden="true"><path d="M20 40 q20 -30 40 0 t40 0 t40 0" fill="none" stroke="var(--outline)" stroke-width="11" stroke-linecap="round"/><path d="M20 40 q20 -30 40 0 t40 0 t40 0" fill="none" stroke="var(--bad)" stroke-width="6" stroke-linecap="round" stroke-dasharray="8 6"/><circle cx="140" cy="18" r="10" fill="var(--surface)" stroke="var(--outline)" stroke-width="3"/><path d="M136 14 l8 8 M144 14 l-8 8" stroke="var(--bad)" stroke-width="3" stroke-linecap="round"/></svg>
+          <strong>Frog your mistakes</strong><p>A wrong stitch lands red with a ✕. Press F to rip it back out and carry on.</p></div>
+      </div>
+    </div>
+    <footer class="foot"><button class="btn">♪ Sound: on <kbd>M</kbd></button></footer>
+  </div>
+</section>
+
+<!-- ============================== DONE ============================== -->
+<section id="done" class="shot">
+  <div class="shot-label">03 · Completion dialog · confetti over the finished piece</div>
+  <div class="app">
+    <div class="done-wrap">
+      <div class="under play">
+        <div class="work">
+          <header class="hud">
+            <button class="btn icon" aria-label="Back to projects">←</button>
+            <div class="hud-title"><span class="label">Improver · row 9 of 9</span><h2>Bobble scarf</h2></div>
+            <div class="hud-right"><div class="tile combo t10"><span class="k">Combo</span><span class="v">×14</span></div><div class="tile"><span class="k">Time</span><span class="v">2:48</span></div></div>
+          </header>
+          <div class="board"><canvas id="fabric-done" aria-hidden="true"></canvas></div>
+        </div>
+        <aside class="card panel" aria-hidden="true">
+          <div class="next"><span class="k">Done</span><strong>Fastened off!</strong></div>
+          <div class="stats"><div class="stat"><span class="k">Neat</span><span class="v neat">94%</span></div><div class="stat"><span class="k">Mistakes</span><span class="v">1</span></div><div class="stat"><span class="k">Best ×</span><span class="v">14</span></div></div>
+        </aside>
+      </div>
+      <div class="overlay">
+        <canvas class="confetti" id="confetti" aria-hidden="true"></canvas>
+        <div class="card dialog" role="dialog" aria-labelledby="done-title">
+          <span class="sticker pink newbest">New best!</span>
+          <h2 id="done-title">Finished!</h2>
+          <p class="sub">Bobble scarf · 9 rows · 133 moves</p>
+          <div class="star" aria-label="Grade A">
+            <svg viewBox="0 0 200 200" aria-hidden="true">
+              <polygon id="starpoly" fill="var(--ok)" stroke="var(--outline)" stroke-width="5" stroke-linejoin="round" />
+            </svg>
+            <span class="g">A</span>
+          </div>
+          <div class="dstats">
+            <div class="stat"><span class="k">Neatness</span><span class="v neat">94%</span></div>
+            <div class="stat"><span class="k">Mistakes</span><span class="v">1</span></div>
+            <div class="stat"><span class="k">Time</span><span class="v">2:48</span></div>
+            <div class="stat"><span class="k">Yarn left</span><span class="v">31%</span></div>
+          </div>
+          <div><span class="sticker blue">Best combo ×14</span></div>
+          <div class="dialog-actions">
+            <button class="btn accent big">Make it again</button>
+            <button class="btn">Projects</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== GLYPHS ============================== -->
+<section id="glyphs" class="shot">
+  <div class="shot-label">04 · Stitch glyph treatment · rows: neat, loose, tight, wrong</div>
+  <div class="app">
+    <div class="card glyph-card"><canvas id="glyph-sheet" aria-label="Stitch glyphs in every quality"></canvas></div>
+  </div>
+</section>
+
+<!-- ============================== MOMENTS ============================== -->
+<section id="moments" class="shot">
+  <div class="shot-label">05 · Feedback moments</div>
+  <div class="app moments">
+    <div class="card moment"><h3>Stitch pop</h3><div class="demo"><canvas id="pop" width="320" height="168" style="width:160px;height:84px"></canvas><span class="pop-lbl">+100 NEAT!</span></div><p>New glyph scales 1.5 → 1 with overshoot (180ms); a score label floats up and fades (600ms).</p></div>
+    <div class="card moment"><h3>Combo tiers</h3><div class="demo"><span class="sticker">×3</span><span class="sticker pink">×5</span><span class="sticker blue">×10 on fire</span></div><p>Consecutive neat stitches. The sticker bumps on each count and changes colour at 3 / 5 / 10. Anything not neat breaks it.</p></div>
+    <div class="card moment"><h3>Frog nudge</h3><div class="demo"><div class="board-mini"></div><span class="sticker red tilt">Ripped</span></div><p>Board shoves sideways 8px with a red inner glow (300ms); the glyph unspools back to the hook.</p></div>
+    <div class="card moment"><h3>Finish</h3><div class="demo"><canvas id="conf-mini" width="320" height="168" style="width:160px;height:84px"></canvas><span class="sticker lime">A+</span></div><p>One beat of quiet, then 160 confetti pieces in the palette, the star pops in and the numbers count up.</p></div>
+  </div>
+</section>
+
+<script>
+(function () {
+  'use strict';
+  // ---------- tokens ----------
+  function token(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+  function hex(c) { c = c.trim(); if (c.startsWith('rgb')) { const m = c.match(/\d+/g).map(Number); return m.slice(0, 3); } const n = parseInt(c.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+  function mix(a, b, t) { const A = hex(a), B = hex(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(',')})`; }
+  let T = {};
+  function readTokens() {
+    T = { outline: token('--outline'), ink: token('--ink'), bad: token('--bad'), neat: token('--neat'), ok: token('--ok'), surface: token('--surface'), surface2: token('--surface-2'), accent: token('--accent'), accent2: token('--accent2'), muted: token('--muted'), board: token('--surface-2'),
+      yarns: { rose: token('--yarn-rose'), teal: token('--yarn-teal'), mustard: token('--yarn-mustard'), lavender: token('--yarn-lavender') } };
+  }
+
+  // ---------- pattern model (mirrors js/patterns.js + js/render.js) ----------
+  const H = { ch: 16, sc: 26, hdc: 32, dc: 42, bo: 34 };
+  const CELL = 38, PAD = 30, MARGIN = CELL, HOOK_ROOM = 92, OUT = 2.5, BASE_W = 5;
+  function expand(spec) {
+    const tokens = spec.match(/\[|\]\*\d+|\]|[a-z]+\*\d+|[a-z]+/g) || []; let pos = 0;
+    function seq() { const out = []; while (pos < tokens.length) { const tok = tokens[pos]; if (tok === '[') { pos++; const inner = seq(); const close = tokens[pos++]; const reps = close === ']' ? 1 : Number(close.slice(2)); for (let i = 0; i < reps; i++) out.push(...inner); } else if (tok.startsWith(']')) return out; else { pos++; const [id, n] = tok.split('*'); for (let i = 0; i < (n ? Number(n) : 1); i++) out.push(id); } } return out; }
+    return seq();
+  }
+  function layout(rows) {
+    const L = rows.map((spec) => { const ids = expand(spec); const foundation = ids.every((id) => id === 'ch'); const slots = foundation ? ids.length : ids.filter((id) => id !== 'ch').length; const height = Math.max(...ids.map((id) => H[id])); return { ids, foundation, slots, height }; });
+    const cols = Math.max(...L.map((r) => r.slots));
+    const width = PAD * 2 + MARGIN * 2 + cols * CELL;
+    const height = PAD * 2 + HOOK_ROOM + L.reduce((s, r) => s + r.height, 0);
+    let y = height - PAD; L.forEach((r) => { r.y = y; y -= r.height; });
+    return { rows: L, cols, width, height, left: PAD + MARGIN + ((cols - L[0].slots) * CELL) / 2 };
+  }
+  function slotX(lay, r, k) { const row = lay.rows[r]; const idx = r % 2 === 0 ? k : row.slots - 1 - k; return lay.left + idx * CELL; }
+  function geom(lay, r, placed, i) {
+    const row = lay.rows[r]; let slot = 0, turning = 0;
+    for (let j = 0; j < i; j++) { if (placed[j].st === 'ch' && !row.foundation) turning++; else slot++; }
+    const s = placed[i];
+    if (s.st === 'ch' && !row.foundation) { const edge = r % 2 === 0 ? lay.left - CELL * 0.85 : lay.left + row.slots * CELL - CELL * 0.15; return { x: edge, y: row.y - turning * 12, w: CELL, h: H.ch, turning: true }; }
+    return { x: slotX(lay, r, slot), y: row.y, w: CELL, h: H[s.st], turning: false };
+  }
+
+  // ---------- tube drawing ----------
+  function tube(ctx, build, color, w, o) {
+    o = o || {};
+    ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    if (o.dash) ctx.setLineDash(o.dash);
+    ctx.strokeStyle = o.outline || T.outline; ctx.lineWidth = w + OUT * 2; build(); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.strokeStyle = color; ctx.lineWidth = w; build(); ctx.stroke();
+    if (!o.noGloss) { ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = Math.max(1.4, w * 0.32); ctx.translate(-0.8, -w * 0.25); build(); ctx.stroke(); }
+    ctx.restore();
+  }
+  function blob(ctx, cx, cy, rx, ry, color, o) {
+    o = o || {};
+    ctx.save(); ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+    ctx.fillStyle = color; ctx.fill();
+    if (o.dash) ctx.setLineDash(o.dash);
+    ctx.lineWidth = OUT * 1.2; ctx.strokeStyle = T.outline; ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.beginPath(); ctx.ellipse(cx - rx * 0.35, cy - ry * 0.4, rx * 0.3, ry * 0.22, -0.5, 0, Math.PI * 2); ctx.fillStyle = 'rgba(255,255,255,.65)'; ctx.fill();
+    ctx.restore();
+  }
+  function sparkle(ctx, x, y, r) {
+    ctx.save(); ctx.fillStyle = '#fff'; ctx.strokeStyle = T.outline; ctx.lineWidth = 1.5; ctx.lineJoin = 'round';
+    ctx.beginPath(); for (let i = 0; i < 8; i++) { const a = (i * Math.PI) / 4; const rr = i % 2 ? r * 0.38 : r; ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+  }
+  function drawStitch(ctx, s, g, color, o) {
+    o = o || {};
+    const t = s.wrong ? 0 : (s.t || 0);
+    const loose = t < -0.45, tight = t > 0.45;
+    const w = g.w * (1 - 0.26 * t), h = g.h * (1 - 0.12 * t);
+    const x = g.x + (g.w - w) / 2, y = g.y, cx = x + w / 2;
+    const lw = BASE_W * (loose ? 0.85 : tight ? 1.18 : 1);
+    const col = s.wrong ? T.bad : loose ? mix(color, '#ffffff', 0.22) : tight ? mix(color, T.outline, 0.18) : color;
+    const tilt = loose ? -0.1 : tight ? 0.1 : 0;
+    const dash = s.wrong ? [5, 4] : null;
+    const top = y - h * 0.82;
+    const sag = loose ? 2 : 0;
+    ctx.save(); ctx.translate(cx, y); ctx.rotate(tilt); ctx.translate(-cx, -y);
+    const cap = (ry) => { ctx.moveTo(cx + w * 0.38, top + sag); ctx.ellipse(cx, top + sag, w * 0.38 * (loose ? 1.1 : 1), ry, 0, 0, Math.PI * 2); };
+    switch (s.st) {
+      case 'ch':
+        tube(ctx, () => { ctx.beginPath(); ctx.ellipse(cx, y - h / 2, w * 0.42, h * 0.38, 0, 0, Math.PI * 2); }, col, lw, { dash }); break;
+      case 'sc':
+        tube(ctx, () => { ctx.beginPath(); ctx.moveTo(x + w * 0.2, y); ctx.lineTo(cx, y - h * 0.62); ctx.moveTo(x + w * 0.8, y); ctx.lineTo(cx, y - h * 0.62); cap(h * 0.16); }, col, lw, { dash }); break;
+      case 'hdc':
+        tube(ctx, () => { ctx.beginPath(); ctx.moveTo(cx, y); ctx.lineTo(cx, y - h * 0.7); ctx.moveTo(cx - w * 0.28, y - h * 0.3); ctx.lineTo(cx + w * 0.28, y - h * 0.5); cap(h * 0.13); }, col, lw, { dash }); break;
+      case 'dc':
+        tube(ctx, () => { ctx.beginPath(); ctx.moveTo(cx, y); ctx.lineTo(cx, y - h * 0.72); ctx.moveTo(cx - w * 0.3, y - h * 0.3); ctx.lineTo(cx + w * 0.3, y - h * 0.48); ctx.moveTo(cx - w * 0.3, y - h * 0.46); ctx.lineTo(cx + w * 0.3, y - h * 0.64); cap(h * 0.11); }, col, lw, { dash }); break;
+      case 'bo':
+        blob(ctx, cx - w * 0.2, y - h * 0.4, w * 0.28, h * 0.34, col, { dash });
+        blob(ctx, cx + w * 0.2, y - h * 0.4, w * 0.28, h * 0.34, col, { dash });
+        blob(ctx, cx, y - h * 0.46, w * 0.28, h * 0.4, col, { dash });
+        tube(ctx, () => { ctx.beginPath(); cap(h * 0.13); }, col, lw, { dash });
+        break;
+    }
+    ctx.restore();
+    if (s.wrong) {
+      // red halo + X badge sticker
+      ctx.save(); ctx.strokeStyle = T.bad; ctx.lineWidth = 2; ctx.globalAlpha = 0.55; ctx.setLineDash([3, 4]);
+      ctx.beginPath(); ctx.ellipse(cx, y - h * 0.45, w * 0.7, h * 0.72 + 6, 0, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+      const bx = cx + w * 0.36, by = top - 2;
+      ctx.save(); ctx.beginPath(); ctx.arc(bx, by, 8.5, 0, Math.PI * 2); ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = T.outline; ctx.stroke();
+      ctx.strokeStyle = T.bad; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(bx - 3.5, by - 3.5); ctx.lineTo(bx + 3.5, by + 3.5); ctx.moveTo(bx + 3.5, by - 3.5); ctx.lineTo(bx - 3.5, by + 3.5); ctx.stroke(); ctx.restore();
+    }
+    if (o.sparkle) sparkle(ctx, cx - w * 0.34, top - 6, 6);
+  }
+  function drawHook(ctx, x, y, loopColor, loopScale) {
+    ctx.save(); ctx.translate(x, y);
+    // working loop behind the shaft
+    const r = 10 * (loopScale || 1);
+    tube(ctx, () => { ctx.beginPath(); ctx.ellipse(0, -26, r * 1.25, r * 0.75, 0, 0, Math.PI * 2); }, loopColor, 4.5);
+    // shaft
+    tube(ctx, () => { ctx.beginPath(); ctx.moveTo(0, -70); ctx.lineTo(0, -10); }, '#ffe3b8', 7, { noGloss: false });
+    // hook head
+    tube(ctx, () => { ctx.beginPath(); ctx.moveTo(0, -12); ctx.quadraticCurveTo(0, 7, -9, 4); ctx.quadraticCurveTo(-15, 2, -12, -6); }, '#ffe3b8', 6);
+    // grip ring
+    ctx.fillStyle = T.outline; ctx.beginPath(); ctx.roundRect(-7, -76, 14, 8, 3); ctx.fill();
+    // handle
+    ctx.beginPath(); ctx.roundRect(-8, -118, 16, 44, 7); ctx.fillStyle = '#ff8a5c'; ctx.fill(); ctx.lineWidth = OUT * 1.2; ctx.strokeStyle = T.outline; ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.roundRect(-4.5, -112, 3.5, 30, 2); ctx.fill();
+    ctx.restore();
+  }
+  function drawBall(ctx, x, y, r, color) {
+    ctx.save(); ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill();
+    ctx.save(); ctx.clip(); ctx.strokeStyle = 'rgba(36,27,61,.35)'; ctx.lineWidth = 2.2;
+    for (let i = -3; i <= 3; i++) { ctx.beginPath(); ctx.ellipse(x, y, r * 1.05, r * 0.42 + Math.abs(i) * 2, 0.6 + i * 0.22, 0, Math.PI * 2); ctx.stroke(); }
+    ctx.restore();
+    ctx.lineWidth = OUT * 1.2; ctx.strokeStyle = T.outline; ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(x - r * 0.35, y - r * 0.4, r * 0.3, r * 0.2, -0.6, 0, Math.PI * 2); ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.fill();
+    ctx.restore();
+  }
+
+  // ---------- scenes ----------
+  const YARNS = ['rose', 'teal'];
+  const SPECS = ['ch*12', 'sc*12', 'ch sc*2 [bo sc*2]*3 sc', 'ch*2 dc*12', 'ch*2 dc*12', 'ch sc*12', 'ch sc [bo sc*2]*3 sc*2', 'ch*2 dc*12', 'ch*2 dc*12'];
+  const ROW_YARN = [0, 0, 0, 1, 1, 0, 0, 1, 1];
+  function placeRow(r, n, tweaks) {
+    const ids = expand(SPECS[r]).slice(0, n);
+    return ids.map((st, i) => { const tw = (tweaks && tweaks[i]) || {}; return { st, t: tw.t ?? 0, q: tw.q || 'neat', wrong: !!tw.wrong, yarn: ROW_YARN[r] }; });
+  }
+  function fit(canvas, lay) {
+    const dpr = Math.min(2, window.devicePixelRatio || 1) * 1.25;
+    canvas.width = Math.round(lay.width * dpr); canvas.height = Math.round(lay.height * dpr);
+    canvas.style.width = lay.width + 'px'; canvas.style.maxWidth = '100%';
+    const ctx = canvas.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); return ctx;
+  }
+  function drawScene(canvas, rows, opts) {
+    const lay = layout(SPECS.slice(0, opts.rowsShown || SPECS.length));
+    // only lay out rows that exist in the scene
+    const ctx = fit(canvas, lay);
+    ctx.clearRect(0, 0, lay.width, lay.height);
+    // swatch backing
+    const lastRow = rows.length - 1;
+    const fabricTop = lay.rows[lastRow].y - lay.rows[lastRow].height - 10;
+    const fabricBottom = lay.rows[0].y + 6;
+    ctx.save(); ctx.fillStyle = T.surface; ctx.strokeStyle = T.outline; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.roundRect(lay.left - 14, fabricTop + 5, lay.cols * CELL + 28, fabricBottom - fabricTop, 14); ctx.fillStyle = T.outline; ctx.fill();
+    ctx.beginPath(); ctx.roundRect(lay.left - 14, fabricTop, lay.cols * CELL + 28, fabricBottom - fabricTop, 14); ctx.fillStyle = mix(T.surface, T.outline, 0.06); ctx.fill(); ctx.stroke();
+    ctx.restore();
+    // stitches
+    const lastNeat = [];
+    rows.forEach((placed, r) => placed.forEach((s, i) => { if (!s.wrong && s.q === 'neat' && s.st !== 'ch') lastNeat.push([r, i]); }));
+    const sparkleSet = new Set(lastNeat.slice(-2).map((p) => p.join(':')));
+    rows.forEach((placed, r) => placed.forEach((s, i) => {
+      const g = geom(lay, r, placed, i);
+      drawStitch(ctx, s, g, T.yarns[YARNS[s.yarn]], { sparkle: opts.sparkle !== false && sparkleSet.has(r + ':' + i) });
+    }));
+    // hook
+    const r = lastRow; const placed = rows[r]; const row = lay.rows[r];
+    const nonCh = placed.filter((s) => s.st !== 'ch' || row.foundation).length;
+    let hx, hy;
+    if (opts.finished) { hx = slotX(lay, r, row.slots - 1) + CELL / 2 + (r % 2 === 0 ? 1 : -1) * CELL * 0.6; hy = row.y - row.height * 0.6; }
+    else { hx = slotX(lay, r, Math.min(nonCh, row.slots - 1)) + CELL / 2; hy = row.y - 6; }
+    const yarnColor = T.yarns[YARNS[ROW_YARN[r]]];
+    // working yarn runs over the edge of the work and down the margin to the ball, never across the fabric
+    const side = hx < lay.width / 2 ? -1 : 1;
+    const edgeX = side < 0 ? lay.left - 34 : lay.left + lay.cols * CELL + 34;
+    const bx = side < 0 ? 30 : lay.width - 30, by = lay.height - 30;
+    tube(ctx, () => { ctx.beginPath(); ctx.moveTo(hx + side * 6, hy - 28); ctx.bezierCurveTo(hx + side * 50, hy - 84, edgeX - side * 12, hy - 70, edgeX, hy + 6); ctx.quadraticCurveTo(edgeX - side * 4, by - 70, bx + side * 4, by - 20); }, yarnColor, 4);
+    drawBall(ctx, bx, by, 22 * (opts.ballScale || 1), yarnColor);
+    drawHook(ctx, hx, hy, yarnColor, opts.loopScale || 1);
+  }
+
+  // play scene: 5 full rows + current row with a wrong dc on the hook
+  const playRows = [
+    placeRow(0, 12, { 2: { t: 0.55, q: 'ok' } }),
+    placeRow(1, 12, { 4: { t: -0.9, q: 'loose' }, 9: { t: 0.5, q: 'ok' } }),
+    placeRow(2, 13, {}),
+    placeRow(3, 14, { 9: { t: 0.85, q: 'tight' }, 4: { t: -0.5, q: 'ok' } }),
+    placeRow(4, 14, { 6: { t: -0.55, q: 'ok' } }),
+    placeRow(5, 7, { 3: { t: 0.5, q: 'ok' } }).concat([{ st: 'dc', t: 0, q: 'wrong', wrong: true, yarn: 0 }]),
+  ];
+  const doneRows = SPECS.map((spec, r) => placeRow(r, expand(spec).length, r === 1 ? { 4: { t: -0.8, q: 'loose' } } : r === 3 ? { 9: { t: 0.8, q: 'tight' } } : {}));
+
+  // ---------- glyph sheet ----------
+  function drawGlyphSheet(canvas) {
+    const ids = ['ch', 'sc', 'hdc', 'dc', 'bo'];
+    const quals = [['neat', 0], ['loose', -0.95], ['tight', 0.95], ['wrong', 0]];
+    const colW = 150, rowH = 86, labW = 110, top = 56;
+    const W = labW + colW * ids.length, Hh = top + rowH * quals.length + 12;
+    const dpr = Math.min(2, window.devicePixelRatio || 1) * 1.25;
+    canvas.width = W * dpr; canvas.height = Hh * dpr; canvas.style.width = W + 'px';
+    const ctx = canvas.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, Hh);
+    ctx.font = '900 13px ' + token('--font-display'); ctx.fillStyle = T.muted; ctx.textAlign = 'center';
+    ids.forEach((id, c) => { const x = labW + c * colW + colW / 2; ctx.fillStyle = T.ink; ctx.font = '900 20px ' + token('--font-display'); ctx.fillText(id, x, 24); ctx.fillStyle = T.muted; ctx.font = '700 11px ' + token('--font-body'); ctx.fillText({ ch: 'chain', sc: 'single', hdc: 'half double', dc: 'double', bo: 'bobble' }[id], x, 42); });
+    quals.forEach(([q, t], rI) => {
+      const y = top + rI * rowH;
+      ctx.save(); ctx.font = '900 12px ' + token('--font-display'); ctx.textAlign = 'left'; ctx.fillStyle = q === 'wrong' ? T.bad : q === 'neat' ? T.neat : T.ok;
+      ctx.beginPath(); ctx.roundRect(8, y + rowH / 2 - 14, 86, 28, 9); ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = T.outline; ctx.stroke();
+      ctx.fillStyle = token('--on-accent'); ctx.textAlign = 'center'; ctx.fillText(q.toUpperCase(), 51, y + rowH / 2 + 4); ctx.restore();
+      ids.forEach((id, c) => {
+        const yarns = ['rose', 'teal', 'mustard', 'lavender', 'rose'];
+        const base = y + rowH - 16;
+        const g = { x: labW + c * colW + colW / 2 - CELL / 2, y: base, w: CELL, h: H[id] };
+        const s = { st: id, t, q, wrong: q === 'wrong', yarn: 0 };
+        // baseline tick
+        ctx.save(); ctx.strokeStyle = T.outline; ctx.globalAlpha = 0.18; ctx.lineWidth = 2; ctx.setLineDash([3, 5]); ctx.beginPath(); ctx.moveTo(g.x - 28, base + 7); ctx.lineTo(g.x + CELL + 28, base + 7); ctx.stroke(); ctx.restore();
+        drawStitch(ctx, s, g, T.yarns[yarns[c]], { sparkle: q === 'neat' && id !== 'ch' });
+      });
+    });
+  }
+
+  // ---------- pop + confetti minis ----------
+  function drawPop(canvas) {
+    const ctx = canvas.getContext('2d'); ctx.setTransform(2, 0, 0, 2, 0, 0); ctx.clearRect(0, 0, 160, 84);
+    [[0.55, 26, 0.35], [1.45, 72, 0.6], [1, 128, 1]].forEach(([sc, x, a]) => {
+      ctx.save(); ctx.globalAlpha = a; ctx.translate(x, 70); ctx.scale(sc, sc); ctx.translate(-x, -70);
+      drawStitch(ctx, { st: 'sc', t: 0, q: 'neat' }, { x: x - CELL / 2, y: 70, w: CELL, h: H.sc }, T.yarns.rose, { sparkle: sc === 1 }); ctx.restore();
+    });
+    ctx.save(); ctx.strokeStyle = T.outline; ctx.lineWidth = 2; ctx.setLineDash([3, 4]); ctx.globalAlpha = .4; ctx.beginPath(); ctx.moveTo(42, 50); ctx.lineTo(112, 50); ctx.stroke(); ctx.restore();
+  }
+  function confettiPieces(n, w, h, seed) {
+    let s = seed; const rnd = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+    const cols = [T.accent, T.accent2, T.neat, T.ok, T.yarns.rose, T.yarns.teal, T.yarns.mustard, T.yarns.lavender];
+    return Array.from({ length: n }, () => ({ x: rnd() * w, y: rnd() * h, r: rnd() * Math.PI * 2, c: cols[Math.floor(rnd() * cols.length)], k: rnd() < 0.3 ? 'circle' : rnd() < 0.5 ? 'strip' : 'rect', sz: 6 + rnd() * 9 }));
+  }
+  function drawConfetti(canvas, w, h, n, seed, scale) {
+    const dpr = 2; canvas.width = w * dpr; canvas.height = h * dpr;
+    const ctx = canvas.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h);
+    confettiPieces(n, w, h, seed).forEach((p) => {
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.c; ctx.strokeStyle = T.outline; ctx.lineWidth = 2; ctx.lineJoin = 'round';
+      const z = p.sz * (scale || 1);
+      ctx.beginPath();
+      if (p.k === 'circle') ctx.arc(0, 0, z * 0.5, 0, Math.PI * 2); else if (p.k === 'strip') ctx.roundRect(-z * 0.9, -z * 0.25, z * 1.8, z * 0.5, 3); else ctx.roundRect(-z * 0.5, -z * 0.5, z, z, 3);
+      ctx.fill(); ctx.stroke(); ctx.restore();
+    });
+  }
+  function starPoints() {
+    const pts = []; for (let i = 0; i < 24; i++) { const a = (i / 24) * Math.PI * 2 - Math.PI / 2; const r = i % 2 ? 78 : 96; pts.push((100 + Math.cos(a) * r).toFixed(1) + ',' + (100 + Math.sin(a) * r).toFixed(1)); }
+    document.getElementById('starpoly').setAttribute('points', pts.join(' '));
+  }
+
+  function renderAll() {
+    readTokens();
+    drawScene(document.getElementById('fabric'), playRows, { loopScale: 1 });
+    drawScene(document.getElementById('fabric-done'), doneRows, { finished: true, ballScale: 0.7 });
+    drawGlyphSheet(document.getElementById('glyph-sheet'));
+    drawPop(document.getElementById('pop'));
+    const conf = document.getElementById('confetti'); const wrap = conf.parentElement.getBoundingClientRect();
+    drawConfetti(conf, Math.max(320, wrap.width), Math.max(400, wrap.height), 140, 7, 1.1);
+    drawConfetti(document.getElementById('conf-mini'), 160, 84, 28, 3, 0.9);
+    starPoints();
+  }
+  // theme toggle
+  const root = document.documentElement; const btn = document.getElementById('theme-toggle');
+  function currentTheme() { return root.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); }
+  function setTheme(t) { root.setAttribute('data-theme', t); btn.textContent = 'Theme: ' + t; renderAll(); }
+  btn.addEventListener('click', () => setTheme(currentTheme() === 'dark' ? 'light' : 'dark'));
+  btn.textContent = 'Theme: ' + currentTheme();
+  window.__setTheme = setTheme;
+  renderAll();
+  let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(renderAll, 120); });
+}());
+</script>
+</body>
+</html>

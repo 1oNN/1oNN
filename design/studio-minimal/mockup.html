@@ -1,0 +1,746 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hooked — Studio Minimal</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2317171a'/%3E%3Cpath d='M9 7v14a5 5 0 0 0 10 0' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E" />
+<meta name="description" content="Design direction 02 for Hooked: modern studio minimal. Static mockup of the play screen, title screen, completion dialog and dark mode." />
+<style>
+/* ---------- tokens ---------- */
+:root {
+  --bg: #f6f5f1; --surface: #ffffff; --ink: #17171a; --muted: #6a6a70; --line: #e3e1db;
+  --accent: #c43d18; --accent2: #f6ddd3;
+  --neat: #177a4f; --ok: #8f6207; --bad: #c9323a;
+  --rose: #e58aa8; --teal: #3aa6a0; --mustard: #e2b23a; --lavender: #a08ad8;
+  --dim: rgba(23, 23, 26, .55); --grid-dot: rgba(23, 23, 26, .16); --press: rgba(23, 23, 26, .06);
+  --yarn-mix: 0.3;
+  --sans: Inter, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --display: "Inter Display", "SF Pro Display", "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", "Liberation Mono", monospace;
+  --radius: 6px; --gutter: 24px;
+  color-scheme: light;
+}
+[data-theme="dark"] {
+  --bg: #121214; --surface: #1b1b1f; --ink: #f2f1ee; --muted: #9a9aa2; --line: #2c2c32;
+  --accent: #ff7a4f; --accent2: #3a241c;
+  --neat: #4ccf8f; --ok: #e6b43c; --bad: #ff6b70;
+  --rose: #ee9db3; --teal: #4fbfb8; --mustard: #ecc155; --lavender: #b4a3e8;
+  --dim: rgba(0, 0, 0, .62); --grid-dot: rgba(242, 241, 238, .18); --press: rgba(242, 241, 238, .08);
+  --yarn-mix: 0;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121214; --surface: #1b1b1f; --ink: #f2f1ee; --muted: #9a9aa2; --line: #2c2c32;
+    --accent: #ff7a4f; --accent2: #3a241c;
+    --neat: #4ccf8f; --ok: #e6b43c; --bad: #ff6b70;
+    --rose: #ee9db3; --teal: #4fbfb8; --mustard: #ecc155; --lavender: #b4a3e8;
+    --dim: rgba(0, 0, 0, .62); --grid-dot: rgba(242, 241, 238, .18); --press: rgba(242, 241, 238, .08);
+    --yarn-mix: 0;
+    color-scheme: dark;
+  }
+}
+
+/* ---------- base ---------- */
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font-family: var(--sans); font-size: 15px; line-height: 1.5; color: var(--ink); background: var(--bg);
+  -webkit-font-smoothing: antialiased; font-feature-settings: "tnum" 1, "cv11" 1;
+}
+h1, h2, h3, p, ol, ul, dl, dd { margin: 0; }
+ol, ul { padding: 0; list-style: none; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
+kbd {
+  font: 500 11px/1 var(--mono); color: var(--muted); border: 1px solid var(--line); border-radius: 4px;
+  padding: 3px 5px 2px; background: var(--surface); white-space: nowrap;
+}
+.mono { font-family: var(--mono); font-size: 12px; letter-spacing: 0; }
+.eyebrow { font-size: 11px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.spacer { flex: 1; }
+.swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: -1px; }
+
+/* ---------- board chrome (this document only, not product UI) ---------- */
+.board-nav {
+  display: flex; gap: 20px; align-items: baseline; padding: 14px var(--gutter); border-bottom: 1px solid var(--line);
+  font: 500 12px/1 var(--mono); color: var(--muted); flex-wrap: wrap;
+}
+.board-nav strong { color: var(--ink); font-weight: 600; }
+.board-nav a { color: var(--muted); text-decoration: none; }
+.board-nav a:hover { color: var(--ink); }
+.board { border-bottom: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+.board-label {
+  display: flex; flex-wrap: wrap; gap: 6px 16px; padding: 10px var(--gutter); font: 500 11px/1 var(--mono); color: var(--muted);
+  letter-spacing: .04em; text-transform: uppercase; border-bottom: 1px dashed var(--line);
+}
+.board-label b { color: var(--ink); font-weight: 600; }
+
+/* ---------- app frame ---------- */
+.app { max-width: 1180px; margin: 0 auto; padding: 0 var(--gutter) 56px; }
+.topbar { display: flex; align-items: center; gap: 14px; height: 56px; border-bottom: 1px solid var(--line); }
+.wordmark { font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: -0.01em; }
+.crumb { color: var(--muted); font-size: 14px; }
+.crumb .sep { margin-right: 14px; color: var(--line); }
+.topbar .meta { color: var(--muted); font-size: 13px; display: flex; align-items: center; gap: 8px; }
+.ghost { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink); padding: 6px 0; }
+.ghost:hover { color: var(--accent); }
+
+/* ---------- play screen ---------- */
+.play-grid { display: grid; grid-template-columns: minmax(0, 1fr) 352px; gap: 0 48px; padding-top: 28px; align-items: start; }
+.work { display: grid; gap: 28px; min-width: 0; }
+.fabric { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.fabric canvas { display: block; width: 100%; }
+.fabric .corner { position: absolute; top: 10px; left: 12px; font: 500 11px/1 var(--mono); color: var(--muted); letter-spacing: .04em; background: var(--surface); padding: 3px 4px; border-radius: 3px; }
+.fabric .corner.r { left: auto; right: 12px; }
+.toast {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  font-size: 12px; font-weight: 500; color: var(--surface); background: var(--ink); padding: 6px 10px; border-radius: 4px;
+}
+.toast.bad { background: var(--bad); color: #fff; }
+
+.instruments { display: grid; grid-template-columns: 1fr 1fr; gap: 0 40px; }
+.meter { display: grid; gap: 10px; }
+.meter-head { display: flex; justify-content: space-between; align-items: baseline; }
+.meter-head .mono { color: var(--ink); }
+.track { position: relative; height: 6px; border-radius: 3px; background: var(--line); }
+.track .zone { position: absolute; top: 0; bottom: 0; }
+.track .zone.ok { background: var(--ok); opacity: .3; }
+.track .zone.neat { background: var(--neat); opacity: .45; border-radius: 3px; }
+.track .fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--ink); border-radius: 3px; }
+.track .fill.in-neat { background: var(--neat); }
+.track .needle { position: absolute; top: -5px; width: 2px; height: 16px; background: var(--ink); border-radius: 1px; transform: translateX(-1px); }
+.track .needle.in-neat { background: var(--neat); }
+.track .fill.yarn { background: var(--yarn-color, var(--teal)); }
+.scale { display: flex; justify-content: space-between; font: 500 11px/1 var(--mono); color: var(--muted); letter-spacing: .04em; margin-top: -2px; }
+
+.keys { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.key {
+  position: relative; display: grid; grid-template-rows: auto 1fr auto; gap: 6px; min-height: 84px; padding: 10px 12px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); user-select: none;
+}
+.key kbd { position: absolute; top: 9px; right: 9px; }
+.key svg { width: 20px; height: 20px; stroke: var(--ink); fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.key .abbr { font: 600 15px/1 var(--mono); }
+.key .name { font-size: 12px; color: var(--muted); line-height: 1.25; }
+.key.expected { border-color: var(--accent); box-shadow: inset 0 -2px 0 var(--accent); }
+.key.expected .abbr, .key.expected .name { color: var(--accent); }
+.key.expected svg { stroke: var(--accent); }
+.key.down { background: var(--press); }
+.key.bad { border-color: var(--bad); box-shadow: inset 0 -2px 0 var(--bad); }
+.key.bad .abbr, .key.bad .name { color: var(--bad); }
+.actions { display: grid; grid-template-columns: 1fr 1fr 3fr; gap: 8px; }
+.key.action { min-height: 64px; grid-template-rows: auto auto; }
+.key.action .abbr { font-size: 14px; }
+.yarns { display: flex; gap: 8px; align-items: stretch; flex-wrap: wrap; }
+.yarn-btn {
+  display: inline-flex; align-items: center; gap: 10px; padding: 0 14px; min-height: 64px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); font-size: 14px; color: var(--muted);
+}
+.yarn-btn .swatch { width: 12px; height: 12px; }
+.yarn-btn.active { color: var(--ink); border-color: var(--ink); font-weight: 500; }
+
+.panel { border-left: 1px solid var(--line); padding-left: 32px; display: grid; gap: 14px; align-content: start; min-width: 0; }
+.panel .next { font-family: var(--display); font-weight: 600; font-size: 30px; line-height: 1.1; letter-spacing: -0.02em; display: flex; align-items: center; gap: 12px; margin-top: -4px; }
+.panel .next kbd { font-size: 12px; padding: 4px 7px 3px; color: var(--ink); }
+.panel .next.fix { color: var(--bad); }
+.panel .hint { color: var(--muted); font-size: 14px; line-height: 1.45; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0 10px; }
+.chip {
+  width: 26px; height: 26px; display: grid; place-items: center; border-radius: 4px; color: var(--muted);
+  font: 500 10px/1 var(--mono); border: 1px solid transparent;
+}
+.chip svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.chip.todo { color: var(--muted); opacity: .45; }
+.chip.done { color: var(--ink); }
+.chip.done.ok { color: var(--ok); }
+.chip.done.loose, .chip.done.tight { color: var(--bad); }
+.chip.current { background: var(--accent); color: #fff; }
+[data-theme="dark"] .chip.current { color: #121214; }
+.chip.wrong { color: var(--bad); border-color: var(--bad); border-style: dashed; }
+.chip.text { width: auto; padding: 0 7px; border-color: var(--line); color: var(--muted); }
+.chip.text.done { color: var(--ink); }
+.rows { display: grid; }
+.rows li { display: grid; grid-template-columns: 28px 1fr; gap: 10px; padding: 9px 0 9px 12px; border-top: 1px solid var(--line); font-size: 14px; color: var(--muted); line-height: 1.4; position: relative; }
+.rows li:last-child { border-bottom: 1px solid var(--line); }
+.rows li .n { font: 500 12px/1.6 var(--mono); }
+.rows li.done { opacity: .62; }
+.rows li.current { color: var(--ink); }
+.rows li.current::before { content: ""; position: absolute; left: 0; top: -1px; bottom: -1px; width: 2px; background: var(--accent); }
+.rows li.current .n { color: var(--accent); }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding-top: 6px; }
+.stats dt { font-size: 11px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); grid-row: 1; }
+.stats dd { grid-row: 2; font-family: var(--display); font-weight: 600; font-size: 30px; line-height: 1; letter-spacing: -0.02em; margin-top: 8px; }
+.stats dd.bad { color: var(--bad); }
+
+/* ---------- title screen ---------- */
+.hero { padding: 72px 0 56px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: end; border-bottom: 1px solid var(--line); }
+.hero h1 { font-family: var(--display); font-weight: 600; font-size: clamp(64px, 11vw, 136px); line-height: .92; letter-spacing: -0.045em; }
+.hero h1 i { font-style: normal; color: var(--accent); }
+.hero .lede { font-size: 20px; line-height: 1.4; color: var(--muted); max-width: 34ch; justify-self: end; padding-bottom: 10px; }
+.hero .lede b { color: var(--ink); font-weight: 500; }
+.section-head { display: flex; align-items: baseline; justify-content: space-between; padding: 36px 0 14px; }
+.projects li { display: grid; grid-template-columns: 40px minmax(0, 2.4fr) 90px minmax(0, 1.3fr) minmax(0, 1.2fr) minmax(0, 1.3fr) 32px; gap: 20px; align-items: center; padding: 22px 0; border-top: 1px solid var(--line); }
+.projects li:last-child { border-bottom: 1px solid var(--line); }
+.projects .num { font: 500 12px/1 var(--mono); color: var(--muted); }
+.projects .pname strong { display: block; font-family: var(--display); font-weight: 600; font-size: 22px; letter-spacing: -0.02em; line-height: 1.15; }
+.projects .pname span { display: block; color: var(--muted); font-size: 14px; margin-top: 4px; }
+.projects .level { font-size: 13px; color: var(--muted); }
+.projects .yarnrow { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); white-space: nowrap; }
+.projects .count { font: 500 12px/1.4 var(--mono); color: var(--muted); white-space: nowrap; }
+.projects .yarnrow .swatch { width: 12px; height: 12px; margin-right: 2px; }
+.projects .best { font: 500 13px/1.4 var(--mono); color: var(--ink); }
+.projects .best span { color: var(--muted); display: block; font-family: var(--sans); font-weight: 400; font-size: 12px; }
+.projects .arrow { color: var(--muted); font-size: 20px; text-align: right; }
+.projects li:hover .arrow { color: var(--accent); }
+.howto { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; padding: 8px 0 0; }
+.howto li { display: grid; gap: 8px; font-size: 14px; color: var(--muted); line-height: 1.5; }
+.howto li .n { font: 500 12px/1 var(--mono); color: var(--accent); }
+.howto li b { color: var(--ink); font-weight: 500; font-size: 15px; }
+.howto kbd { margin: 0 1px; }
+.foot { display: flex; justify-content: space-between; padding: 40px 0 0; font-size: 12px; color: var(--muted); }
+
+/* ---------- completion ---------- */
+.stage { position: relative; min-height: 640px; overflow: hidden; }
+.stage .behind { position: absolute; inset: 0; opacity: .5; filter: saturate(.6); pointer-events: none; }
+.stage .dimmer { position: absolute; inset: 0; background: var(--dim); }
+.sheet {
+  position: relative; max-width: 500px; margin: 72px auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  padding: 36px 40px 32px; display: grid; gap: 18px; box-shadow: 0 24px 60px rgba(0, 0, 0, .18);
+}
+.sheet h2 { font-family: var(--display); font-weight: 600; font-size: 40px; letter-spacing: -0.03em; line-height: 1; }
+.sheet .grade-row { display: flex; align-items: baseline; gap: 20px; }
+.sheet .grade { font-family: var(--display); font-weight: 600; font-size: 128px; line-height: .9; letter-spacing: -0.05em; }
+.sheet .grade-note { color: var(--muted); font-size: 14px; line-height: 1.45; max-width: 24ch; }
+.sheet .grade-note b { color: var(--accent); font-weight: 500; display: block; }
+.results { display: grid; }
+.results div { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 0; border-top: 1px solid var(--line); }
+.results div:last-child { border-bottom: 1px solid var(--line); }
+.results dt { color: var(--muted); font-size: 14px; }
+.results dd { font: 500 15px/1 var(--mono); }
+.sheet-actions { display: flex; gap: 10px; margin-top: 6px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: var(--radius); font-weight: 500; font-size: 14px; border: 1px solid var(--line); }
+.btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn kbd { color: inherit; opacity: .7; background: transparent; border-color: currentColor; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 900px) {
+  .play-grid { grid-template-columns: 1fr; gap: 28px 0; }
+  .panel { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); padding-top: 24px; }
+  .hero { grid-template-columns: 1fr; padding: 40px 0 32px; }
+  .hero .lede { justify-self: start; font-size: 17px; }
+  .projects li { grid-template-columns: 32px minmax(0, 1fr) 32px; grid-template-rows: auto auto auto; gap: 8px 14px; padding: 18px 0; }
+  .projects .num { grid-column: 1; grid-row: 1 / span 3; align-self: start; padding-top: 6px; }
+  .projects .pname { grid-column: 2; grid-row: 1; }
+  .projects .level { display: none; }
+  .projects .yarnrow { grid-column: 2; grid-row: 2; }
+  .projects .count { display: none; }
+  .projects .yarnrow::after { content: attr(data-count); font: 500 12px/1 var(--mono); margin-left: 6px; }
+  .projects .best { grid-column: 2; grid-row: 3; }
+  .projects .arrow { grid-column: 3; grid-row: 1 / span 3; }
+  .howto { grid-template-columns: 1fr 1fr; gap: 24px; }
+}
+@media (max-width: 560px) {
+  :root { --gutter: 16px; }
+  .topbar { height: 52px; gap: 10px; }
+  .crumb { display: none; }
+  .board-label span:nth-child(n+4) { display: none; }
+  .instruments { grid-template-columns: 1fr; gap: 22px; }
+  .keys { gap: 6px; }
+  .key { min-height: 64px; padding: 8px 8px; }
+  .key .name { display: none; }
+  .key kbd { top: 7px; right: 7px; }
+  .actions { grid-template-columns: 1fr 1fr; }
+  .yarns { grid-column: 1 / -1; }
+  .yarn-btn { flex: 1; min-height: 52px; }
+  .key.action { min-height: 52px; }
+  .panel .next { font-size: 26px; }
+  .stats dd { font-size: 26px; }
+  .howto { grid-template-columns: 1fr; }
+  .sheet { margin: 40px auto; padding: 28px 22px 24px; }
+  .sheet .grade { font-size: 96px; }
+  .sheet-actions { flex-direction: column; }
+  .stage { min-height: 0; }
+  .foot { flex-direction: column; gap: 6px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .key, .yarn-btn, .ghost, .chip { transition: border-color .15s, color .15s, background-color .15s, box-shadow .15s; }
+}
+</style>
+</head>
+<body>
+
+<nav class="board-nav">
+  <strong>Hooked</strong>
+  <span>Direction 02 — Studio minimal</span>
+  <span class="spacer"></span>
+  <a href="#play">01 Play</a><a href="#title">02 Title</a><a href="#done">03 Finished</a><a href="#dark">04 Dark</a>
+</nav>
+
+<!-- 01 Play screen, light, mid-hold -->
+<section class="board" id="play">
+  <div class="board-label"><b>01</b><span>Play screen</span><span>Light</span><span>Mid-hold on a single crochet, release in the green</span></div>
+  <div class="app" data-screen="play" data-state="hold"></div>
+</section>
+
+<!-- 02 Title / project picker -->
+<section class="board" id="title">
+  <div class="board-label"><b>02</b><span>Title and project picker</span><span>Light</span></div>
+  <div class="app">
+    <header class="topbar">
+      <span class="wordmark">Hooked</span>
+      <span class="spacer"></span>
+      <span class="meta"><span class="l">Sound on</span><kbd>M</kbd></span>
+    </header>
+    <div class="hero">
+      <h1>Hooked<i>.</i></h1>
+      <p class="lede"><b>A crochet game.</b> Follow the pattern, hold your tension and frog your mistakes. Three projects, one hook, no rush.</p>
+    </div>
+    <div class="section-head"><span class="eyebrow">Projects</span><span class="mono" style="color: var(--muted)">best results kept on this device</span></div>
+    <ol class="projects">
+      <li>
+        <span class="num">01</span>
+        <div class="pname"><strong>Mug coaster</strong><span>Chains and single crochet only. Learn to hold your tension.</span></div>
+        <span class="level">Beginner</span>
+        <span class="yarnrow" data-count="8 rows · 71 moves"><i class="swatch" style="background: var(--rose)"></i>Rose</span>
+        <span class="count">8 rows · 71 moves</span>
+        <span class="best">A+ · 98% · 1:12<span>Personal best</span></span>
+        <span class="arrow">→</span>
+      </li>
+      <li>
+        <span class="num">02</span>
+        <div class="pname"><strong>Bobble stripe swatch</strong><span>Two yarns, bobbles and double crochet. Change colour when the pattern says.</span></div>
+        <span class="level">Improver</span>
+        <span class="yarnrow" data-count="9 rows · 139 moves"><i class="swatch" style="background: var(--teal)"></i><i class="swatch" style="background: var(--mustard)"></i>Teal, Mustard</span>
+        <span class="count">9 rows · 139 moves</span>
+        <span class="best">B · 81% · 3:05<span>Personal best</span></span>
+        <span class="arrow">→</span>
+      </li>
+      <li>
+        <span class="num">03</span>
+        <div class="pname"><strong>Bobble pouch panel</strong><span>Bobbles eat yarn. Keep every stitch neat or you will run short.</span></div>
+        <span class="level">Confident</span>
+        <span class="yarnrow" data-count="9 rows · 112 moves"><i class="swatch" style="background: var(--lavender)"></i>Lavender</span>
+        <span class="count">9 rows · 112 moves</span>
+        <span class="best" style="color: var(--muted); font-family: var(--sans); font-weight: 400">Not yet made</span>
+        <span class="arrow">→</span>
+      </li>
+    </ol>
+    <div class="section-head"><span class="eyebrow">How to play</span></div>
+    <ol class="howto">
+      <li><span class="n">01</span><b>Make the stitch the pattern asks for.</b><span>Press and hold its key: <kbd>C</kbd> chain, <kbd>S</kbd> single, <kbd>H</kbd> half double, <kbd>D</kbd> double, <kbd>B</kbd> bobble.</span></li>
+      <li><span class="n">02</span><b>Release in the green.</b><span>Too quick is loose, too long is tight. Loose stitches waste yarn.</span></li>
+      <li><span class="n">03</span><b>Turn at the end of each row.</b><span><kbd>T</kbd> turns the work. Change yarn with <kbd>1</kbd> <kbd>2</kbd> when the pattern says.</span></li>
+      <li><span class="n">04</span><b>Frog your mistakes.</b><span><kbd>F</kbd> rips the last stitch back out so you can try again.</span></li>
+    </ol>
+    <footer class="foot"><span>Hooked 0.1 — a prototype</span><span>Keyboard, mouse and touch</span></footer>
+  </div>
+</section>
+
+<!-- 03 Completion -->
+<section class="board" id="done">
+  <div class="board-label"><b>03</b><span>Completion dialog</span><span>Light</span><span>Over the finished piece</span></div>
+  <div class="stage">
+    <div class="behind"><div class="app" data-screen="play" data-state="finished"></div></div>
+    <div class="dimmer"></div>
+    <div class="sheet" role="dialog" aria-labelledby="done-h">
+      <span class="eyebrow">Bobble stripe swatch</span>
+      <h2 id="done-h">Finished.</h2>
+      <div class="grade-row">
+        <span class="grade">A</span>
+        <p class="grade-note"><b>New personal best</b>Up from B. Two stitches ran loose in row 2 and 4, everything else sat in the green.</p>
+      </div>
+      <dl class="results">
+        <div><dt>Neatness</dt><dd>94%</dd></div>
+        <div><dt>Mistakes</dt><dd>1</dd></div>
+        <div><dt>Time</dt><dd>2:41</dd></div>
+        <div><dt>Yarn left</dt><dd>38%</dd></div>
+      </dl>
+      <div class="sheet-actions">
+        <button class="btn primary">Make it again <kbd>Enter</kbd></button>
+        <button class="btn">Choose a project <kbd>Esc</kbd></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 04 Dark mode, blocked on a wrong stitch -->
+<section class="board" id="dark" data-theme="dark">
+  <div class="board-label"><b>04</b><span>Play screen</span><span>Dark</span><span>A wrong stitch is on the hook and must be frogged</span></div>
+  <div class="app" data-screen="play" data-state="blocked"></div>
+</section>
+
+<template id="play-tpl">
+  <header class="topbar">
+    <span class="wordmark">Hooked</span>
+    <span class="crumb"><span class="sep">/</span><span class="pname">Bobble stripe swatch</span></span>
+    <span class="spacer"></span>
+    <span class="meta"><span class="l">Row <span class="rownum">7</span> of 9</span></span>
+    <button class="ghost">Projects <kbd>Esc</kbd></button>
+  </header>
+  <div class="play-grid">
+    <section class="work">
+      <div class="fabric">
+        <canvas aria-label="Your crochet work"></canvas>
+        <span class="corner">13 st × 9 rows</span>
+        <span class="corner r">hook 4.0 mm</span>
+        <span class="toast" hidden></span>
+      </div>
+      <div class="instruments">
+        <div class="meter">
+          <div class="meter-head"><span class="eyebrow">Tension</span><span class="mono tension-label">hold a stitch key</span></div>
+          <div class="track tension">
+            <span class="zone ok"></span><span class="zone neat"></span><span class="fill"></span><span class="needle" hidden></span>
+          </div>
+          <div class="scale"><span>loose</span><span>neat</span><span>tight</span></div>
+        </div>
+        <div class="meter">
+          <div class="meter-head"><span class="eyebrow">Yarn</span><span class="mono yarn-label">51% left</span></div>
+          <div class="track"><span class="fill yarn"></span></div>
+          <div class="scale"><span class="yarn-name">Teal on the hook</span><span>empty</span></div>
+        </div>
+      </div>
+      <div class="keys"></div>
+      <div class="actions">
+        <button class="key action" data-act="turn"><span class="abbr">turn</span><span class="name">end of row</span><kbd>T</kbd></button>
+        <button class="key action" data-act="frog"><span class="abbr">frog</span><span class="name">rip back</span><kbd>F</kbd></button>
+        <div class="yarns"></div>
+      </div>
+    </section>
+    <aside class="panel">
+      <span class="eyebrow next-eyebrow">Next</span>
+      <h2 class="next"></h2>
+      <p class="hint"></p>
+      <div class="chips"></div>
+      <span class="eyebrow">Pattern</span>
+      <ol class="rows"></ol>
+      <dl class="stats">
+        <dt>Time</dt><dd class="s-time">1:12</dd>
+        <dt>Neat</dt><dd class="s-neat">94%</dd>
+        <dt>Mistakes</dt><dd class="s-mist">1</dd>
+      </dl>
+    </aside>
+  </div>
+</template>
+
+<script>
+(() => {
+  // ---------- stitch chart symbols (also used by buttons and chips) ----------
+  const STITCHES = {
+    ch:  { abbr: 'ch',  name: 'chain',               key: 'C', h: 14 },
+    sc:  { abbr: 'sc',  name: 'single crochet',      key: 'S', h: 22 },
+    hdc: { abbr: 'hdc', name: 'half double crochet', key: 'H', h: 28 },
+    dc:  { abbr: 'dc',  name: 'double crochet',      key: 'D', h: 36 },
+    bo:  { abbr: 'bo',  name: 'bobble',              key: 'B', h: 28 },
+  };
+  const SYMBOL = {
+    ch: '<ellipse cx="8" cy="8" rx="6.2" ry="3.4"/>',
+    sc: '<path d="M3 3l10 10M13 3L3 13"/>',
+    hdc: '<path d="M8 14.5V2.5M2.5 2.5h11"/>',
+    dc: '<path d="M8 14.5V2.5M2.5 2.5h11M5 10l6-3"/>',
+    bo: '<ellipse cx="8" cy="8" rx="4.6" ry="6.6"/><path d="M8 14V2M8 14l-3.1-9.5M8 14l3.1-9.5"/>',
+  };
+  const svg = (st) => `<svg viewBox="0 0 16 16" aria-hidden="true">${SYMBOL[st]}</svg>`;
+
+  // ---------- the mock project (two yarns) ----------
+  const YARNS = [{ name: 'Teal', token: '--teal' }, { name: 'Mustard', token: '--mustard' }];
+  const PATTERN = [
+    { text: 'With Teal, ch 13', spec: ['ch', 13], yarn: 0, foundation: true },
+    { text: 'sc in 2nd ch from hook and in each ch across (12)', spec: ['sc', 12] },
+    { text: 'ch 1, turn. sc in each st across (12)', spec: ['ch', 1, 'sc', 12] },
+    { text: 'Change to Mustard. ch 2, turn. dc in each st across (12)', spec: ['ch', 2, 'dc', 12], yarn: 1 },
+    { text: 'ch 2, turn. dc in each st across (12)', spec: ['ch', 2, 'dc', 12] },
+    { text: 'Change to Teal. ch 1, turn. sc 2, *bo, sc 2* 3 times, sc (12)', spec: ['ch', 1, 'sc', 2, 'bo', 1, 'sc', 2, 'bo', 1, 'sc', 2, 'bo', 1, 'sc', 3], yarn: 0 },
+    { text: 'ch 1, turn. sc in each st across (12)', spec: ['ch', 1, 'sc', 12] },
+    { text: 'Change to Mustard. ch 2, turn. dc in each st across (12)', spec: ['ch', 2, 'dc', 12], yarn: 1 },
+    { text: 'ch 2, turn. dc in each st across (12)', spec: ['ch', 2, 'dc', 12] },
+  ];
+  const expand = (spec) => { const out = []; for (let i = 0; i < spec.length; i += 2) for (let k = 0; k < spec[i + 1]; k += 1) out.push(spec[i]); return out; };
+
+  // Placed stitches: everything up to row 6 (index) with a few deliberate slips.
+  function placedRows(state) {
+    let yarn = 0;
+    const rows = PATTERN.map((row, r) => {
+      if (row.yarn != null) yarn = row.yarn;
+      if (r > 6) return [];
+      let ids = expand(row.spec);
+      if (r === 6) ids = ids.slice(0, state === 'finished' ? ids.length : 6); // ch + 5 sc placed
+      return ids.map((st, i) => {
+        let t = 0; let q = 'neat';
+        if (r === 2 && i === 5) { t = -0.9; q = 'loose'; }
+        if (r === 4 && i === 9) { t = 0.9; q = 'tight'; }
+        if (r === 4 && i === 4) { t = 0.55; q = 'ok'; }
+        if (r === 1 && i === 8) { t = -0.3; q = 'neat'; }
+        if (r === 5 && i === 7) { t = 0.3; q = 'neat'; }
+        return { st, t, q, wrong: false, yarn };
+      });
+    });
+    if (state === 'blocked') rows[6].push({ st: 'dc', t: 0, q: 'wrong', wrong: true, yarn: 0 });
+    if (state === 'finished') {
+      for (let r = 7; r <= 8; r += 1) rows[r] = expand(PATTERN[r].spec).map((st) => ({ st, t: 0, q: 'neat', wrong: false, yarn: 1 }));
+    }
+    return rows;
+  }
+
+  // ---------- canvas ----------
+  const css = (el, name) => getComputedStyle(el).getPropertyValue(name).trim();
+  const hexToRgb = (hex) => { const n = parseInt(hex.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+  const mix = (hex, toward, t) => { const a = hexToRgb(hex); const b = hexToRgb(toward); return `rgb(${a.map((v, i) => Math.round(v * (1 - t) + b[i] * t)).join(',')})`; };
+  const alpha = (hex, a) => `rgba(${hexToRgb(hex).join(',')},${a})`;
+
+  function layoutRows(cell) {
+    const u = cell / 30;
+    const rows = PATTERN.map((row) => {
+      const ids = expand(row.spec);
+      const foundation = !!row.foundation;
+      const slots = foundation ? ids.length : ids.filter((id) => id !== 'ch').length;
+      const height = Math.round(Math.max(...ids.map((id) => STITCHES[id].h)) * u);
+      return { ids, foundation, slots, height };
+    });
+    const cols = Math.max(...rows.map((r) => r.slots));
+    return { rows, cols, u };
+  }
+
+  function drawGlyph(ctx, s, g, color, tok) {
+    const t = s.t || 0;
+    const wScale = 1 - 0.24 * t;
+    const hScale = 1 - 0.12 * t;
+    const w = g.w * wScale; const h = g.h * hScale;
+    const x = g.x + (g.w - w) / 2; const y = g.y; const cx = x + w / 2;
+    const tilt = Math.abs(t) > 0.45 ? t * 0.1 : 0;
+    const base = Math.max(1.4, 2.1 * g.u);
+    ctx.save();
+    ctx.translate(cx, y); ctx.rotate(tilt); ctx.translate(-cx, -y);
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.lineWidth = s.q === 'loose' ? base * 0.7 : s.q === 'tight' ? base * 1.35 : base;
+    if (s.wrong) {
+      ctx.strokeStyle = tok.bad; ctx.fillStyle = alpha(tok.bad, 0.14); ctx.setLineDash([3, 3]);
+    } else {
+      ctx.strokeStyle = color; ctx.fillStyle = alpha(s.yarnHex, 0.22);
+      if (s.q === 'loose') ctx.globalAlpha = 0.78;
+    }
+    const top = y - h * 0.9;
+    switch (s.st) {
+      case 'ch':
+        ctx.beginPath(); ctx.ellipse(cx, y - h / 2, w * 0.36, h * 0.3, 0, 0, Math.PI * 2); ctx.stroke(); break;
+      case 'sc':
+        ctx.beginPath(); ctx.moveTo(cx - w * 0.28, y - h * 0.12); ctx.lineTo(cx + w * 0.28, y - h * 0.86);
+        ctx.moveTo(cx + w * 0.28, y - h * 0.12); ctx.lineTo(cx - w * 0.28, y - h * 0.86); ctx.stroke(); break;
+      case 'hdc':
+        ctx.beginPath(); ctx.moveTo(cx, y - h * 0.04); ctx.lineTo(cx, top); ctx.moveTo(cx - w * 0.3, top); ctx.lineTo(cx + w * 0.3, top); ctx.stroke(); break;
+      case 'dc':
+        ctx.beginPath(); ctx.moveTo(cx, y - h * 0.04); ctx.lineTo(cx, top); ctx.moveTo(cx - w * 0.3, top); ctx.lineTo(cx + w * 0.3, top);
+        ctx.moveTo(cx - w * 0.2, y - h * 0.4); ctx.lineTo(cx + w * 0.2, y - h * 0.56); ctx.stroke(); break;
+      case 'bo':
+        ctx.beginPath(); ctx.ellipse(cx, y - h * 0.5, w * 0.27, h * 0.44, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx, y - h * 0.08); ctx.lineTo(cx, top + h * 0.02);
+        ctx.moveTo(cx, y - h * 0.08); ctx.lineTo(cx - w * 0.17, y - h * 0.8);
+        ctx.moveTo(cx, y - h * 0.08); ctx.lineTo(cx + w * 0.17, y - h * 0.8); ctx.stroke(); break;
+      default: break;
+    }
+    ctx.restore();
+    // At-a-glance marker: loose and tight get a small dot under the baseline, wrong gets a dashed red glyph (above).
+    if (!s.wrong && (s.q === 'loose' || s.q === 'tight')) {
+      ctx.save(); ctx.fillStyle = tok.bad; ctx.beginPath(); ctx.arc(cx, y + 5 * g.u + 2, Math.max(1.5, 1.8 * g.u), 0, Math.PI * 2); ctx.fill(); ctx.restore();
+    }
+  }
+
+  function drawHook(ctx, x, y, dip, tok, u) {
+    ctx.save();
+    ctx.translate(x, y + dip);
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.strokeStyle = tok.ink; ctx.lineWidth = Math.max(1.6, 2.4 * u);
+    const L = 62 * u;
+    ctx.beginPath(); ctx.moveTo(0, -L); ctx.lineTo(0, -6 * u); ctx.stroke();
+    // the crook: a short curve to the left, then back up
+    ctx.beginPath(); ctx.moveTo(0, -7 * u); ctx.quadraticCurveTo(0.5 * u, 4 * u, -6 * u, 2.5 * u); ctx.quadraticCurveTo(-10 * u, 1.5 * u, -8 * u, -4 * u); ctx.stroke();
+    // thumb rest: a flat, slightly wider segment near the top
+    ctx.fillStyle = tok.surface; ctx.lineWidth = Math.max(1.2, 1.6 * u);
+    ctx.beginPath(); ctx.roundRect(-3.2 * u, -L - 12 * u, 6.4 * u, 16 * u, 2.5 * u); ctx.fill(); ctx.stroke();
+    ctx.restore();
+  }
+
+  function render(app) {
+    const state = app.dataset.state;
+    const canvas = app.querySelector('canvas');
+    const fabric = app.querySelector('.fabric');
+    const W = fabric.clientWidth; if (!W) return;
+    const tok = {
+      bg: css(app, '--bg'), surface: css(app, '--surface'), ink: css(app, '--ink'), muted: css(app, '--muted'), line: css(app, '--line'),
+      accent: css(app, '--accent'), neat: css(app, '--neat'), ok: css(app, '--ok'), bad: css(app, '--bad'), dot: css(app, '--grid-dot'),
+      mixAmt: parseFloat(css(app, '--yarn-mix')) || 0,
+    };
+    const yarnHex = YARNS.map((y) => css(app, y.token));
+    const stroke = yarnHex.map((hex) => (tok.mixAmt ? mix(hex, tok.ink, tok.mixAmt) : hex));
+
+    const COLS = 13;
+    const cell = Math.max(20, Math.min(36, Math.floor((W - 2 * 16) / (COLS + 2))));
+    const lay = layoutRows(cell);
+    const u = lay.u;
+    const PAD = Math.round(cell * 0.7);
+    const HOOK_ROOM = Math.round(78 * u);
+    const fabricH = lay.rows.reduce((s, r) => s + r.height, 0);
+    const H = PAD * 2 + HOOK_ROOM + fabricH + Math.round(6 * u);
+    const left = Math.round((W - lay.cols * cell) / 2);
+    let y = H - PAD;
+    lay.rows.forEach((r) => { r.y = y; y -= r.height; });
+
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    canvas.style.height = `${H}px`;
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+
+    // Dot grid at the stitch pitch, aligned to column centres.
+    ctx.fillStyle = tok.dot;
+    const x0 = left + cell / 2; const gy0 = (H - PAD) % cell;
+    for (let gx = x0 - Math.ceil(x0 / cell) * cell; gx < W; gx += cell) {
+      for (let gy = gy0; gy < H; gy += cell) { ctx.beginPath(); ctx.arc(gx, gy, 1, 0, Math.PI * 2); ctx.fill(); }
+    }
+
+    const rows = placedRows(state);
+    const slotX = (r, k) => { const row = lay.rows[r]; const idx = r % 2 === 0 ? k : row.slots - 1 - k; return left + idx * cell; };
+    const geom = (r, placed, i) => {
+      const row = lay.rows[r]; let slot = 0; let turning = 0;
+      for (let j = 0; j < i; j += 1) { if (placed[j].st === 'ch' && !row.foundation) turning += 1; else slot += 1; }
+      const s = placed[i];
+      if (s.st === 'ch' && !row.foundation) {
+        const edge = r % 2 === 0 ? left - cell * 0.85 : left + row.slots * cell - cell * 0.15;
+        return { x: edge, y: row.y - turning * 11 * u, w: cell, h: STITCHES.ch.h * u, u };
+      }
+      return { x: slotX(r, slot), y: row.y, w: cell, h: STITCHES[s.st].h * u, u };
+    };
+    rows.forEach((placed, r) => placed.forEach((s, i) => {
+      drawGlyph(ctx, { ...s, yarnHex: yarnHex[s.yarn] }, geom(r, placed, i), stroke[s.yarn], tok);
+    }));
+
+    // Hook, working loop and the yarn running off to the ball.
+    if (state !== 'finished') {
+      const r = 6; const placed = rows[r]; const row = lay.rows[r];
+      const nonCh = placed.filter((s) => s.st !== 'ch').length;
+      const hx = slotX(r, Math.min(nonCh, row.slots - 1)) + cell / 2 + (state === 'blocked' ? 0 : 0);
+      const hy = row.y - 6 * u;
+      const hold = state === 'hold' ? 0.42 : 0;
+      const dip = hold * 10 * u;
+      const yarnColor = stroke[0]; const yarnFill = yarnHex[0];
+      ctx.save(); ctx.lineCap = 'round'; ctx.lineWidth = Math.max(1.6, 2.1 * u); ctx.strokeStyle = yarnColor;
+      // working yarn: from the loop, up and over to the right edge, then down to the ball
+      ctx.beginPath(); ctx.moveTo(hx + 5 * u, hy - 6 * u + dip);
+      ctx.bezierCurveTo(hx + 46 * u, hy - 40 * u, W - 70 * u, hy - 44 * u, W + 6, hy + 26 * u); ctx.stroke();
+      // working loop on the hook
+      const rad = (5 + hold * 14) * u;
+      ctx.beginPath(); ctx.ellipse(hx, hy - 4 * u + dip, rad, rad * 0.7, 0, 0, Math.PI * 2); ctx.stroke();
+      ctx.restore();
+      drawHook(ctx, hx, hy - 2 * u, dip, tok, u);
+      void yarnFill;
+    }
+  }
+
+  // ---------- DOM ----------
+  function build(app) {
+    const state = app.dataset.state;
+    app.innerHTML = '';
+    app.appendChild(document.getElementById('play-tpl').content.cloneNode(true));
+    const $ = (sel) => app.querySelector(sel);
+    const rows = placedRows(state);
+    const cur = 6; const curRow = PATTERN[cur]; const ids = expand(curRow.spec);
+    const nonCh = rows[cur].filter((s) => s.st !== 'ch' && !s.wrong).length;
+    const nextIdx = rows[cur].filter((s) => !s.wrong).length; // index into ids
+    const expected = ids[nextIdx] || null;
+
+    // stitch keys
+    const keys = $('.keys');
+    Object.entries(STITCHES).forEach(([id, s]) => {
+      const b = document.createElement('button');
+      b.className = 'key'; b.dataset.st = id;
+      b.innerHTML = `${svg(id)}<span class="abbr">${s.abbr}</span><span class="name">${s.name}</span><kbd>${s.key}</kbd>`;
+      if (state !== 'blocked' && expected === id) b.classList.add('expected');
+      if (state === 'hold' && expected === id) b.classList.add('down');
+      keys.appendChild(b);
+    });
+    if (state === 'blocked') $('[data-act="frog"]').classList.add('bad');
+    if (state === 'finished') { $('[data-act="turn"]').classList.add('expected'); }
+
+    // yarns
+    const yarns = $('.yarns');
+    YARNS.forEach((y, i) => {
+      const b = document.createElement('button');
+      b.className = 'yarn-btn' + (i === 0 ? ' active' : '');
+      b.innerHTML = `<i class="swatch" style="background: var(${y.token})"></i>${y.name}<kbd>${i + 1}</kbd>`;
+      yarns.appendChild(b);
+    });
+    app.style.setProperty('--yarn-color', `var(${YARNS[0].token})`);
+
+    // meters
+    const tension = $('.track.tension');
+    const HOLD = { centre: 320, span: 300, neat: 0.45, ok: 0.75, max: 800 };
+    const pct = (ms) => `${(ms / HOLD.max) * 100}%`;
+    const okZ = tension.querySelector('.zone.ok'); const neatZ = tension.querySelector('.zone.neat');
+    okZ.style.left = pct(HOLD.centre - HOLD.ok * HOLD.span); okZ.style.width = pct(2 * HOLD.ok * HOLD.span);
+    neatZ.style.left = pct(HOLD.centre - HOLD.neat * HOLD.span); neatZ.style.width = pct(2 * HOLD.neat * HOLD.span);
+    const fill = tension.querySelector('.fill'); const needle = tension.querySelector('.needle');
+    if (state === 'hold') {
+      const ms = 300; fill.style.width = pct(ms); fill.classList.add('in-neat');
+      needle.hidden = false; needle.style.left = pct(ms); needle.classList.add('in-neat');
+      $('.tension-label').textContent = 'single crochet · 0.30 s';
+    } else { fill.style.width = '0%'; $('.tension-label').textContent = state === 'blocked' ? 'frog first' : 'hold a stitch key'; }
+    $('.fill.yarn').style.width = state === 'finished' ? '38%' : '51%';
+    $('.yarn-label').textContent = state === 'finished' ? '38% left' : '51% left';
+    if (state === 'finished') { $('.yarn-name').textContent = 'Mustard on the hook'; app.style.setProperty('--yarn-color', 'var(--mustard)'); yarns.children[0].classList.remove('active'); yarns.children[1].classList.add('active'); }
+
+    // panel
+    const next = $('.next'); const hint = $('.hint');
+    if (state === 'blocked') {
+      $('.next-eyebrow').textContent = 'Fix';
+      next.classList.add('fix'); next.innerHTML = `Frog the wrong stitch <kbd>F</kbd>`;
+      hint.textContent = 'A double crochet went in where a single was asked. Rip it back out, then carry on with stitch 6 of 12.';
+      const toast = $('.toast'); toast.hidden = false; toast.textContent = 'Wrong stitch'; toast.classList.add('bad');
+    } else if (state === 'finished') {
+      next.innerHTML = `Fasten off <kbd>T</kbd>`;
+      hint.textContent = 'Last stitch done. Fasten off to finish the piece.';
+    } else {
+      next.innerHTML = `Single crochet <kbd>S</kbd>`;
+      hint.textContent = `Stitch ${nonCh + 1} of 12 in this row. Hold S, release in the green.`;
+    }
+    const chips = $('.chips');
+    ids.forEach((st, i) => {
+      const c = document.createElement('span');
+      const placed = rows[cur].filter((s) => !s.wrong)[i];
+      c.className = 'chip';
+      c.innerHTML = svg(st);
+      if (placed) c.classList.add('done', placed.q);
+      else if (i === nextIdx && state !== 'blocked') c.classList.add('current');
+      else c.classList.add('todo');
+      chips.appendChild(c);
+      if (state === 'blocked' && i === nextIdx - 1) {
+        const w = document.createElement('span'); w.className = 'chip wrong'; w.innerHTML = svg('dc'); chips.appendChild(w);
+      }
+    });
+    const turn = document.createElement('span'); turn.className = 'chip text'; turn.textContent = 'turn'; chips.appendChild(turn);
+    if (state === 'finished') chips.innerHTML = '';
+
+    const list = $('.rows');
+    PATTERN.forEach((row, r) => {
+      const li = document.createElement('li');
+      li.innerHTML = `<span class="n">${String(r + 1).padStart(2, '0')}</span><span>${row.text}</span>`;
+      const curR = state === 'finished' ? 8 : cur;
+      if (r < curR) li.classList.add('done'); if (r === curR) li.classList.add('current');
+      list.appendChild(li);
+    });
+    if (state === 'finished') { $('.rownum').textContent = '9'; $('.s-time').textContent = '2:41'; }
+    if (state === 'blocked') { $('.s-time').textContent = '1:34'; $('.s-neat').textContent = '93%'; $('.s-mist').textContent = '2'; $('.s-mist').classList.add('bad'); }
+    render(app);
+  }
+
+  const apps = [...document.querySelectorAll('.app[data-screen="play"]')];
+  apps.forEach(build);
+  let raf = 0;
+  const rerender = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => apps.forEach(render)); };
+  window.addEventListener('resize', rerender);
+  if (window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', rerender);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(rerender);
+})();
+</script>
+</body>
+</html>

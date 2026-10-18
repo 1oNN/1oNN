@@ -1,0 +1,1079 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hooked: craft room</title>
+<meta name="description" content="Visual direction mockup for Hooked, the crochet game: a warm, tactile craft-table look with linen, paper and a wooden hook." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23e2869f'/%3E%3Cpath d='M12 8v12a4 4 0 0 0 8 0' fill='none' stroke='%23fff6e8' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E" />
+<style>
+/* ------------------------------------------------------------------ tokens */
+:root {
+  color-scheme: light;
+  /* table + paper */
+  --bg: #d4b188;          /* oak tabletop, mid */
+  --bg-2: #bf9666;        /* grain shadow */
+  --bg-3: #e3c9a4;        /* lamp-lit highlight */
+  --surface: #fbf6ec;     /* paper */
+  --surface-2: #f1e7d4;   /* linen mat */
+  --surface-3: #e9dcc5;   /* chips, grooves */
+  --ink: #2f2318;
+  --table-ink: #4f3a2a;   /* text that sits directly on the wood */
+  --muted: #7b6553;
+  --line: #d6c3a6;
+  --accent: #9a4a2b;      /* clay */
+  --accent-2: #a8743a;    /* honey, the "next" ring */
+  --neat: #4d7536;        /* moss */
+  --ok: #8f6a10;          /* ochre */
+  --bad: #b23a30;         /* brick */
+  /* yarns (the only saturated colours on the table) */
+  --yarn-rose: #e2869f;
+  --yarn-teal: #3b9e98;
+  --yarn-mustard: #dcae36;
+  --yarn-lavender: #9c86d2;
+  /* wooden hook */
+  --hook-1: #ecd3a4;
+  --hook-2: #c69c63;
+  --hook-3: #86603a;
+  /* shadows */
+  --shadow-ink: 60, 35, 15;
+  --paper-shadow: 0 1px 0 rgba(255,255,255,.65) inset, 0 1px 2px rgba(var(--shadow-ink), .18), 0 12px 28px -12px rgba(var(--shadow-ink), .45);
+  --dim: rgba(38, 22, 10, .55);
+  --noise-strength: .5;
+  --linen-strength: .045;
+  --radius: 10px;
+  /* type */
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Charter, "Bitstream Charter", Georgia, Caladea, "DejaVu Serif", serif;
+  --font-body: system-ui, -apple-system, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", "Liberation Mono", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #3b2a1e; --bg-2: #2a1d14; --bg-3: #4c392a;
+    --surface: #302822; --surface-2: #28211b; --surface-3: #3b322a;
+    --ink: #f1e6d3; --table-ink: #d9c8ae; --muted: #b4a28c; --line: #4f4236;
+    --accent: #e0a070; --accent-2: #c08b58;
+    --neat: #8cc278; --ok: #e2b84f; --bad: #e46f60;
+    --yarn-rose: #ee9db5; --yarn-teal: #55c0b8; --yarn-mustard: #eac35a; --yarn-lavender: #b6a3ea;
+    --hook-1: #e2c69a; --hook-2: #b6895a; --hook-3: #6e4c2c;
+    --shadow-ink: 0, 0, 0;
+    --paper-shadow: 0 1px 0 rgba(255,255,255,.06) inset, 0 1px 2px rgba(0,0,0,.4), 0 14px 30px -12px rgba(0,0,0,.7);
+    --dim: rgba(10, 6, 3, .62);
+    --noise-strength: .35; --linen-strength: .06;
+  }
+}
+:root[data-theme="dark"], .theme-dark {
+  color-scheme: dark;
+  --bg: #3b2a1e; --bg-2: #2a1d14; --bg-3: #4c392a;
+  --surface: #302822; --surface-2: #28211b; --surface-3: #3b322a;
+  --ink: #f1e6d3; --table-ink: #d9c8ae; --muted: #b4a28c; --line: #4f4236;
+  --accent: #e0a070; --accent-2: #c08b58;
+  --neat: #8cc278; --ok: #e2b84f; --bad: #e46f60;
+  --yarn-rose: #ee9db5; --yarn-teal: #55c0b8; --yarn-mustard: #eac35a; --yarn-lavender: #b6a3ea;
+  --hook-1: #e2c69a; --hook-2: #b6895a; --hook-3: #6e4c2c;
+  --shadow-ink: 0, 0, 0;
+  --paper-shadow: 0 1px 0 rgba(255,255,255,.06) inset, 0 1px 2px rgba(0,0,0,.4), 0 14px 30px -12px rgba(0,0,0,.7);
+  --dim: rgba(10, 6, 3, .62);
+  --noise-strength: .35; --linen-strength: .06;
+}
+
+/* ------------------------------------------------------------------ base */
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font-family: var(--font-body);
+  font-size: 16px; line-height: 1.5;
+  color: var(--ink);
+  background-color: var(--bg);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+.table {
+  position: relative;
+  color: var(--ink);
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(900px 520px at 16% -6%, rgba(255, 244, 222, .55), transparent 62%),
+    radial-gradient(1100px 700px at 104% 108%, rgba(var(--shadow-ink), .28), transparent 60%),
+    repeating-linear-gradient(0.6deg, rgba(90, 55, 25, .10) 0 1px, transparent 1px 7px, rgba(90, 55, 25, .05) 7px 9px, transparent 9px 19px, rgba(120, 80, 40, .08) 19px 20px, transparent 20px 33px),
+    repeating-linear-gradient(0deg, transparent 0 226px, rgba(50, 25, 5, .25) 226px 228px, rgba(255, 232, 196, .22) 228px 229px, transparent 229px 230px),
+    linear-gradient(180deg, var(--bg-3), var(--bg) 38%, var(--bg-2));
+}
+.table::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  opacity: var(--noise-strength); mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.16 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.table > * { position: relative; z-index: 1; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 26px 16px 56px; }
+
+h1, h2, h3 { margin: 0; font-family: var(--font-display); font-weight: 700; letter-spacing: -0.012em; line-height: 1.15; }
+p { margin: 0; }
+a { color: var(--accent); }
+button { font: inherit; color: inherit; cursor: pointer; }
+kbd {
+  font: 600 .74em/1 var(--font-mono);
+  background: var(--surface); color: var(--muted);
+  border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px;
+  padding: 3px 5px 2px; white-space: nowrap;
+}
+.eyebrow { font: 700 11px/1.2 var(--font-body); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.link { background: none; border: 0; padding: 4px 2px; color: var(--ink); text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 3px; text-decoration-thickness: 1.5px; }
+
+/* paper + linen */
+.paper, .tag, .yarn-btn, .chip, .toast, .dialog, .card, .howto {
+  background-color: var(--surface);
+  background-image:
+    repeating-linear-gradient(0deg, rgba(90, 60, 30, var(--linen-strength)) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(90, 60, 30, var(--linen-strength)) 0 1px, transparent 1px 3px);
+}
+.paper, .card, .howto, .dialog {
+  border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--paper-shadow);
+}
+.mat {
+  position: relative;
+  background-color: var(--surface-2);
+  background-image:
+    repeating-linear-gradient(0deg, rgba(90, 60, 30, .06) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(90, 60, 30, .06) 0 1px, transparent 1px 3px);
+  border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--paper-shadow);
+  padding: 14px;
+  display: flex; justify-content: center;
+}
+.mat::after { content: ""; position: absolute; inset: 7px; border: 1px dashed rgba(90, 60, 30, .28); border-radius: 6px; pointer-events: none; }
+.theme-dark .mat::after { border-color: rgba(255, 230, 190, .18); }
+canvas { display: block; width: 100%; max-width: 720px; height: auto; }
+
+/* mockup section labels (not part of the game) */
+.screen-label {
+  display: flex; align-items: center; gap: 12px; margin: 0 0 14px;
+  font: 600 12px/1 var(--font-mono); letter-spacing: .06em; color: var(--table-ink);
+}
+.screen-label::after { content: ""; flex: 1; height: 1px; background: rgba(var(--shadow-ink), .25); }
+.theme-dark .screen-label { color: rgba(241, 230, 211, .7); }
+.theme-dark .screen-label::after { background: rgba(241, 230, 211, .25); }
+section.screen + section.screen { margin-top: 44px; }
+
+/* ------------------------------------------------------------------ play screen */
+.play { display: grid; grid-template-columns: minmax(0, 1fr) 332px; gap: 22px; align-items: start; }
+.work { display: grid; gap: 16px; min-width: 0; }
+.work-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+.work-head h2 { font-size: 30px; }
+.work-head .eyebrow { color: var(--table-ink); }
+.work-head h2 small { font-weight: 400; font-style: italic; color: var(--muted); font-size: .7em; }
+.toast {
+  position: absolute; top: 14px; left: 18px; transform: rotate(-1.4deg); transform-origin: left top;
+  padding: 7px 12px; border-radius: 7px; border: 1px solid var(--line);
+  font-weight: 700; font-size: 14px; color: var(--ink);
+  box-shadow: 0 6px 16px -6px rgba(var(--shadow-ink), .5), 0 1px 0 rgba(255,255,255,.6) inset;
+  pointer-events: none; white-space: nowrap;
+}
+.toast kbd { margin-left: 2px; }
+.toast::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); display: inline-block; margin-right: 8px; vertical-align: 1px; }
+.toast.neat::before { background: var(--neat); }
+.toast.ok::before, .toast.loose::before, .toast.tight::before { background: var(--ok); }
+.toast.wrong { border-color: color-mix(in srgb, var(--bad) 50%, var(--line)); color: var(--bad); }
+.toast.wrong::before { background: var(--bad); }
+
+/* meters */
+.meters { display: grid; gap: 14px; padding: 14px 16px 12px; }
+.meter-row { display: grid; gap: 9px; }
+.meter-head { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; color: var(--muted); }
+.meter-head .label { font: 700 11px/1.2 var(--font-body); letter-spacing: .16em; text-transform: uppercase; }
+.meter-head b { font-weight: 700; color: var(--ink); }
+.meter-head .q-loose, .meter-head .q-tight { color: var(--bad); }
+.meter-head .q-neat { color: var(--neat); }
+.meter {
+  position: relative; height: 16px; border-radius: 999px; background: var(--surface-3);
+  box-shadow: inset 0 1px 3px rgba(var(--shadow-ink), .28), 0 1px 0 rgba(255,255,255,.5);
+  overflow: visible;
+}
+.meter .zone { position: absolute; top: 2px; bottom: 2px; border-radius: 999px; }
+.meter .zone.ok { background: color-mix(in srgb, var(--ok) 30%, transparent); left: 11.9%; width: 56.2%; }
+.meter .zone.neat { background: color-mix(in srgb, var(--neat) 45%, transparent); left: 23.1%; width: 33.8%; }
+.meter .zone.neat::after { content: ""; position: absolute; inset: 0; border-radius: inherit; border: 1px dashed color-mix(in srgb, var(--neat) 70%, transparent); }
+.meter .fill {
+  position: absolute; left: 3px; top: 3px; bottom: 3px; width: 0; border-radius: 999px;
+  background-color: var(--yarn, var(--muted));
+  background-image: repeating-linear-gradient(120deg, rgba(255,255,255,.28) 0 3px, transparent 3px 7px);
+  box-shadow: 0 0 0 1px rgba(var(--shadow-ink), .35), 0 1px 1px rgba(var(--shadow-ink), .35), inset 0 1px 0 rgba(255,255,255,.35);
+  transition: width .05s linear;
+}
+.meter .fill::after { /* the strand's end, a small knot */
+  content: ""; position: absolute; right: -3px; top: 50%; width: 12px; height: 12px; margin-top: -6px; border-radius: 50%;
+  background: inherit; box-shadow: 0 1px 2px rgba(var(--shadow-ink), .4);
+}
+.meter .fill[style*="width: 0"]::after, .meter .fill[style*="width:0"]::after { display: none; }
+.meter .pin { position: absolute; top: -6px; width: 2px; height: 26px; margin-left: -1px; background: var(--ink); border-radius: 1px; opacity: .9; }
+.meter .pin::before { content: ""; position: absolute; top: -5px; left: -4px; width: 10px; height: 10px; border-radius: 50%; background: var(--pin, var(--muted)); box-shadow: 0 1px 2px rgba(var(--shadow-ink), .4), inset 0 -2px 0 rgba(0,0,0,.18); }
+.meter-scale { display: flex; justify-content: space-between; font: 500 11px/1 var(--font-mono); color: var(--muted); padding: 2px 2px 0; letter-spacing: .04em; }
+.yarn-meter { display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: center; }
+.ball {
+  width: 26px; height: 26px; border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255,255,255,.55), transparent 42%),
+    repeating-linear-gradient(48deg, rgba(0,0,0,.14) 0 2px, transparent 2px 5px),
+    var(--yarn, var(--muted));
+  box-shadow: 0 2px 3px rgba(var(--shadow-ink), .35), inset -3px -3px 6px rgba(0,0,0,.2);
+}
+.meter.yarn.low .fill { animation: pulse 1s infinite; }
+@keyframes pulse { 50% { opacity: .55; } }
+
+/* stitch tags (buttons) */
+.buttons { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+.buttons.actions { grid-template-columns: 1fr 1fr 3fr; }
+.tag {
+  position: relative; display: grid; gap: 2px; justify-items: center; padding: 12px 6px 10px;
+  border: 1px solid var(--line); border-bottom: 3px solid color-mix(in srgb, var(--line) 70%, var(--muted));
+  border-radius: 9px; user-select: none; touch-action: none; text-align: center;
+  box-shadow: var(--paper-shadow);
+  transition: transform .08s, box-shadow .15s, border-color .15s;
+}
+.tag::before { /* punched hole with its string */
+  content: ""; position: absolute; top: 7px; left: 8px; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--bg); box-shadow: inset 0 1px 1px rgba(0,0,0,.35), 0 1px 0 rgba(255,255,255,.5);
+}
+.tag .abbr { font: 700 22px/1 var(--font-display); color: var(--ink); }
+.tag .name { font-size: 11px; color: var(--muted); line-height: 1.2; }
+.tag kbd { margin-top: 3px; }
+.tag:active, .tag.pressed { transform: translateY(2px); border-bottom-width: 1px; box-shadow: 0 1px 1px rgba(var(--shadow-ink), .2); }
+.tag.expected { border-color: var(--accent-2); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-2) 35%, transparent), var(--paper-shadow); }
+.tag.expected::after {
+  content: "next"; position: absolute; top: -9px; right: 8px; padding: 2px 6px; border-radius: 999px;
+  font: 700 9px/1.2 var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--surface); background: var(--accent);
+}
+.tag.action .abbr { color: var(--accent); }
+.tag.frog.expected { border-color: var(--bad); box-shadow: 0 0 0 3px color-mix(in srgb, var(--bad) 32%, transparent), var(--paper-shadow); }
+.tag.frog.expected::after { background: var(--bad); content: "now"; }
+.tag.frog.expected .abbr { color: var(--bad); }
+.tag:disabled, .tag.disabled { opacity: .66; cursor: default; box-shadow: 0 1px 1px rgba(var(--shadow-ink), .15); }
+.yarn-buttons { display: flex; gap: 10px; flex-wrap: wrap; align-items: stretch; }
+.yarn-btn {
+  display: flex; align-items: center; gap: 9px; padding: 8px 14px; border: 1px solid var(--line); border-radius: 9px;
+  box-shadow: var(--paper-shadow); font-weight: 600;
+}
+.yarn-btn .ball { width: 18px; height: 18px; }
+.yarn-btn.active { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink), var(--paper-shadow); }
+.yarn-btn kbd { margin-left: 2px; }
+
+/* pattern leaflet */
+.leaflet { padding: 18px 18px 16px; display: grid; gap: 12px; min-width: 0; }
+.leaflet .head { display: grid; gap: 4px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.leaflet .head h3 { font-size: 22px; }
+.leaflet .head .meta { color: var(--muted); font-size: 13px; }
+.next { font: 700 20px/1.25 var(--font-display); color: var(--accent); }
+.next.blocked { color: var(--bad); }
+.next kbd { font-family: var(--font-mono); font-size: .62em; vertical-align: 3px; }
+.hint { color: var(--muted); font-size: 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip {
+  font: 700 12px/1 var(--font-mono); padding: 6px 8px; border-radius: 6px;
+  background-color: var(--surface-3); color: var(--muted); border: 1px solid transparent;
+}
+.chip.action { background-color: var(--surface); border-color: var(--line); }
+.chip.current { background-color: var(--accent); background-image: none; color: var(--surface); animation: pulse 1.2s infinite; }
+.chip.done { color: var(--surface); background-image: none; background-color: var(--muted); }
+.chip.done.neat { background-color: var(--neat); }
+.chip.done.ok { background-color: var(--ok); }
+.chip.done.loose, .chip.done.tight { background-color: var(--bad); }
+.chip.wrong { background-color: var(--surface); border: 1px dashed var(--bad); color: var(--bad); }
+.leaflet h4 { margin: 4px 0 0; font: 700 11px/1.2 var(--font-body); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.rows { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; font-family: var(--font-display); font-size: 15px; line-height: 1.35; }
+.rows li { position: relative; padding: 5px 8px; border-radius: 6px; }
+.rows li b { color: var(--accent); font-weight: 700; margin-right: 4px; font-variant-numeric: tabular-nums; }
+.rows li.done { color: var(--muted); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--muted) 55%, transparent); text-decoration-thickness: 1px; }
+.rows li.current::before {
+  content: ""; position: absolute; inset: 2px -2px 1px -3px; z-index: -1; border-radius: 4px;
+  background: color-mix(in srgb, var(--ok) 26%, transparent); transform: skewX(-7deg) rotate(-.5deg);
+}
+.rows li.current { z-index: 0; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 6px 0 0; border-top: 1px dashed var(--line); padding-top: 12px; }
+.stats dt { font: 700 10px/1.2 var(--font-body); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); grid-row: 1; }
+.stats dd { margin: 0; font: 700 24px/1.1 var(--font-display); grid-row: 2; font-variant-numeric: tabular-nums; }
+
+/* ------------------------------------------------------------------ components sheet */
+.sheet { padding: 22px; display: grid; gap: 26px; }
+.sheet h3 { font-size: 20px; }
+.sample { display: grid; gap: 10px; }
+.sample .cap { font-size: 13px; color: var(--muted); }
+.scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+.samples-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 26px 32px; }
+.toasts { display: flex; flex-wrap: wrap; gap: 12px; }
+.toasts .toast { position: static; transform: rotate(-1.2deg); }
+.toasts .toast:nth-child(even) { transform: rotate(.8deg); }
+.btn-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-start; }
+.btn-row .tag { width: 108px; }
+.meter-demo { display: grid; gap: 14px; max-width: 520px; }
+
+/* ------------------------------------------------------------------ title screen */
+.hero { text-align: center; padding: 14px 0 20px; display: grid; justify-items: center; gap: 4px; }
+.hero .mark { width: 108px; height: 108px; margin-bottom: 6px; filter: drop-shadow(0 8px 10px rgba(var(--shadow-ink), .35)); }
+.hero h1 { font-size: clamp(50px, 8vw, 78px); line-height: 1; position: relative; display: inline-block; }
+.hero h1 .ul { position: absolute; left: -2%; width: 104%; bottom: -8px; height: 12px; }
+.hero .tagline { color: var(--table-ink); font-size: 18px; max-width: 46ch; margin-top: 14px; }
+.hero .tagline em { font-family: var(--font-display); color: var(--ink); }
+.pick-head { display: flex; align-items: baseline; justify-content: space-between; gap: 4px 10px; margin: 22px 0 12px; flex-wrap: wrap; }
+.pick-head h2 { font-size: 24px; }
+.pick-head small { color: var(--table-ink); font-size: 13px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 18px; margin: 0 0 28px; }
+.card {
+  text-align: left; padding: 18px 18px 14px; display: grid; gap: 8px; align-content: start;
+  transition: transform .15s, box-shadow .15s; position: relative;
+}
+.card:hover, .card:focus-visible { transform: translateY(-3px) rotate(-.4deg); outline: none; }
+.card:nth-child(2) { transform: rotate(.35deg); }
+.card:nth-child(3) { transform: rotate(-.3deg); }
+.card .level { color: var(--accent); }
+.card strong { font: 700 22px/1.2 var(--font-display); }
+.card .blurb { color: var(--muted); font-size: 14px; }
+.card .yarns { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+.skein {
+  width: 44px; height: 18px; border-radius: 9px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.35), transparent 40%, rgba(0,0,0,.18)),
+    repeating-linear-gradient(68deg, rgba(0,0,0,.16) 0 2px, transparent 2px 6px),
+    var(--yarn);
+  box-shadow: 0 2px 3px rgba(var(--shadow-ink), .35); position: relative;
+}
+.skein::after { content: ""; position: absolute; left: 14px; right: 14px; top: -2px; bottom: -2px; border: 1px solid rgba(var(--shadow-ink), .5); border-radius: 3px; background: var(--surface); opacity: .9; }
+.card .yarns small { margin-left: auto; color: var(--muted); font-size: 12px; }
+.card .best { font-size: 13px; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 9px; margin-top: 2px; }
+.card .best b { color: var(--neat); font-family: var(--font-display); font-size: 16px; }
+.howto { position: relative; padding: 22px 26px 20px; }
+.tape {
+  position: absolute; top: -11px; left: 50%; width: 96px; height: 24px; margin-left: -48px; transform: rotate(-2deg);
+  background: repeating-linear-gradient(90deg, rgba(255,255,255,.35) 0 4px, transparent 4px 8px), color-mix(in srgb, var(--yarn-mustard) 55%, transparent);
+  box-shadow: 0 1px 2px rgba(var(--shadow-ink), .25); opacity: .9;
+}
+.tape.rose { background-color: color-mix(in srgb, var(--yarn-rose) 55%, transparent); }
+.howto h2 { font-size: 20px; margin-bottom: 8px; }
+.howto ol { margin: 0; padding-left: 22px; line-height: 1.65; }
+.howto li::marker { font-family: var(--font-display); font-weight: 700; color: var(--accent); }
+.foot { display: flex; justify-content: center; align-items: center; gap: 18px; margin-top: 22px; color: var(--table-ink); font-size: 13px; }
+
+/* ------------------------------------------------------------------ completion */
+.overlay-demo { position: relative; min-height: 600px; display: grid; place-items: center; padding: 20px 16px; border-radius: var(--radius); overflow: hidden; }
+.overlay-demo .under { position: absolute; inset: 0; display: grid; gap: 14px; grid-template-columns: 1fr 300px; padding: 22px; opacity: .9; }
+.overlay-demo .under .paper { min-height: 200px; position: relative; overflow: hidden; }
+.overlay-demo .under .paper::before { content: ""; position: absolute; inset: 18px 18px auto; height: 58%; border-radius: 8px; background: var(--surface-2); border: 1px dashed var(--line); }
+.overlay-demo .under .paper::after { content: ""; position: absolute; left: 18px; right: 18px; bottom: 18px; height: 28%; background: repeating-linear-gradient(0deg, var(--surface-3) 0 10px, transparent 10px 22px); opacity: .9; }
+.overlay-demo .under .paper:last-child::before { height: 24%; }
+.overlay-demo .under .paper:last-child::after { height: 55%; }
+.overlay-demo .dim { position: absolute; inset: 0; background: var(--dim); }
+.dialog {
+  position: relative; padding: 30px 30px 26px; max-width: 440px; width: 100%; text-align: center;
+  border-radius: 14px; box-shadow: 0 40px 70px -20px rgba(0,0,0,.6), var(--paper-shadow);
+  display: grid; gap: 10px; justify-items: center;
+  animation: pop .25s ease-out;
+}
+@keyframes pop { from { transform: scale(.92); opacity: 0; } }
+.dialog .eyebrow { color: var(--accent); }
+.dialog h2 { font-size: 30px; }
+.dialog .sub { color: var(--muted); }
+.stamp {
+  position: relative; display: grid; place-items: center; width: 128px; height: 128px; margin: 6px 0 4px;
+  border: 3px solid var(--neat); border-radius: 50%; color: var(--neat);
+  font: 700 66px/1 var(--font-display); letter-spacing: -.04em;
+  transform: rotate(-9deg); filter: url(#rough); mix-blend-mode: multiply; opacity: .92;
+}
+.theme-dark .stamp, :root[data-theme="dark"] .stamp { mix-blend-mode: screen; }
+.stamp::before { content: ""; position: absolute; inset: 6px; border: 1.5px solid currentColor; border-radius: 50%; }
+.stamp::after { content: "neatly made"; position: absolute; bottom: 16px; font: 700 9px/1 var(--font-body); letter-spacing: .22em; text-transform: uppercase; }
+.stamp.B { color: var(--ok); border-color: var(--ok); } .stamp.C, .stamp.D { color: var(--bad); border-color: var(--bad); }
+.stamp.B::after { content: "nearly there"; }
+.stamp .g { line-height: 1; margin-top: -8px; }
+.stamp .plus { font-size: .5em; vertical-align: .55em; margin-left: -.1em; }
+.dialog dl { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; margin: 4px 0 0; width: 100%; max-width: 280px; text-align: left; }
+.dialog dt { color: var(--muted); font-size: 14px; } .dialog dd { margin: 0; font: 700 18px/1.3 var(--font-display); text-align: right; font-variant-numeric: tabular-nums; }
+.dialog .yarnline { display: flex; gap: 8px; align-items: center; justify-content: flex-end; }
+.dialog .yarnline .ball { width: 14px; height: 14px; }
+.new-best { color: var(--accent); font-weight: 700; display: inline-flex; gap: 6px; align-items: center; }
+.dialog-actions { display: flex; gap: 10px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
+.btn { padding: 11px 18px; border-radius: 9px; border: 1px solid var(--line); border-bottom-width: 3px; background: var(--surface); font-weight: 700; box-shadow: var(--paper-shadow); }
+.btn.primary { background: var(--accent); border-color: var(--accent); border-bottom-color: color-mix(in srgb, var(--accent) 70%, #000); color: var(--surface); }
+.btn:active { transform: translateY(2px); border-bottom-width: 1px; }
+
+/* ------------------------------------------------------------------ dark sample */
+.theme-dark .wrap { padding-top: 28px; }
+
+/* ------------------------------------------------------------------ responsive */
+@media (max-width: 900px) {
+  .play { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .wrap { padding: 20px 16px 40px; }
+  .work-head h2 { font-size: 24px; }
+  .mat { padding: 10px; }
+  .buttons { gap: 7px; }
+  .tag { padding: 10px 2px 8px; }
+  .tag .name { display: none; }
+  .tag .abbr { font-size: 19px; }
+  .tag::before { left: 5px; top: 5px; width: 5px; height: 5px; }
+  .buttons.actions { grid-template-columns: 1fr 1fr 2fr; }
+  .yarn-btn { padding: 8px 8px; gap: 6px; font-size: 14px; flex: 1; justify-content: center; }
+  .yarn-btn .label { display: none; }
+  .leaflet { padding: 16px 14px; }
+  .overlay-demo { min-height: 640px; padding: 12px; }
+  .overlay-demo .under { grid-template-columns: 1fr; }
+  .dialog { padding: 24px 18px 20px; }
+  .hero .tagline { font-size: 16px; }
+  .btn-row .tag { width: 92px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="rough" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.055" numOctaves="3" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+
+<div class="table">
+<div class="wrap">
+
+<!-- ======================================================= 01 PLAY SCREEN -->
+<section class="screen" id="play">
+  <div class="screen-label">01 · play screen — mid-project, a wrong stitch has just been placed</div>
+  <div class="play">
+    <div class="work">
+      <header class="work-head">
+        <div>
+          <div class="eyebrow">Improver · row 6 of 6</div>
+          <h2>Striped scarf <small>(swatch)</small></h2>
+        </div>
+        <button class="link">Back to projects <kbd>Esc</kbd></button>
+      </header>
+
+      <div class="mat">
+        <canvas id="fabric" aria-label="Your crochet work"></canvas>
+        <div class="toast wrong">Wrong stitch! Frog it <kbd>F</kbd></div>
+      </div>
+
+      <div class="meters paper">
+        <div class="meter-row">
+          <div class="meter-head"><span class="label">Tension</span><span class="value">last stitch: <b class="q-loose">too loose</b></span></div>
+          <div class="meter tension" style="--yarn: var(--yarn-teal)">
+            <div class="zone ok"></div><div class="zone neat"></div>
+            <div class="fill" style="width:0"></div>
+            <div class="pin" style="left: 7%; --pin: var(--bad)"></div>
+          </div>
+          <div class="meter-scale"><span>loose</span><span>neat</span><span>tight</span></div>
+        </div>
+        <div class="meter-row">
+          <div class="meter-head"><span class="label">Yarn</span><span class="value"><b>51%</b> left · Teal</span></div>
+          <div class="yarn-meter">
+            <i class="ball" style="--yarn: var(--yarn-teal)"></i>
+            <div class="meter yarn" style="--yarn: var(--yarn-teal)"><div class="fill" style="width:51%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button class="tag" disabled><b class="abbr">ch</b><span class="name">chain</span><kbd>C</kbd></button>
+        <button class="tag" disabled><b class="abbr">sc</b><span class="name">single crochet</span><kbd>S</kbd></button>
+        <button class="tag" disabled><b class="abbr">hdc</b><span class="name">half double</span><kbd>H</kbd></button>
+        <button class="tag" disabled><b class="abbr">dc</b><span class="name">double crochet</span><kbd>D</kbd></button>
+        <button class="tag" disabled><b class="abbr">bo</b><span class="name">bobble</span><kbd>B</kbd></button>
+      </div>
+      <div class="buttons actions">
+        <button class="tag action" disabled><b class="abbr">turn</b><span class="name">end of row</span><kbd>T</kbd></button>
+        <button class="tag action frog expected"><b class="abbr">frog</b><span class="name">rip back</span><kbd>F</kbd></button>
+        <div class="yarn-buttons">
+          <button class="yarn-btn active"><i class="ball" style="--yarn: var(--yarn-teal)"></i><span class="label">Teal</span><kbd>1</kbd></button>
+          <button class="yarn-btn"><i class="ball" style="--yarn: var(--yarn-mustard)"></i><span class="label">Mustard</span><kbd>2</kbd></button>
+        </div>
+      </div>
+    </div>
+
+    <aside class="leaflet paper">
+      <div class="head">
+        <div class="eyebrow">Pattern</div>
+        <h3>Striped scarf (swatch)</h3>
+        <div class="meta">Improver · 2 yarns · 5 mm hook · 6 rows</div>
+      </div>
+      <div class="next blocked">Wrong stitch. Frog it <kbd>F</kbd></div>
+      <p class="hint">That was a double crochet where a single belongs. Rip the red stitch back out, then carry on.</p>
+      <div class="chips">
+        <span class="chip done neat">ch</span><span class="chip done neat">sc</span><span class="chip done ok">sc</span><span class="chip done neat">sc</span><span class="chip done loose">sc</span><span class="chip done neat">sc</span><span class="chip wrong">dc</span><span class="chip current">sc</span><span class="chip">sc</span><span class="chip">sc</span><span class="chip">sc</span><span class="chip">sc</span><span class="chip action">fasten off</span>
+      </div>
+      <h4>Rows</h4>
+      <ol class="rows">
+        <li class="done"><b>Row 1</b> With Teal, ch 10</li>
+        <li class="done"><b>Row 2</b> sc in 2nd ch from hook and in each ch across (10)</li>
+        <li class="done"><b>Row 3</b> ch 1, turn. sc, *bo, sc 2* 3 times (10)</li>
+        <li class="done"><b>Row 4</b> Change to Mustard. ch 2, turn. dc in each st across (10)</li>
+        <li class="done"><b>Row 5</b> ch 2, turn. dc in each st across (10)</li>
+        <li class="current"><b>Row 6</b> Change to Teal. ch 1, turn. sc in each st across (10)</li>
+      </ol>
+      <dl class="stats">
+        <dt>Time</dt><dd>2:14</dd>
+        <dt>Neat</dt><dd>93%</dd>
+        <dt>Mistakes</dt><dd>1</dd>
+      </dl>
+    </aside>
+  </div>
+</section>
+
+<!-- ======================================================= 02 COMPONENTS -->
+<section class="screen" id="components">
+  <div class="screen-label">02 · components and states</div>
+  <div class="paper sheet">
+    <div class="sample">
+      <h3>Stitch glyphs, drawn in yarn</h3>
+      <p class="cap">Each glyph is three strokes of the same path: a warm shadow underneath, the yarn colour, then a broken highlight that reads as the twist of the ply. Loose stitches spread, pale and sag with a slack loop at the base. Tight ones pinch, lean and darken. A wrong stitch is dashed brick red with a pin to pull.</p>
+      <div class="scroll-x"><canvas id="gallery" style="max-width: none"></canvas></div>
+    </div>
+    <div class="samples-2">
+      <div class="sample">
+        <h3>Tension meter</h3>
+        <p class="cap">The fill is a strand of the yarn in use, pulled along a linen groove. After each release a sewing pin marks where you let go; its head takes the quality colour.</p>
+        <div class="meter-demo">
+          <div class="meter-row">
+            <div class="meter-head"><span class="label">Tension</span><span class="value"><b>single crochet</b> · holding</span></div>
+            <div class="meter tension" style="--yarn: var(--yarn-rose)"><div class="zone ok"></div><div class="zone neat"></div><div class="fill" style="width:44%"></div></div>
+            <div class="meter-scale"><span>loose</span><span>neat</span><span>tight</span></div>
+          </div>
+          <div class="meter-row">
+            <div class="meter-head"><span class="label">Tension</span><span class="value">last stitch: <b class="q-neat">neat</b></span></div>
+            <div class="meter tension" style="--yarn: var(--yarn-mustard)"><div class="zone ok"></div><div class="zone neat"></div><div class="fill" style="width:0"></div><div class="pin" style="left: 41%; --pin: var(--neat)"></div></div>
+          </div>
+          <div class="meter-row">
+            <div class="meter-head"><span class="label">Yarn</span><span class="value"><b>12%</b> left · running low</span></div>
+            <div class="yarn-meter"><i class="ball" style="--yarn: var(--yarn-lavender); transform: scale(.7)"></i><div class="meter yarn low" style="--yarn: var(--yarn-lavender)"><div class="fill" style="width:12%"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="sample">
+        <h3>Toasts</h3>
+        <p class="cap">A paper label dropped onto the mat, slightly askew. The dot carries the quality colour; words carry the meaning.</p>
+        <div class="toasts">
+          <div class="toast neat">Neat</div>
+          <div class="toast ok">Nearly</div>
+          <div class="toast loose">Too loose</div>
+          <div class="toast tight">Too tight</div>
+          <div class="toast wrong">Wrong stitch!</div>
+          <div class="toast">Now using Mustard</div>
+          <div class="toast">Ripped back one stitch</div>
+        </div>
+        <h3 style="margin-top:10px">Row chips</h3>
+        <div class="chips">
+          <span class="chip done neat">ch</span><span class="chip done neat">sc</span><span class="chip done ok">bo</span><span class="chip done tight">sc</span><span class="chip current">sc</span><span class="chip">bo</span><span class="chip">sc</span><span class="chip action">Mustard</span><span class="chip action">turn</span>
+        </div>
+      </div>
+    </div>
+    <div class="sample">
+      <h3>Stitch tags</h3>
+      <p class="cap">Buttons are paper tags with a punched hole and a thick bottom edge that compresses when pressed. The one the pattern wants next wears a honey ring and a small flag.</p>
+      <div class="btn-row">
+        <button class="tag"><b class="abbr">sc</b><span class="name">single crochet</span><kbd>S</kbd></button>
+        <button class="tag expected"><b class="abbr">dc</b><span class="name">double crochet</span><kbd>D</kbd></button>
+        <button class="tag pressed"><b class="abbr">bo</b><span class="name">bobble</span><kbd>B</kbd></button>
+        <button class="tag disabled"><b class="abbr">hdc</b><span class="name">half double</span><kbd>H</kbd></button>
+        <button class="tag action expected"><b class="abbr">turn</b><span class="name">end of row</span><kbd>T</kbd></button>
+        <button class="tag action frog expected"><b class="abbr">frog</b><span class="name">rip back</span><kbd>F</kbd></button>
+        <button class="yarn-btn active"><i class="ball" style="--yarn: var(--yarn-rose)"></i><span class="label">Rose</span><kbd>1</kbd></button>
+        <button class="yarn-btn"><i class="ball" style="--yarn: var(--yarn-lavender)"></i><span class="label">Lavender</span><kbd>2</kbd></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================= 03 TITLE -->
+<section class="screen" id="title">
+  <div class="screen-label">03 · title and project picker</div>
+  <header class="hero">
+    <svg class="mark" viewBox="0 0 120 120" aria-hidden="true">
+      <defs>
+        <radialGradient id="ballg" cx="38%" cy="32%" r="70%"><stop offset="0" stop-color="#f4b7c8"/><stop offset=".55" stop-color="#e2869f"/><stop offset="1" stop-color="#9c4f66"/></radialGradient>
+        <linearGradient id="woodg" x1="0" x2="1"><stop offset="0" stop-color="#ecd3a4"/><stop offset=".5" stop-color="#c69c63"/><stop offset="1" stop-color="#86603a"/></linearGradient>
+        <clipPath id="ballc"><circle cx="58" cy="66" r="44"/></clipPath>
+      </defs>
+      <circle cx="58" cy="66" r="44" fill="url(#ballg)"/>
+      <g clip-path="url(#ballc)" fill="none" stroke="#9c4f66" stroke-width="2.2" stroke-opacity=".55">
+        <ellipse cx="58" cy="66" rx="50" ry="13" transform="rotate(-28 58 66)"/>
+        <ellipse cx="58" cy="66" rx="50" ry="13" transform="rotate(-10 58 66)"/>
+        <ellipse cx="58" cy="66" rx="50" ry="13" transform="rotate(8 58 66)"/>
+        <ellipse cx="58" cy="66" rx="50" ry="13" transform="rotate(26 58 66)"/>
+        <ellipse cx="58" cy="66" rx="50" ry="13" transform="rotate(44 58 66)"/>
+        <ellipse cx="58" cy="66" rx="50" ry="13" transform="rotate(62 58 66)"/>
+      </g>
+      <g clip-path="url(#ballc)" fill="none" stroke="#fff" stroke-width="1.2" stroke-opacity=".5">
+        <ellipse cx="58" cy="64" rx="50" ry="13" transform="rotate(-28 58 66)"/>
+        <ellipse cx="58" cy="64" rx="50" ry="13" transform="rotate(8 58 66)"/>
+        <ellipse cx="58" cy="64" rx="50" ry="13" transform="rotate(44 58 66)"/>
+      </g>
+      <path d="M100 22 C 92 40, 80 44, 68 36" fill="none" stroke="#e2869f" stroke-width="4" stroke-linecap="round"/>
+      <g transform="rotate(32 92 46)">
+        <rect x="88" y="6" width="8" height="78" rx="4" fill="url(#woodg)"/>
+        <rect x="86.5" y="30" width="11" height="22" rx="5" fill="url(#woodg)"/>
+        <path d="M92 84 q0 10 -6 10 q-5 0 -5 -6" fill="none" stroke="url(#woodg)" stroke-width="7" stroke-linecap="round"/>
+      </g>
+    </svg>
+    <h1>Hooked
+      <svg class="ul" viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true"><path d="M3 7 C 60 2, 120 10, 180 5 S 270 3, 297 8" fill="none" stroke="var(--yarn-rose)" stroke-width="4" stroke-linecap="round"/></svg>
+    </h1>
+    <p class="tagline">A little crochet game. Follow the pattern, <em>keep your tension</em>, frog your mistakes.</p>
+  </header>
+
+  <div class="pick-head"><h2>Choose a pattern</h2><small>Best results are kept on this device</small></div>
+  <div class="cards">
+    <button class="card">
+      <span class="eyebrow level">Beginner</span>
+      <strong>Mug coaster</strong>
+      <span class="blurb">Chains and single crochet only. Learn to hold your tension.</span>
+      <span class="yarns"><i class="skein" style="--yarn: var(--yarn-rose)"></i><small>8 rows · 79 moves</small></span>
+      <span class="best">Best <b>A</b> · 94% neat · 1:48</span>
+    </button>
+    <button class="card">
+      <span class="eyebrow level">Improver</span>
+      <strong>Striped scarf (swatch)</strong>
+      <span class="blurb">Two yarns, two stitch heights. Change colour when the pattern says.</span>
+      <span class="yarns"><i class="skein" style="--yarn: var(--yarn-teal)"></i><i class="skein" style="--yarn: var(--yarn-mustard)"></i><small>9 rows · 132 moves</small></span>
+      <span class="best">Best <b>B</b> · 81% neat · 3:02</span>
+    </button>
+    <button class="card">
+      <span class="eyebrow level">Confident</span>
+      <strong>Bobble pouch panel</strong>
+      <span class="blurb">Bobbles eat yarn. Keep every stitch neat or you will run short.</span>
+      <span class="yarns"><i class="skein" style="--yarn: var(--yarn-lavender)"></i><small>9 rows · 107 moves</small></span>
+      <span class="best">Not yet made</span>
+    </button>
+  </div>
+
+  <section class="howto">
+    <i class="tape"></i>
+    <h2>How to play</h2>
+    <ol>
+      <li><strong>Make the stitch the pattern asks for.</strong> Press and hold its key: <kbd>C</kbd> chain, <kbd>S</kbd> single, <kbd>H</kbd> half double, <kbd>D</kbd> double, <kbd>B</kbd> bobble.</li>
+      <li><strong>Release in the green</strong> to pull the loop through at a neat tension. Too quick is loose, too long is tight. Loose stitches waste yarn.</li>
+      <li><strong>Turn</strong> at the end of each row with <kbd>T</kbd>, and <strong>change yarn</strong> with <kbd>1</kbd> <kbd>2</kbd> when the pattern says.</li>
+      <li><strong>Frog</strong> a wrong or wonky stitch with <kbd>F</kbd> to rip it back out and try again.</li>
+    </ol>
+  </section>
+  <footer class="foot"><button class="link">Sound: on <kbd>M</kbd></button><span>Hooked · a crochet game</span></footer>
+</section>
+
+<!-- ======================================================= 04 COMPLETION -->
+<section class="screen" id="done">
+  <div class="screen-label">04 · completion dialog, over the dimmed play screen</div>
+  <div class="overlay-demo">
+    <div class="under"><div class="paper"></div><div class="paper"></div></div>
+    <div class="dim"></div>
+    <div class="dialog">
+      <span class="eyebrow">Striped scarf (swatch)</span>
+      <h2>Fastened off!</h2>
+      <p class="sub">That is a swatch you could gift.</p>
+      <div class="stamp"><span class="g">A<span class="plus">+</span></span></div>
+      <dl>
+        <dt>Neatness</dt><dd>96%</dd>
+        <dt>Mistakes</dt><dd>0</dd>
+        <dt>Time</dt><dd>2:51</dd>
+        <dt>Yarn left</dt><dd class="yarnline"><i class="ball" style="--yarn: var(--yarn-mustard)"></i>23%</dd>
+      </dl>
+      <p class="new-best">New personal best</p>
+      <div class="dialog-actions">
+        <button class="btn primary">Make it again</button>
+        <button class="btn">Choose a project</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+</div>
+
+<!-- ======================================================= 05 DARK -->
+<div class="table theme-dark">
+<div class="wrap">
+<section class="screen" id="dark">
+  <div class="screen-label">05 · evening mode (prefers-color-scheme: dark) — lamp-lit table, mid-hold in the green</div>
+  <div class="play">
+    <div class="work">
+      <header class="work-head">
+        <div>
+          <div class="eyebrow">Confident · row 3 of 9</div>
+          <h2>Bobble pouch panel</h2>
+        </div>
+        <button class="link">Back to projects <kbd>Esc</kbd></button>
+      </header>
+      <div class="mat">
+        <canvas id="fabric-dark" aria-label="Your crochet work"></canvas>
+      </div>
+      <div class="meters paper">
+        <div class="meter-row">
+          <div class="meter-head"><span class="label">Tension</span><span class="value"><b>bobble</b> · holding</span></div>
+          <div class="meter tension" style="--yarn: var(--yarn-lavender)">
+            <div class="zone ok"></div><div class="zone neat"></div>
+            <div class="fill" style="width:40%"></div>
+          </div>
+          <div class="meter-scale"><span>loose</span><span>neat</span><span>tight</span></div>
+        </div>
+        <div class="meter-row">
+          <div class="meter-head"><span class="label">Yarn</span><span class="value"><b>64%</b> left · Lavender</span></div>
+          <div class="yarn-meter">
+            <i class="ball" style="--yarn: var(--yarn-lavender)"></i>
+            <div class="meter yarn" style="--yarn: var(--yarn-lavender)"><div class="fill" style="width:64%"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="buttons">
+        <button class="tag"><b class="abbr">ch</b><span class="name">chain</span><kbd>C</kbd></button>
+        <button class="tag"><b class="abbr">sc</b><span class="name">single crochet</span><kbd>S</kbd></button>
+        <button class="tag"><b class="abbr">hdc</b><span class="name">half double</span><kbd>H</kbd></button>
+        <button class="tag"><b class="abbr">dc</b><span class="name">double crochet</span><kbd>D</kbd></button>
+        <button class="tag expected pressed"><b class="abbr">bo</b><span class="name">bobble</span><kbd>B</kbd></button>
+      </div>
+      <div class="buttons actions">
+        <button class="tag action"><b class="abbr">turn</b><span class="name">end of row</span><kbd>T</kbd></button>
+        <button class="tag action frog"><b class="abbr">frog</b><span class="name">rip back</span><kbd>F</kbd></button>
+        <div class="yarn-buttons">
+          <button class="yarn-btn active"><i class="ball" style="--yarn: var(--yarn-lavender)"></i><span class="label">Lavender</span><kbd>1</kbd></button>
+        </div>
+      </div>
+    </div>
+    <aside class="leaflet paper">
+      <div class="head">
+        <div class="eyebrow">Pattern</div>
+        <h3>Bobble pouch panel</h3>
+        <div class="meta">Confident · 1 yarn · 5 mm hook · 9 rows</div>
+      </div>
+      <div class="next">Next: bobble <kbd>B</kbd></div>
+      <p class="hint">Stitch 2 of 10 in this row. Hold the key, release in the green.</p>
+      <div class="chips">
+        <span class="chip done neat">ch</span><span class="chip done neat">sc</span><span class="chip current">bo</span><span class="chip">sc</span><span class="chip">sc</span><span class="chip">bo</span><span class="chip">sc</span><span class="chip">sc</span><span class="chip">bo</span><span class="chip">sc</span><span class="chip">sc</span><span class="chip action">turn</span>
+      </div>
+      <h4>Rows</h4>
+      <ol class="rows">
+        <li class="done"><b>Row 1</b> ch 11</li>
+        <li class="done"><b>Row 2</b> sc in 2nd ch from hook and in each ch across (10)</li>
+        <li class="current"><b>Row 3</b> ch 1, turn. sc, *bo, sc 2* 3 times (10)</li>
+        <li><b>Row 4</b> ch 1, turn. sc in each st across (10)</li>
+        <li><b>Row 5</b> ch 1, turn. sc 2, *bo, sc 2* 2 times, bo, sc (10)</li>
+        <li><b>Row 6</b> ch 1, turn. sc in each st across (10)</li>
+      </ol>
+      <dl class="stats">
+        <dt>Time</dt><dd>0:41</dd>
+        <dt>Neat</dt><dd>100%</dd>
+        <dt>Mistakes</dt><dd>0</dd>
+      </dl>
+    </aside>
+  </div>
+</section>
+</div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  // ---------------------------------------------------------------- geometry
+  const H = { ch: 14, sc: 24, hdc: 30, dc: 40, bo: 30 };
+  const CELL = 36, PAD = 18, MARGIN = 30, HOOK_ROOM = 92, BALL_ROOM = 86;
+
+  function expand(spec) {
+    const tokens = spec.match(/\[|\]\*\d+|\]|[a-z]+\*\d+|[a-z]+/g) || [];
+    let pos = 0;
+    function seq() {
+      const out = [];
+      while (pos < tokens.length) {
+        const tok = tokens[pos];
+        if (tok === '[') { pos += 1; const inner = seq(); const close = tokens[pos]; pos += 1; const reps = close === ']' ? 1 : Number(close.slice(2)); for (let i = 0; i < reps; i += 1) out.push(...inner); }
+        else if (tok.startsWith(']')) return out;
+        else { pos += 1; const [id, n] = tok.split('*'); for (let i = 0; i < (n ? Number(n) : 1); i += 1) out.push(id); }
+      }
+      return out;
+    }
+    return seq();
+  }
+
+  function layout(rows) {
+    const L = rows.map((r) => {
+      const ids = expand(r.spec);
+      const foundation = ids.every((i) => i === 'ch');
+      const slots = foundation ? ids.length : ids.filter((i) => i !== 'ch').length;
+      return { ids, foundation, slots, height: Math.max(...ids.map((i) => H[i])), yarn: r.yarn };
+    });
+    const cols = Math.max(...L.map((r) => r.slots));
+    const width = PAD * 2 + MARGIN * 2 + cols * CELL + BALL_ROOM;
+    const height = PAD * 2 + HOOK_ROOM + L.reduce((s, r) => s + r.height, 0);
+    let y = height - PAD;
+    L.forEach((r) => { r.y = y; y -= r.height; });
+    return { rows: L, cols, width, height, left: PAD + MARGIN };
+  }
+  const slotX = (lay, r, k) => { const row = lay.rows[r]; return lay.left + (r % 2 === 0 ? k : row.slots - 1 - k) * CELL; };
+  const edgeX = (lay, r) => { const row = lay.rows[r]; return r % 2 === 0 ? lay.left - CELL * 0.82 : lay.left + row.slots * CELL - CELL * 0.18; };
+  function geom(lay, r, placed, i) {
+    const row = lay.rows[r];
+    let slot = 0, turning = 0;
+    for (let j = 0; j < i; j += 1) { if (placed[j].st === 'ch' && !row.foundation) turning += 1; else slot += 1; }
+    const s = placed[i];
+    if (s.st === 'ch' && !row.foundation) return { x: edgeX(lay, r), y: row.y - turning * 11, w: CELL, h: H.ch, turning: true };
+    return { x: slotX(lay, r, slot), y: row.y, w: CELL, h: H[s.st], turning: false };
+  }
+
+  // ---------------------------------------------------------------- colour
+  function rgb(hex) { let h = hex.replace('#', '').trim(); if (h.length === 3) h = h.split('').map((c) => c + c).join(''); const n = parseInt(h, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+  const toHex = (c) => '#' + c.map((v) => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, '0')).join('');
+  const WARM_DARK = [42, 22, 8], WARM_LIGHT = [255, 247, 232];
+  function shade(hex, amt) { const c = rgb(hex); const to = amt < 0 ? WARM_DARK : WARM_LIGHT; const a = Math.abs(amt); return toHex(c.map((v, i) => v + (to[i] - v) * a)); }
+  function alpha(hex, a) { const [r, g, b] = rgb(hex); return `rgba(${r},${g},${b},${a})`; }
+  function tokensOf(el) {
+    const cs = getComputedStyle(el); const g = (n) => cs.getPropertyValue(n).trim();
+    return { ink: g('--ink'), muted: g('--muted'), bad: g('--bad'), surface: g('--surface'), surface2: g('--surface-2'), line: g('--line'),
+      yarns: { rose: g('--yarn-rose'), teal: g('--yarn-teal'), mustard: g('--yarn-mustard'), lavender: g('--yarn-lavender') },
+      wood: [g('--hook-1'), g('--hook-2'), g('--hook-3')], shadow: g('--shadow-ink') || '60,35,15', font: g('--font-body') };
+  }
+
+  // ---------------------------------------------------------------- yarn stroke
+  function yarnStroke(ctx, path, color, w, opt = {}) {
+    const a = opt.alpha == null ? 1 : opt.alpha;
+    ctx.save();
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.globalAlpha = a;
+    if (opt.dash) ctx.setLineDash(opt.dash);
+    ctx.save(); ctx.translate(0.6, 1.7); ctx.lineWidth = w + 1; ctx.strokeStyle = alpha(shade(color, -0.6), 0.5); ctx.stroke(path); ctx.restore();
+    ctx.lineWidth = w; ctx.strokeStyle = color; ctx.stroke(path);
+    ctx.save(); ctx.translate(-0.3, -w * 0.24); ctx.lineWidth = Math.max(1, w * 0.3); ctx.strokeStyle = alpha(shade(color, 0.62), 0.8);
+    ctx.setLineDash(opt.dash ? opt.dash : [w * 1.1, w * 0.8]); ctx.lineDashOffset = opt.twist || 0; ctx.stroke(path); ctx.restore();
+    ctx.restore();
+  }
+
+  function glyph(st, x, y, w, h, tight) {
+    const cx = x + w / 2; const p = new Path2D(); const parts = { stroke: p, fills: [], cap: null };
+    const capRx = w * 0.33 * (tight ? 0.82 : 1), capRy = 4.6, top = y - h + capRy + 1;
+    switch (st) {
+      case 'ch': p.ellipse(cx, y - h / 2, w * 0.4, h * 0.38, 0, 0, Math.PI * 2); return parts;
+      case 'sc': p.moveTo(x + w * 0.2, y); p.bezierCurveTo(x + w * 0.18, y - h * 0.8, x + w * 0.82, y - h * 0.8, x + w * 0.8, y); break;
+      case 'hdc': p.moveTo(cx, y); p.lineTo(cx, top + capRy); p.moveTo(cx - w * 0.26, y - h * 0.36); p.lineTo(cx + w * 0.26, y - h * 0.52); break;
+      case 'dc': p.moveTo(cx, y); p.lineTo(cx, top + capRy); [0.28, 0.5].forEach((a) => { p.moveTo(cx - w * 0.26, y - h * a); p.lineTo(cx + w * 0.26, y - h * (a + 0.13)); }); break;
+      case 'bo': parts.fills = [[cx - w * 0.2, y - h * 0.44, w * 0.26, h * 0.34], [cx + w * 0.2, y - h * 0.44, w * 0.26, h * 0.34], [cx, y - h * 0.5, w * 0.27, h * 0.38]]; break;
+      default: break;
+    }
+    const cap = new Path2D(); cap.ellipse(cx, top, capRx, capRy, 0, 0, Math.PI * 2); parts.cap = cap;
+    return parts;
+  }
+
+  function drawStitch(ctx, s, g, color, tk) {
+    const t = s.t || 0;
+    const w = g.w * (1 - 0.24 * t), h = g.h * (1 - 0.1 * t);
+    const x = g.x + (g.w - w) / 2, y = g.y, cx = x + w / 2;
+    const tilt = Math.abs(t) > 0.45 ? t * 0.14 : 0;
+    let col = color, a = 1, dash = null, lw = 5.2;
+    if (s.wrong) { col = tk.bad; dash = [6, 4]; a = 0.95; }
+    else if (t > 0.45) { col = shade(color, -0.22); lw = 5.6; }
+    else if (t < -0.45) { col = shade(color, 0.12); a = 0.8; lw = 4.7; }
+    else if (s.q === 'ok') { col = shade(color, t < 0 ? 0.06 : -0.08); }
+    ctx.save(); ctx.translate(cx, y); ctx.rotate(tilt); ctx.translate(-cx, -y);
+    const parts = glyph(s.st, x, y, w, h, t > 0.45);
+    parts.fills.forEach(([ex, ey, rx, ry]) => {
+      const p = new Path2D(); p.ellipse(ex, ey, rx, ry, 0, 0, Math.PI * 2);
+      ctx.save(); ctx.globalAlpha = a;
+      const grd = ctx.createRadialGradient(ex - rx * 0.4, ey - ry * 0.5, 1, ex, ey, rx * 1.35);
+      grd.addColorStop(0, shade(col, 0.58)); grd.addColorStop(0.5, shade(col, 0.08)); grd.addColorStop(1, shade(col, -0.22));
+      ctx.fillStyle = grd; ctx.shadowColor = `rgba(${tk.shadow},.35)`; ctx.shadowBlur = 3; ctx.shadowOffsetY = 1.5; ctx.fill(p);
+      ctx.shadowColor = 'transparent'; ctx.lineWidth = 1; ctx.strokeStyle = alpha(shade(col, -0.5), 0.32); if (dash) ctx.setLineDash(dash); ctx.stroke(p);
+      ctx.restore();
+    });
+    yarnStroke(ctx, parts.stroke, col, lw, { alpha: a, dash, twist: (s.n || 0) * 2.3 });
+    if (parts.cap) yarnStroke(ctx, parts.cap, col, lw * 0.8, { alpha: a, dash, twist: (s.n || 0) * 1.7 });
+    if (t < -0.45 && !s.wrong) { const slack = new Path2D(); slack.ellipse(x + w * 0.1, y - 1, 5, 3.2, -0.5, 0, Math.PI * 2); yarnStroke(ctx, slack, col, 3.2, { alpha: a }); }
+    ctx.restore();
+    if (s.wrong) {
+      const bx = cx - 15, by = y - h - 9;
+      ctx.save();
+      ctx.strokeStyle = tk.ink; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(bx, by + 4); ctx.lineTo(bx, by + 12); ctx.stroke(); // pin shaft
+      ctx.fillStyle = tk.bad; ctx.shadowColor = `rgba(${tk.shadow},.35)`; ctx.shadowBlur = 3; ctx.shadowOffsetY = 1.5;
+      ctx.beginPath(); ctx.arc(bx, by, 7.5, 0, Math.PI * 2); ctx.fill();
+      ctx.shadowColor = 'transparent'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(bx - 3, by - 3); ctx.lineTo(bx + 3, by + 3); ctx.moveTo(bx + 3, by - 3); ctx.lineTo(bx - 3, by + 3); ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  function drawHook(ctx, hx, hy, dip, tk, angle) {
+    ctx.save(); ctx.translate(hx, hy + dip); ctx.rotate(angle == null ? 0.52 : angle);
+    const grd = ctx.createLinearGradient(-4, 0, 4, 0);
+    grd.addColorStop(0, tk.wood[0]); grd.addColorStop(0.45, tk.wood[1]); grd.addColorStop(1, tk.wood[2]);
+    ctx.shadowColor = `rgba(${tk.shadow},.38)`; ctx.shadowBlur = 7; ctx.shadowOffsetX = 4; ctx.shadowOffsetY = 6;
+    ctx.fillStyle = grd;
+    ctx.beginPath(); ctx.roundRect(-3.5, -104, 7, 96, 3.5); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(-5.6, -78, 11.2, 26, 5.2); ctx.fill();
+    ctx.strokeStyle = grd; ctx.lineWidth = 6.6; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(0, -10); ctx.quadraticCurveTo(0, 4, -5, 4); ctx.quadraticCurveTo(-9.6, 4, -8.6, -2.6); ctx.stroke();
+    ctx.shadowColor = 'transparent';
+    ctx.strokeStyle = 'rgba(80,45,15,.3)'; ctx.lineWidth = 0.8;
+    ctx.beginPath(); ctx.moveTo(-1.5, -98); ctx.lineTo(-1.1, -14); ctx.moveTo(1.3, -92); ctx.lineTo(1.7, -20); ctx.moveTo(-3.6, -70); ctx.lineTo(-3.4, -58); ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,240,210,.6)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(-2.5, -100); ctx.lineTo(-2.5, -12); ctx.stroke();
+    ctx.fillStyle = 'rgba(60,35,15,.55)'; ctx.font = `700 6.5px ${tk.font}`; ctx.textAlign = 'center';
+    ctx.save(); ctx.translate(0.8, -65); ctx.rotate(Math.PI / 2); ctx.fillText('5 mm', 0, 2); ctx.restore();
+    ctx.restore();
+  }
+
+  function drawBall(ctx, cx, cy, r, color, tk) {
+    ctx.save();
+    ctx.fillStyle = `rgba(${tk.shadow},.28)`; ctx.filter = 'blur(4px)';
+    ctx.beginPath(); ctx.ellipse(cx + 4, cy + r * 0.8, r * 1.05, r * 0.45, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.filter = 'none';
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.clip();
+    const grd = ctx.createRadialGradient(cx - r * 0.4, cy - r * 0.45, r * 0.1, cx, cy, r * 1.1);
+    grd.addColorStop(0, shade(color, 0.42)); grd.addColorStop(0.55, color); grd.addColorStop(1, shade(color, -0.5));
+    ctx.fillStyle = grd; ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+    ctx.lineCap = 'round';
+    for (let k = 0; k < 6; k += 1) {
+      const ang = -0.95 + k * 0.36;
+      ctx.strokeStyle = alpha(shade(color, -0.5), 0.34); ctx.lineWidth = 3.4;
+      ctx.beginPath(); ctx.ellipse(cx, cy + 1.5, r * 1.1, r * 0.42, ang, 0, Math.PI * 2); ctx.stroke();
+      ctx.strokeStyle = alpha(shade(color, 0.62), 0.5); ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.ellipse(cx, cy - 1.5, r * 1.1, r * 0.42, ang, 0, Math.PI * 2); ctx.stroke();
+    }
+    const gloss = ctx.createRadialGradient(cx - r * 0.45, cy - r * 0.5, 1, cx - r * 0.3, cy - r * 0.3, r * 0.9);
+    gloss.addColorStop(0, 'rgba(255,247,232,.45)'); gloss.addColorStop(1, 'rgba(255,247,232,0)');
+    ctx.fillStyle = gloss; ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+    ctx.restore();
+  }
+
+  // ---------------------------------------------------------------- scene
+  function drawScene(canvas, state) {
+    const tk = tokensOf(canvas);
+    const lay = state.lay;
+    const cssW = canvas.clientWidth || 600;
+    const scale = cssW / lay.width, dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width = Math.round(cssW * dpr); canvas.height = Math.round(lay.height * scale * dpr);
+    canvas.style.height = `${lay.height * scale}px`;
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr * scale, 0, 0, dpr * scale, 0, 0);
+    ctx.clearRect(0, 0, lay.width, lay.height);
+    const yarnColor = (i) => tk.yarns[state.yarns[i]];
+
+    // fabric shadow: the piece lies on the mat
+    const shadowPath = new Path2D();
+    state.rows.forEach((placed, r) => {
+      const xs = placed.filter((s) => !(s.st === 'ch' && !lay.rows[r].foundation)).map((s, i, arr) => geom(lay, r, placed, placed.indexOf(s)).x);
+      if (!xs.length) return;
+      const row = lay.rows[r];
+      shadowPath.roundRect(Math.min(...xs) - 4, row.y - row.height - 2, Math.max(...xs) - Math.min(...xs) + CELL + 8, row.height + 6, 6);
+    });
+    ctx.save(); ctx.shadowColor = `rgba(${tk.shadow},.32)`; ctx.shadowBlur = 16; ctx.shadowOffsetY = 9; ctx.fillStyle = '#000'; ctx.fill(shadowPath);
+    ctx.shadowColor = 'transparent'; ctx.globalCompositeOperation = 'destination-out'; ctx.fill(shadowPath); ctx.restore();
+
+    // stitches
+    state.rows.forEach((placed, r) => placed.forEach((s, i) => drawStitch(ctx, s, geom(lay, r, placed, i), yarnColor(s.yarn), tk)));
+
+    // hook, working loop, working yarn, ball
+    const hk = state.hook;
+    const dip = hk.hold * 9;
+    const ballR = 20 + 20 * state.yarnLeft;
+    const bx = lay.width - PAD - ballR - 4, by = lay.height - PAD - ballR - 10;
+    const fabricTop = Math.min(...lay.rows.filter((row, r) => state.rows[r].length).map((row) => row.y - row.height));
+    const loop = new Path2D(); loop.ellipse(hk.x - 1.5, hk.y - 6 + dip, 6 + hk.hold * 9, 9.5 + hk.hold * 14, 0.5, 0, Math.PI * 2);
+    yarnStroke(ctx, loop, yarnColor(state.currentYarn), 4.6);
+    const tail = new Path2D(); tail.moveTo(hk.x + 4, hk.y - 1 + dip);
+    tail.bezierCurveTo(hk.x + 70, hk.y - 46 + dip, bx - 10, Math.min(fabricTop, hk.y) - 70, bx - ballR * 0.35, by - ballR * 0.9);
+    yarnStroke(ctx, tail, yarnColor(state.currentYarn), 4.4, { twist: 11 });
+    drawBall(ctx, bx, by, ballR, yarnColor(state.currentYarn), tk);
+    drawHook(ctx, hk.x, hk.y, dip, tk);
+  }
+
+  // ---------------------------------------------------------------- demo states
+  let seed = 11;
+  const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+  const jitter = () => (rnd() - 0.5) * 0.36;
+  function placeRow(ids, yarn, n0, overrides = {}, upto) {
+    const out = [];
+    ids.slice(0, upto == null ? ids.length : upto).forEach((st, i) => {
+      const t = overrides[i] == null ? jitter() : overrides[i];
+      const q = Math.abs(t) <= 0.45 ? 'neat' : Math.abs(t) <= 0.75 ? 'ok' : t < 0 ? 'loose' : 'tight';
+      out.push({ st, t, q, wrong: false, yarn, n: n0 + i });
+    });
+    return out;
+  }
+
+  function scarfState(tk) {
+    const rowsSpec = [
+      { spec: 'ch*10', yarn: 0 }, { spec: 'sc*10', yarn: 0 }, { spec: 'ch sc [bo sc*2]*3', yarn: 0 },
+      { spec: 'ch*2 dc*10', yarn: 1 }, { spec: 'ch*2 dc*10', yarn: 1 }, { spec: 'ch sc*10', yarn: 0 },
+    ];
+    const lay = layout(rowsSpec);
+    const rows = [];
+    let n = 0;
+    rows.push(placeRow(lay.rows[0].ids, 0, n)); n += 10;
+    rows.push(placeRow(lay.rows[1].ids, 0, n, { 3: -0.92 })); n += 10;
+    rows.push(placeRow(lay.rows[2].ids, 0, n, { 2: 0.55 })); n += 11;
+    rows.push(placeRow(lay.rows[3].ids, 1, n, { 8: 0.95 })); n += 12;
+    rows.push(placeRow(lay.rows[4].ids, 1, n, { 5: -0.6 })); n += 12;
+    const r5 = placeRow(lay.rows[5].ids, 0, n, { 3: -0.95 }, 6); // ch + 5 sc, one too loose
+    r5.push({ st: 'dc', t: 0, q: 'wrong', wrong: true, yarn: 0, n: n + 6 });
+    rows.push(r5);
+    const g = geom(lay, 5, r5, 6);
+    return { lay, rows, yarns: ['teal', 'mustard'], currentYarn: 0, yarnLeft: 0.51, hook: { x: g.x + CELL / 2 + 1, y: g.y - H.dc - 6, hold: 0 } };
+  }
+
+  function pouchState() {
+    const rowsSpec = [
+      { spec: 'ch*10', yarn: 0 }, { spec: 'sc*10', yarn: 0 }, { spec: 'ch sc [bo sc*2]*3', yarn: 0 },
+      { spec: 'ch sc*10', yarn: 0 }, { spec: 'ch sc*2 [bo sc*2]*2 bo sc', yarn: 0 }, { spec: 'ch sc*10', yarn: 0 },
+    ];
+    const lay = layout(rowsSpec);
+    const rows = [];
+    let n = 0;
+    rows.push(placeRow(lay.rows[0].ids, 0, n)); n += 10;
+    rows.push(placeRow(lay.rows[1].ids, 0, n, { 6: 0.9 })); n += 10;
+    const r2 = placeRow(lay.rows[2].ids, 0, n, {}, 2); // ch + sc, about to make a bobble
+    rows.push(r2, [], [], []);
+    const pos = { x: slotX(lay, 2, 1), y: lay.rows[2].y };
+    return { lay, rows, yarns: ['lavender'], currentYarn: 0, yarnLeft: 0.64, hook: { x: pos.x + CELL / 2 + 1, y: pos.y - 12, hold: 0.55 } };
+  }
+
+  // ---------------------------------------------------------------- glyph gallery
+  function drawGallery(canvas) {
+    const tk = tokensOf(canvas);
+    const items = [
+      { st: 'ch', label: 'ch' }, { st: 'sc', label: 'sc' }, { st: 'hdc', label: 'hdc' }, { st: 'dc', label: 'dc' }, { st: 'bo', label: 'bo' },
+      { gap: true },
+      { st: 'sc', t: -0.9, q: 'loose', label: 'loose', c: 'rose' }, { st: 'sc', t: -0.6, q: 'ok', label: 'nearly', c: 'rose' }, { st: 'sc', t: 0, q: 'neat', label: 'neat', c: 'rose' }, { st: 'sc', t: 0.6, q: 'ok', label: 'nearly', c: 'rose' }, { st: 'sc', t: 0.9, q: 'tight', label: 'tight', c: 'rose' }, { st: 'sc', wrong: true, label: 'wrong', c: 'rose' },
+      { gap: true },
+      { st: 'dc', t: -0.9, q: 'loose', label: 'loose', c: 'mustard' }, { st: 'dc', t: 0, q: 'neat', label: 'neat', c: 'mustard' }, { st: 'dc', t: 0.9, q: 'tight', label: 'tight', c: 'mustard' },
+    ];
+    const cellW = 52, gapW = 22, W = items.reduce((s, it) => s + (it.gap ? gapW : cellW), 0) + 16, Hh = 96;
+    const cssW = canvas.parentElement.clientWidth || W;
+    const scale = Math.max(0.9, Math.min(1.4, cssW / W)), dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width = Math.round(W * scale * dpr); canvas.height = Math.round(Hh * scale * dpr);
+    canvas.style.height = `${Hh * scale}px`; canvas.style.width = `${W * scale}px`;
+    const ctx = canvas.getContext('2d'); ctx.setTransform(dpr * scale, 0, 0, dpr * scale, 0, 0);
+    ctx.clearRect(0, 0, W, Hh);
+    let x = 8;
+    ctx.font = `600 11px ${tk.font}`; ctx.textAlign = 'center';
+    items.forEach((it, i) => {
+      if (it.gap) { ctx.strokeStyle = tk.line; ctx.beginPath(); ctx.moveTo(x + gapW / 2, 10); ctx.lineTo(x + gapW / 2, Hh - 10); ctx.stroke(); x += gapW; return; }
+      const g = { x: x + (cellW - CELL) / 2, y: 62, w: CELL, h: H[it.st] };
+      drawStitch(ctx, { st: it.st, t: it.t || 0, q: it.q || 'neat', wrong: !!it.wrong, n: i }, g, tk.yarns[it.c || 'teal'], tk);
+      ctx.fillStyle = tk.muted; ctx.fillText(it.label, x + cellW / 2, Hh - 12);
+      x += cellW;
+    });
+  }
+
+  // ---------------------------------------------------------------- boot
+  const scenes = [];
+  const fabric = document.getElementById('fabric');
+  const fabricDark = document.getElementById('fabric-dark');
+  const gallery = document.getElementById('gallery');
+  if (fabric) scenes.push(() => drawScene(fabric, scarfState()));
+  if (fabricDark) scenes.push(() => drawScene(fabricDark, pouchState()));
+  if (gallery) scenes.push(() => drawGallery(gallery));
+  const redraw = () => scenes.forEach((f) => f());
+  redraw();
+  if ('ResizeObserver' in window) {
+    const ro = new ResizeObserver(() => redraw());
+    [fabric, fabricDark, gallery].filter(Boolean).forEach((c) => ro.observe(c.parentElement));
+  } else window.addEventListener('resize', redraw);
+  window.addEventListener('load', redraw);
+})();
+</script>
+</body>
+</html>

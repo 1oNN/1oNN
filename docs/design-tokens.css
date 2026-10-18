@@ -1,0 +1,128 @@
+/* Hooked design tokens. Light = the daytime craft table; dark = the same table under a lamp.
+   Copy these blocks verbatim into css/style.css. The canvas and the 3D view read them with getComputedStyle.
+   Contrast (WCAG 2.x): ink on bg 7.60 light / 11.07 dark; muted on surface 6.49 / 6.19, on surface-2 5.70 / 6.79,
+   on surface-3 5.16 / 5.36. --muted is never placed on the wood in light (3.47); use --table-ink there (5.30 / 8.35). */
+
+:root {
+  color-scheme: light;
+
+  /* table (wood) */
+  --bg: #d4b188;
+  --bg-2: #bf9666;
+  --bg-3: #e3c9a4;
+
+  /* paper and linen */
+  --surface: #fbf6ec;
+  --surface-2: #f1e7d4;
+  --surface-3: #e9dcc5;
+  --surface-next: #f7e3bb;
+
+  /* ink */
+  --ink: #2f2318;
+  --table-ink: #4f3a2a;
+  --muted: #6b5543;
+  --line: #d6c3a6;
+
+  /* accent and status */
+  --accent: #9a4a2b;
+  --accent-2: #a8743a;
+  --neat: #4d7536;
+  --ok: #8f6a10;
+  --bad: #b23a30;
+
+  /* yarn (graphic objects only, never text) */
+  --yarn-rose: #e2869f;
+  --yarn-teal: #3b9e98;
+  --yarn-mustard: #dcae36;
+  --yarn-lavender: #9c86d2;
+
+  /* beech hook, light -> shadow */
+  --hook-1: #ecd3a4;
+  --hook-2: #c69c63;
+  --hook-3: #86603a;
+
+  /* effects */
+  --shadow-ink: 60, 35, 15;
+  --dim: rgba(47, 35, 24, .5);
+  --halo: 0%;
+  --halo-canvas: 0;
+  --noise-strength: .5;
+  --linen-strength: .045;
+  --radius: 10px;
+  --paper-shadow: 0 1px 0 rgba(255, 255, 255, .65) inset, 0 1px 2px rgba(60, 35, 15, .18), 0 12px 28px -12px rgba(60, 35, 15, .45);
+
+  /* type */
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Charter, "Bitstream Charter", Georgia, Caladea, "DejaVu Serif", serif;
+  --font-body: system-ui, -apple-system, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", "Liberation Mono", monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #3b2a1e;
+    --bg-2: #2a1d14;
+    --bg-3: #4c392a;
+    --surface: #302822;
+    --surface-2: #28211b;
+    --surface-3: #3b322a;
+    --surface-next: #4a3a24;
+    --ink: #f1e6d3;
+    --table-ink: #d9c8ae;
+    --muted: #b9a78f;
+    --line: #4f4236;
+    --accent: #e0a070;
+    --accent-2: #c08b58;
+    --neat: #8cc278;
+    --ok: #e2b84f;
+    --bad: #e46f60;
+    --yarn-rose: #ee9db5;
+    --yarn-teal: #55c0b8;
+    --yarn-mustard: #eac35a;
+    --yarn-lavender: #b6a3ea;
+    --hook-1: #e2c69a;
+    --hook-2: #b6895a;
+    --hook-3: #6e4c2c;
+    --shadow-ink: 0, 0, 0;
+    --dim: rgba(0, 0, 0, .55);
+    --halo: 35%;
+    --halo-canvas: .3;
+    --noise-strength: .35;
+    --linen-strength: .07;
+    --paper-shadow: 0 1px 0 rgba(255, 255, 255, .06) inset, 0 1px 2px rgba(0, 0, 0, .4), 0 12px 28px -12px rgba(0, 0, 0, .7);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #3b2a1e;
+  --bg-2: #2a1d14;
+  --bg-3: #4c392a;
+  --surface: #302822;
+  --surface-2: #28211b;
+  --surface-3: #3b322a;
+  --surface-next: #4a3a24;
+  --ink: #f1e6d3;
+  --table-ink: #d9c8ae;
+  --muted: #b9a78f;
+  --line: #4f4236;
+  --accent: #e0a070;
+  --accent-2: #c08b58;
+  --neat: #8cc278;
+  --ok: #e2b84f;
+  --bad: #e46f60;
+  --yarn-rose: #ee9db5;
+  --yarn-teal: #55c0b8;
+  --yarn-mustard: #eac35a;
+  --yarn-lavender: #b6a3ea;
+  --hook-1: #e2c69a;
+  --hook-2: #b6895a;
+  --hook-3: #6e4c2c;
+  --shadow-ink: 0, 0, 0;
+  --dim: rgba(0, 0, 0, .55);
+  --halo: 35%;
+  --halo-canvas: .3;
+  --noise-strength: .35;
+  --linen-strength: .07;
+  --paper-shadow: 0 1px 0 rgba(255, 255, 255, .06) inset, 0 1px 2px rgba(0, 0, 0, .4), 0 12px 28px -12px rgba(0, 0, 0, .7);
+}
