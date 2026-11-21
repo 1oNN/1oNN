@@ -22,10 +22,10 @@ Bradford, UK · open to relocation
 <br><br>
 
 <!-- Snapshot strip -->
-<img src="https://img.shields.io/badge/Index-4.2M%20rows-6C8EBF?style=flat-square&labelColor=1a1a1a" alt="4.2M rows" />
-<img src="https://img.shields.io/badge/Sources-29%20integrated-6C8EBF?style=flat-square&labelColor=1a1a1a" alt="29 sources" />
-<img src="https://img.shields.io/badge/Countries-26-6C8EBF?style=flat-square&labelColor=1a1a1a" alt="26 countries" />
-<img src="https://img.shields.io/badge/Tests-1%2C950-6C8EBF?style=flat-square&labelColor=1a1a1a" alt="1,950 tests" />
+<img src="https://img.shields.io/badge/Index-4.4M%20rows-6C8EBF?style=flat-square&labelColor=1a1a1a" alt="4.4M rows" />
+<img src="https://img.shields.io/badge/Employer%20pages-111%2C850%20read-6C8EBF?style=flat-square&labelColor=1a1a1a" alt="111,850 employer pages read" />
+<img src="https://img.shields.io/badge/Job%20sources-11-6C8EBF?style=flat-square&labelColor=1a1a1a" alt="11 job sources" />
+<img src="https://img.shields.io/badge/Tests-10%2C000%2B-6C8EBF?style=flat-square&labelColor=1a1a1a" alt="over 10,000 tests" />
 <img src="https://img.shields.io/badge/Latency%20cut-54%25-6C8EBF?style=flat-square&labelColor=1a1a1a" alt="54% latency cut" />
 <img src="https://img.shields.io/badge/Springer-ICSMAI%202024-6C8EBF?style=flat-square&labelColor=1a1a1a" alt="Springer 2024" />
 
@@ -37,13 +37,14 @@ Bradford, UK · open to relocation
 
 I build **semantic search and retrieval systems that stay honest about what they know**, benchmark predictive models on large real-world datasets, and take both to production: retrieval design, backend APIs, deployment.
 
-- 🔎 Currently: I build and run **[Jobzyl](https://jobzyl.com)** single-handedly, a live job search aggregator over **29 integrated sources** and a **4.2M row** Postgres index across 26 countries, with semantic CV-to-posting matching in pgvector. Gated so a posting naming no recognised skill reports as too thin to score rather than as a confident 0%.
-- 🔬 Most recent research: **FinLaw-UK**, a graph-augmented RAG system over UK financial regulation where every citation is resolved against a Neo4j knowledge graph before it reaches the user, and the system refuses rather than answering when retrieval is weak.
-- 🧾 Re-measured my own evaluation pipeline post-submission, found two reported metrics were regex shape-checks rather than correctness measures, and **published the correction** alongside the true graph-verified rate. The [measurement-integrity section](https://github.com/1oNN/finlaw-uk#measurement-integrity) is above the fold in the repo, not in an appendix.
-- ⚙️ Shipped an AI voice-agent platform that handled **2,100+ outbound calls** and cut mean call latency **54%** (2.4s → 1.1s).
-- 📄 First-author and corresponding-author on a **peer-reviewed Springer publication** (ICSMAI 2024, Morocco).
-- 🧪 Benchmarked **11 classifiers over 253,680 CDC BRFSS records** for diabetes risk, with resampling confined to the training folds.
-- 🎯 Currently open to **AI/ML engineering roles and funded doctoral positions** in the UK and EU.
+- Currently: I build and run **[Jobzyl](https://jobzyl.com)** single-handedly, a live job search over **11 job sources** plus a crawler I wrote that reads **111,850 employer career pages** directly, into a **4.4M row** Postgres index. A posting naming fewer than three recognised skills gets no CV score rather than a confident 0%.
+- Open source: **[Claude Desk](https://github.com/1oNN/claude_desk)**, a Windows app that runs many Claude Code sessions in one window and says which are working, waiting or finished. It reads that from files Claude Code already writes, so it makes no model call.
+- Most recent research: **FinLaw-UK**, a graph-augmented RAG system over UK financial regulation where every citation is resolved against a Neo4j knowledge graph before it reaches the user, and the system refuses rather than answering when retrieval is weak.
+- Re-measured my own evaluation pipeline post-submission, found two reported metrics were regex shape-checks rather than correctness measures, and **published the correction** alongside the true graph-verified rate. The [measurement-integrity section](https://github.com/1oNN/finlaw-uk#measurement-integrity) is above the fold in the repo, not in an appendix.
+- Shipped an AI voice-agent platform that handled **2,100+ outbound calls** and cut mean call latency **54%** (2.4s → 1.1s).
+- First-author and corresponding-author on a **peer-reviewed Springer publication** (ICSMAI 2024, Morocco).
+- Benchmarked **11 classifiers over 253,680 CDC BRFSS records** for diabetes risk, with resampling confined to the training folds.
+- Currently open to **AI/ML engineering roles and funded doctoral positions** in the UK and EU.
 
 ---
 
@@ -51,7 +52,7 @@ I build **semantic search and retrieval systems that stay honest about what they
 
 <div align="center">
 
-### 🔎 Jobzyl · [jobzyl.com](https://jobzyl.com)
+### Jobzyl · [jobzyl.com](https://jobzyl.com)
 
 <!--
   DROP THE DEMO HERE.
@@ -61,11 +62,11 @@ I build **semantic search and retrieval systems that stay honest about what they
 -->
 <!-- <img src="assets/jobzyl-demo.gif" width="90%" alt="Jobzyl live search demo" /> -->
 
-<a href="https://jobzyl.com"><img src="https://img.shields.io/badge/▶%20Try%20a%20live%20search-jobzyl.com-3FCF8E?style=for-the-badge" alt="Try Jobzyl" /></a>
+<a href="https://jobzyl.com"><img src="https://img.shields.io/badge/Try%20a%20live%20search-jobzyl.com-3FCF8E?style=for-the-badge" alt="Try Jobzyl" /></a>
 
 </div>
 
-**Live job-search aggregator over a 4.2M+ row index spanning 26 countries.** 29 integrated sources: 23 job boards (Indeed, Adzuna, Reed) plus 6 ATS platforms read directly, so a company's own careers board is a source rather than an aggregator's copy of it. Parallel fan-out with per-source timeout isolation, streamed back over SSE. Semantic CV-to-posting matching on 384-dimension multilingual embeddings in pgvector, keyword ATS scoring that parses the CV in the browser and uploads nothing, and a Claude layer for scoring, cover letters and interview prep behind prompt-injection defences and per-user quotas. Ranking is a weighted Postgres full-text function, rebuilt after measuring that 27.4% of results carried none of the query terms in the title. 1,950 tests, 11 CI build gates, RLS on all 23 tables.
+**Live job search over a 4.4M row index.** One query searches 11 job sources (Reed, Careerjet, USAJOBS, France Travail, JobTechDev and others) alongside jobs read straight from employers' own career pages: a crawler I wrote reads more than 35 applicant tracking systems by fixed rules, with no AI, and held 2.6M open jobs from 111,850 employer pages on 19 November 2026. The source list went down on purpose, from 29 to 11 on 18 November, after an audit found the rest added little unique coverage for their cost. Parallel fan-out with per-source timeouts, streamed back over SSE. Ranking is a weighted Postgres full-text function, rebuilt after measuring that 27.4% of results carried none of the query terms in the title. The CV fit score is a plain count of skills. Semantic matching on 384-dimension multilingual embeddings in pgvector is opt-in, with the stored CV encrypted at rest. Claude Haiku sorts job ads into sections and drafts cover letters and interview prep, behind prompt-injection defences and quotas that fail closed. Over 10,000 automated tests, 11 build checks, row-level security on every table.
 
 <div align="center">
 
@@ -82,11 +83,36 @@ I build **semantic search and retrieval systems that stay honest about what they
 
 <br>
 
+<div align="center">
+
+### Claude Desk · [github.com/1oNN/claude_desk](https://github.com/1oNN/claude_desk)
+
+<a href="https://github.com/1oNN/claude_desk"><img src="https://raw.githubusercontent.com/1oNN/claude_desk/main/docs/img/overview-1600.png" width="90%" alt="Claude Desk: three projects in the sidebar, each session row showing its state and last request, beside three terminal panes" /></a>
+
+[![Release](https://img.shields.io/github/v/release/1oNN/claude_desk?style=flat-square&labelColor=1a1a1a&color=6C8EBF)](https://github.com/1oNN/claude_desk/releases)
+[![Last commit](https://img.shields.io/github/last-commit/1oNN/claude_desk?style=flat-square&labelColor=1a1a1a&color=6C8EBF)](https://github.com/1oNN/claude_desk/commits)
+[![License](https://img.shields.io/github/license/1oNN/claude_desk?style=flat-square&labelColor=1a1a1a&color=6C8EBF)](https://github.com/1oNN/claude_desk/blob/main/LICENSE)
+
+</div>
+
+**One Windows app for many Claude Code sessions.** Real Claude Code terminals in up to eight panes a window, with projects in a sidebar. Every session row says working, needs you, finished or idle beside the last thing you asked it, and a session that stops to ask raises a notification. Sessions can belong to different Claude accounts, each in its own config folder so logins never mix. State comes from files Claude Code already writes, so Desk makes no model call and spends no tokens. MIT, eight releases since 6 November 2026, 48 tests on every push. An independent project, not made by or affiliated with Anthropic.
+
+<div align="center">
+
+![Electron](https://img.shields.io/badge/-Electron-47848F?style=flat-square&logo=electron&logoColor=white)
+![JavaScript](https://img.shields.io/badge/-JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
+![Node.js](https://img.shields.io/badge/-Node.js-5FA04E?style=flat-square&logo=nodedotjs&logoColor=white)
+![xterm.js](https://img.shields.io/badge/-xterm.js-1a1a1a?style=flat-square)
+
+</div>
+
+<br>
+
 <table>
 <tr>
 <td width="50%" valign="top">
 
-### 🏛️ [FinLaw-UK](https://github.com/1oNN/finlaw-uk)
+### [FinLaw-UK](https://github.com/1oNN/finlaw-uk)
 **Graph-augmented RAG over UK financial regulation**
 
 [![Stars](https://img.shields.io/github/stars/1oNN/finlaw-uk?style=flat-square&labelColor=1a1a1a&color=6C8EBF)](https://github.com/1oNN/finlaw-uk/stargazers)
@@ -108,7 +134,7 @@ Hybrid BM25 + BGE-small retrieval with reciprocal rank fusion, 2-hop Neo4j trave
 </td>
 <td width="50%" valign="top">
 
-### 🎙️ [VoiceFlow](https://github.com/1oNN/VoiceFlow)
+### [VoiceFlow](https://github.com/1oNN/VoiceFlow)
 **Secure Speech Transcription Pipeline**
 
 [![Stars](https://img.shields.io/github/stars/1oNN/VoiceFlow?style=flat-square&labelColor=1a1a1a&color=6C8EBF)](https://github.com/1oNN/VoiceFlow/stargazers)
@@ -130,7 +156,7 @@ Multi-threaded async fetching · Live SSE progress<br>
 <tr>
 <td width="50%" valign="top">
 
-### 🩺 [DiabetesSense](https://github.com/1oNN/diabetes-app)
+### [DiabetesSense](https://github.com/1oNN/diabetes-app)
 **11-classifier benchmark + screening tool**
 
 [![Stars](https://img.shields.io/github/stars/1oNN/diabetes-app?style=flat-square&labelColor=1a1a1a&color=6C8EBF)](https://github.com/1oNN/diabetes-app/stargazers)
@@ -150,7 +176,7 @@ Random Forest best on ROC-AUC and sensitivity<br>
 </td>
 <td width="50%" valign="top">
 
-### 😴 [sleep-efficiency-app](https://github.com/1oNN/sleep-efficiency-app)
+### [sleep-efficiency-app](https://github.com/1oNN/sleep-efficiency-app)
 **The model behind my ICSMAI 2024 paper**
 
 [![Stars](https://img.shields.io/github/stars/1oNN/sleep-efficiency-app?style=flat-square&labelColor=1a1a1a&color=6C8EBF)](https://github.com/1oNN/sleep-efficiency-app/stargazers)
@@ -183,10 +209,16 @@ Notes from the systems above, written while it was still fresh: evaluation metho
 
 | | |
 |---|---|
-| 📉 **[30 of 500: the guard that reads a starved run as a healthy one](https://hammadahmad.co.uk/writing)** | ATS discovery probed 500 company names and decided 30. The yield guard scored that band at 20% and let it continue, because it was dividing by the wrong number. |
-| 🌊 **[250 open streams: one hardcoded `http2=True` and nine hours of failed reads](https://hammadahmad.co.uk/writing)** | Production reported `db_ok: false` for nine hours while the database was entirely healthy. The uptime check failed ten times in a row and was right every time. |
-| 🧠 **[The corpus outgrew the box: 16 GB of jobs against 12 GB of RAM](https://hammadahmad.co.uk/writing)** | Search stopped returning results and nothing had been deployed. The index had grown past what the machine could hold, and an 8-second statement timeout turned that into an empty page. |
-| 💷 **[49 of 50 salaries were not salaries](https://hammadahmad.co.uk/writing)** | Fetching a million job listings is an afternoon. Deciding what you are willing to say about them is the whole engineering problem. |
+| **[The word it: how one stopword voided a whole title search](https://hammadahmad.co.uk/blog/the-word-it-stopword-title-search)** | Searching IT support timed out at 15 seconds, eight runs out of eight. Postgres's English config throws away the word it, and with it went the part of the query that kept the search narrow. |
+| **[Fourteen rankings for one search](https://hammadahmad.co.uk/blog/fourteen-rankings-for-one-search)** | Every deep page of a search re-ran the whole match and rank before taking its slice. Ranking once and reading pages by id took five deep pages from about 1.9 s to about 0.6 s on a test table. |
+| **[The README said finished. The download never did.](https://hammadahmad.co.uk/blog/readme-said-finished-download-never-did)** | Claude Desk's README promised a finished state on every session. On my machine it worked. On a clean install it could not, because it came from files only my own setup writes. |
+| **[Two kills, one handle: the node-pty crash that closed every session at once](https://hammadahmad.co.uk/blog/two-kills-one-handle-node-pty-crash)** | Forgetting a live shell took the whole app down. The fault was a double free inside a dependency, and it reproduced in plain Node with no Electron in sight. |
+| **[30 of 500: the guard that reads a starved run as a healthy one](https://hammadahmad.co.uk/blog/thirty-of-five-hundred-starved-band)** | ATS discovery probed 500 company names and decided 30. The yield guard scored that band at 20% and let it continue, because it was dividing by the wrong number. |
+| **[250 open streams: one hardcoded `http2=True` and nine hours of failed reads](https://hammadahmad.co.uk/blog/250-open-streams-http2-leak)** | Production reported `db_ok: false` for nine hours while the database was entirely healthy. The uptime check failed ten times in a row and was right every time. |
+| **[The corpus outgrew the box: 16 GB of jobs against 12 GB of RAM](https://hammadahmad.co.uk/blog/corpus-outgrew-the-box)** | Search stopped returning results and nothing had been deployed. The index had grown past what the machine could hold, and an 8-second statement timeout turned that into an empty page. |
+| **[49 of 50 salaries were not salaries](https://hammadahmad.co.uk/blog/what-a-job-aggregator-is-allowed-to-claim)** | Fetching a million job listings is an afternoon. Deciding what you are willing to say about them is the whole engineering problem. |
+
+All posts: [hammadahmad.co.uk/blog](https://hammadahmad.co.uk/blog)
 
 ---
 
@@ -288,13 +320,14 @@ Notes from the systems above, written while it was still fresh: evaluation metho
 
 <br>
 
-Build and operate [jobzyl.com](https://jobzyl.com) end to end: **29 integrated sources** (23 job boards plus 6 ATS platforms read directly), a **4.2M row** Postgres index across 26 countries, FastAPI backend, Next.js frontend and AWS deploy pipeline.
+Build and operate [jobzyl.com](https://jobzyl.com) end to end: **11 job sources** plus a crawler reading employer career pages across more than 35 applicant tracking systems, a **4.4M row** Postgres index, FastAPI backend, Next.js frontend and AWS deploy pipeline.
 
-- Shipped semantic CV-to-posting matching in production: 384-dimension multilingual sentence embeddings over pgvector against the full corpus, gated so a posting naming no recognised skill reports as too thin to score rather than a confident 0%
-- Built the LLM layer on Anthropic Claude (CV scoring, cover letter, interview prep), with prompt-injection defences on every call, per-user quotas and documented fail-open behaviour
+- Wrote the crawler as its own rules-only system (no AI, one honest user agent, robots.txt obeyed): 2.6M open jobs across **111,850 employer pages** on 19 Nov 2026, and 51% of Jobzyl's new jobs in the seven days to 18 Nov
+- Built the LLM layer on Anthropic Claude (job-ad structuring, cover letter, interview prep and the Zyl assistant), with prompt-injection defences on every call and per-user quotas that fail closed
+- Hardened the platform: Fernet field encryption of CV text, row-level security on every table, account data export and deletion, behind **over 10,000 automated tests** and 11 build checks
+- Built semantic matching on 384-dimension multilingual sentence embeddings in pgvector, then moved embedding off the API onto a dedicated worker after measuring that only 8.9% of 4.44M rows had a vector
+- Rebuilt search ranking as a weighted Postgres full-text function with a title-relevance layer, after measuring that 27.4% of returned results had none of the user's query terms in the job title. Later cut a broad search's database time on the live site from 2,654 ms to 490 ms
 - Trained a pay regression model against the shipped salary benchmark as baseline, split by employer group to prevent leakage: MAE 27,420 to 24,001, MdAPE 18.9% to 16.4%. Reported per country and seniority, and held back from deployment
-- Rebuilt search ranking as a weighted Postgres full-text function with a title-relevance layer, after measuring that 27.4% of returned results had none of the user's query terms in the job title
-- Hardened the platform: Fernet field encryption of CV text, row-level security across 23 tables, GDPR export and deletion, behind **1,950 automated tests** and 11 CI build gates
 
 </details>
 
@@ -305,7 +338,7 @@ Build and operate [jobzyl.com](https://jobzyl.com) end to end: **29 integrated s
 
 *Fixed-term contract.* Built and deployed an AI voice-agent system for outbound calling (Retell AI, FastAPI): backend dialogue-flow logic, automated call flows, lead-qualification rules, gatekeeper detection and callback scheduling.
 
-- Handled **2,100+ calls** and cut manual calling workload by roughly **50%**
+- Handled **2,100+ calls**
 - Profiled async I/O and connection pooling to reduce mean call latency **54%** (2.4s → 1.1s)
 - Built an internal micro-CRM for lead tracking, removing external CRM licensing costs
 - Built [VoiceFlow](https://github.com/1oNN/VoiceFlow), a FastAPI service running Whisper large-v3 in-process over the 2,100+ call recordings, threading each export to keep blocking downloads and torch inference off the asyncio event loop
