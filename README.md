@@ -24,7 +24,7 @@ Bradford, UK · open to relocation
 <!-- Snapshot strip -->
 <img src="https://img.shields.io/badge/Index-4.4M%20rows-6C8EBF?style=flat-square&labelColor=1a1a1a" alt="4.4M rows" />
 <img src="https://img.shields.io/badge/Employer%20pages-111%2C850%20read-6C8EBF?style=flat-square&labelColor=1a1a1a" alt="111,850 employer pages read" />
-<img src="https://img.shields.io/badge/Job%20sources-11-6C8EBF?style=flat-square&labelColor=1a1a1a" alt="11 job sources" />
+<img src="https://img.shields.io/badge/Job%20sources-100%2C000%2B-6C8EBF?style=flat-square&labelColor=1a1a1a" alt="100,000+ job sources" />
 <img src="https://img.shields.io/badge/Tests-10%2C000%2B-6C8EBF?style=flat-square&labelColor=1a1a1a" alt="over 10,000 tests" />
 <img src="https://img.shields.io/badge/Latency%20cut-54%25-6C8EBF?style=flat-square&labelColor=1a1a1a" alt="54% latency cut" />
 <img src="https://img.shields.io/badge/Springer-ICSMAI%202024-6C8EBF?style=flat-square&labelColor=1a1a1a" alt="Springer 2024" />
@@ -37,7 +37,7 @@ Bradford, UK · open to relocation
 
 I build **semantic search and retrieval systems that stay honest about what they know**, benchmark predictive models on large real-world datasets, and take both to production: retrieval design, backend APIs, deployment.
 
-- Currently: I build and run **[Jobzyl](https://jobzyl.com)** single-handedly, a live job search over **11 job sources** plus a crawler I wrote that reads **111,850 employer career pages** directly, into a **4.4M row** Postgres index. A posting naming fewer than three recognised skills gets no CV score rather than a confident 0%.
+- Currently: I build and run **[Jobzyl](https://jobzyl.com)** single-handedly, a live job search over **100,000+ sources**: **111,850 employer career pages** read directly by a crawler I wrote, plus 11 job boards, into a **4.4M row** Postgres index. A posting naming fewer than three recognised skills gets no CV score rather than a confident 0%.
 - Open source: **[Claude Desk](https://github.com/1oNN/claude_desk)**, a Windows app that runs many Claude Code sessions in one window and says which are working, waiting or finished. It reads that from files Claude Code already writes, so it makes no model call.
 - Most recent research: **FinLaw-UK**, a graph-augmented RAG system over UK financial regulation where every citation is resolved against a Neo4j knowledge graph before it reaches the user, and the system refuses rather than answering when retrieval is weak.
 - Re-measured my own evaluation pipeline post-submission, found two reported metrics were regex shape-checks rather than correctness measures, and **published the correction** alongside the true graph-verified rate. The [measurement-integrity section](https://github.com/1oNN/finlaw-uk#measurement-integrity) is above the fold in the repo, not in an appendix.
@@ -66,7 +66,7 @@ I build **semantic search and retrieval systems that stay honest about what they
 
 </div>
 
-**Live job search over a 4.4M row index.** One query searches 11 job sources (Reed, Careerjet, USAJOBS, France Travail, JobTechDev and others) alongside jobs read straight from employers' own career pages: a crawler I wrote reads more than 35 applicant tracking systems by fixed rules, with no AI, and held 2.6M open jobs from 111,850 employer pages on 19 November 2026. The source list went down on purpose, from 29 to 11 on 18 November, after an audit found the rest added little unique coverage for their cost. Parallel fan-out with per-source timeouts, streamed back over SSE. Ranking is a weighted Postgres full-text function, rebuilt after measuring that 27.4% of results carried none of the query terms in the title. The CV fit score is a plain count of skills. Semantic matching on 384-dimension multilingual embeddings in pgvector is opt-in, with the stored CV encrypted at rest. Claude Haiku sorts job ads into sections and drafts cover letters and interview prep, behind prompt-injection defences and quotas that fail closed. Over 10,000 automated tests, 11 build checks, row-level security on every table.
+**Live job search over a 4.4M row index.** One search runs over jobs from more than 100,000 sources. Nearly all are employers' own career pages: a crawler I wrote reads more than 35 applicant tracking systems by fixed rules, with no AI, and held 2.6M open jobs from 111,850 employer pages on 19 November 2026. The other 11 are job boards and public job sites (Reed, Careerjet, USAJOBS, France Travail, JobTechDev and others), queried live. That board list went down on purpose, from 29 to 11 on 18 November, after an audit found the rest added little unique coverage for their cost. Parallel fan-out with per-source timeouts, streamed back over SSE. Ranking is a weighted Postgres full-text function, rebuilt after measuring that 27.4% of results carried none of the query terms in the title. The CV fit score is a plain count of skills. Semantic matching on 384-dimension multilingual embeddings in pgvector is opt-in, with the stored CV encrypted at rest. Claude Haiku sorts job ads into sections and drafts cover letters and interview prep, behind prompt-injection defences and quotas that fail closed. Over 10,000 automated tests, 11 build checks, row-level security on every table.
 
 <div align="center">
 
@@ -320,7 +320,7 @@ All posts: [hammadahmad.co.uk/blog](https://hammadahmad.co.uk/blog)
 
 <br>
 
-Build and operate [jobzyl.com](https://jobzyl.com) end to end: **11 job sources** plus a crawler reading employer career pages across more than 35 applicant tracking systems, a **4.4M row** Postgres index, FastAPI backend, Next.js frontend and AWS deploy pipeline.
+Build and operate [jobzyl.com](https://jobzyl.com) end to end: **100,000+ sources** (111,850 employer career pages read by a crawler across more than 35 applicant tracking systems, plus 11 job boards), a **4.4M row** Postgres index, FastAPI backend, Next.js frontend and AWS deploy pipeline.
 
 - Wrote the crawler as its own rules-only system (no AI, one honest user agent, robots.txt obeyed): 2.6M open jobs across **111,850 employer pages** on 19 Nov 2026, and 51% of Jobzyl's new jobs in the seven days to 18 Nov
 - Built the LLM layer on Anthropic Claude (job-ad structuring, cover letter, interview prep and the Zyl assistant), with prompt-injection defences on every call and per-user quotas that fail closed
